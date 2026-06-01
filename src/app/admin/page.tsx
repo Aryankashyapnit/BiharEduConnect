@@ -44,7 +44,17 @@ export default function AdminDashboard() {
     registerUser,
     updateRegisteredUser,
     deleteRegisteredUser,
-    totalVisits
+    totalVisits,
+    bulkFiles,
+    addBulkFile,
+    deleteBulkFile,
+    timelineEvents,
+    addTimelineEvent,
+    updateTimelineEvent,
+    deleteTimelineEvent,
+    guideSteps,
+    updateGuideStep,
+    injectCutoffs
   } = useApp();
 
   // Route protection alert
@@ -325,17 +335,6 @@ export default function AdminDashboard() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isBulkUploading, setIsBulkUploading] = useState(false);
   const [bulkProgress, setBulkProgress] = useState(0);
-  const [bulkFiles, setBulkFiles] = useState<Array<{
-    name: string;
-    type: string;
-    size: string;
-    date: string;
-    status: "Uploaded" | "Pending";
-  }>>([
-    { name: "UGEAC_2026_Counselling_Handbook.pdf", type: "Circular Guide", size: "3.4 MB", date: "2026-06-01", status: "Uploaded" },
-    { name: "Seat_Matrix_Govt_Engineering_2026.xlsx", type: "Seat Matrix", size: "850 KB", date: "2026-05-28", status: "Uploaded" },
-    { name: "Official_Information_Bulletin_2026.pdf", type: "BCECE Circular", size: "6.2 MB", date: "2026-05-20", status: "Uploaded" }
-  ]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -375,16 +374,13 @@ export default function AdminDashboard() {
         : (Math.random() * 3 + 1).toFixed(1) + " MB";
       const finalFileName = docTitle.toLowerCase().trim().replace(/\s+/g, "_") + "." + extension;
 
-      setBulkFiles((prev) => [
-        {
-          name: finalFileName,
-          type: docUploadType === "circular" ? "Official circular" : docUploadType === "matrix" ? "Seat Matrix" : "Handbook PDF",
-          size: actualSize,
-          date: new Date().toISOString().split("T")[0],
-          status: "Uploaded"
-        },
-        ...prev
-      ]);
+      addBulkFile({
+        name: finalFileName,
+        type: docUploadType === "circular" ? "Official circular" : docUploadType === "matrix" ? "Seat Matrix" : "Handbook PDF",
+        size: actualSize,
+        date: new Date().toISOString().split("T")[0],
+        status: "Uploaded"
+      });
       
       setIsBulkUploading(false);
       setBulkProgress(0);
@@ -415,11 +411,73 @@ export default function AdminDashboard() {
     }
 
     setIsInjectingCutoffs(true);
+    
     setTimeout(() => {
-      setIsInjectingCutoffs(false);
-      setBulkCutoffText("");
-      showNotification(`✓ Successfully loaded and merged ${cutoffYear} Round ${cutoffRound} closing cutoffs into prediction engines.`);
-    }, 1800);
+      try {
+        const lines = bulkCutoffText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+        const parsedCutoffs: any[] = [];
+        if (lines.length > 1) {
+          const header = lines[0].split(",").map(h => h.trim().toUpperCase());
+          const isCustomFormat = header.includes("UR_CLOSING") || header.includes("BC_CLOSING") || header.includes("EBC_CLOSING");
+          
+          for (let i = 1; i < lines.length; i++) {
+            const parts = lines[i].split(",").map(p => p.trim());
+            if (parts.length >= 3) {
+              const collegeCode = parts[0];
+              const branchCode = parts[1];
+              
+              if (isCustomFormat) {
+                const categoriesToInject = ["UR", "BC", "EBC"];
+                categoriesToInject.forEach((cat, idx) => {
+                  const val = parts[idx + 2];
+                  if (val && !isNaN(Number(val))) {
+                    parsedCutoffs.push({
+                      collegeCode,
+                      branchCode,
+                      year: cutoffYear,
+                      round: cutoffRound,
+                      category: cat,
+                      gender: "Co-ed",
+                      openingRank: Math.round(Number(val) * 0.7),
+                      closingRank: Math.round(Number(val))
+                    });
+                  }
+                });
+              } else {
+                const categoryCode = parts[2];
+                const closingRank = parts[3];
+                if (closingRank && !isNaN(Number(closingRank))) {
+                  parsedCutoffs.push({
+                    collegeCode,
+                    branchCode,
+                    year: cutoffYear,
+                    round: cutoffRound,
+                    category: categoryCode,
+                    gender: "Co-ed",
+                    openingRank: Math.round(Number(closingRank) * 0.7),
+                    closingRank: Math.round(Number(closingRank))
+                  });
+                }
+              }
+            }
+          }
+        }
+        
+        if (parsedCutoffs.length > 0) {
+          injectCutoffs(parsedCutoffs);
+          setIsInjectingCutoffs(false);
+          setBulkCutoffText("");
+          showNotification(`✓ Successfully loaded and merged ${parsedCutoffs.length} closing cutoffs into prediction engines.`);
+        } else {
+          setIsInjectingCutoffs(false);
+          alert("No valid rows could be parsed. Please check headers and formatting!");
+        }
+      } catch (err) {
+        setIsInjectingCutoffs(false);
+        alert("Failed to parse cutoffs CSV. Check console for details.");
+        console.error(err);
+      }
+    }, 1500);
   };
 
   // ==========================================
@@ -430,20 +488,30 @@ export default function AdminDashboard() {
   const [guideSubtitle, setGuideSubtitle] = useState("UGEAC Portal Setup");
   const [guideDesc, setGuideDesc] = useState("Candidates must visit the official BCECE Board website and click on the 'UGEAC Online Application Portal'. Register using JEE Main Roll, password, mobile, and email.");
 
+  useEffect(() => {
+    if (guideSteps && guideSteps[selectedGuideIndex]) {
+      // Load current guide step details automatically when step is selected
+      const step = guideSteps[selectedGuideIndex];
+      // strip number prefix if any
+      setGuideTitle(step.title.replace(/^\d+\.\s+/, ""));
+      setGuideSubtitle(step.subtitle);
+      setGuideDesc(step.description);
+    }
+  }, [selectedGuideIndex, guideSteps]);
+
   const handleUpdateGuide = (e: React.FormEvent) => {
     e.preventDefault();
+    updateGuideStep(selectedGuideIndex, {
+      title: `${selectedGuideIndex + 1}. ${guideTitle}`,
+      subtitle: guideSubtitle,
+      description: guideDesc
+    });
     showNotification(`✓ Step ${selectedGuideIndex + 1} (${guideTitle}) updated in walkthrough guidelines database!`);
   };
 
   // ==========================================
   // TAB 5: TIMELINE SCHEDULER STATES
   // ==========================================
-  const [timelineEvents, setTimelineEvents] = useState([
-    { id: 1, event: "Online Registration Start", date: "June 05, 2026", status: "Active" },
-    { id: 2, event: "UGEAC Merit List Publication", date: "June 18, 2026", status: "Upcoming" },
-    { id: 3, event: "Choice Filling & Locking Phase", date: "June 22 - June 26, 2026", status: "Upcoming" },
-    { id: 4, event: "Round 1 Seat Allotment Publication", date: "July 02, 2026", status: "Upcoming" }
-  ]);
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
 
@@ -451,28 +519,21 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!newEventTitle || !newEventDate) return;
 
-    setTimelineEvents((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        event: newEventTitle,
-        date: newEventDate,
-        status: "Upcoming"
-      }
-    ]);
+    addTimelineEvent({
+      event: newEventTitle,
+      date: newEventDate,
+      status: "Upcoming"
+    });
     setNewEventTitle("");
     setNewEventDate("");
     showNotification("✓ Event scheduled on candidates vertical timelines!");
   };
 
   const handleToggleEventStatus = (id: number) => {
-    setTimelineEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === id
-          ? { ...ev, status: ev.status === "Active" ? "Done" : ev.status === "Upcoming" ? "Active" : "Upcoming" }
-          : ev
-      )
-    );
+    const ev = timelineEvents.find((e) => e.id === id);
+    if (!ev) return;
+    const nextStatus = ev.status === "Active" ? "Done" : ev.status === "Upcoming" ? "Active" : "Upcoming";
+    updateTimelineEvent(id, { status: nextStatus });
     showNotification("✓ Milestone event state updated.");
   };
 
@@ -930,7 +991,7 @@ export default function AdminDashboard() {
                       </span>
                       <button
                         onClick={() => {
-                          setBulkFiles((prev) => prev.filter((_, idx) => idx !== i));
+                          deleteBulkFile(file.name);
                           showNotification("✓ Document removed from active datastore basket.");
                         }}
                         className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded cursor-pointer"
@@ -1198,7 +1259,7 @@ export default function AdminDashboard() {
                       </button>
                       <button
                         onClick={() => {
-                          setTimelineEvents((prev) => prev.filter((item) => item.id !== ev.id));
+                          deleteTimelineEvent(ev.id);
                           showNotification("✓ Event unscheduled successfully.");
                         }}
                         className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded cursor-pointer"

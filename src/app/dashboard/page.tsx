@@ -35,7 +35,8 @@ export default function StudentDashboard() {
     removeFavorite,
     user,
     logout,
-    registerUser
+    registerUser,
+    timelineEvents
   } = useApp();
 
   // Upgrade Guest Account states
@@ -369,119 +370,53 @@ export default function StudentDashboard() {
             {/* Vertical Timeline Nodes */}
             <div className="relative pl-6 border-l border-gray-150 dark:border-slate-800 space-y-5 py-2.5 ml-2.5">
               
-              {/* Event 1 */}
-              <div className="relative group">
-                {/* Connector Dot */}
-                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white font-extrabold text-[8px] ring-4 ring-emerald-50 dark:ring-emerald-950/40">
-                  ✓
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-gray-400 line-through">
-                      Online Registration & Fee Paid
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-bold uppercase tracking-wider">
-                      Done
-                    </span>
+              {timelineEvents && timelineEvents.map((ev, index) => {
+                const isDone = ev.status === "Done";
+                const isActive = ev.status === "Active";
+                
+                return (
+                  <div key={ev.id} className="relative group">
+                    {/* Connector Dot */}
+                    {isDone ? (
+                      <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white font-extrabold text-[8px] ring-4 ring-emerald-50 dark:ring-emerald-950/40">
+                        ✓
+                      </div>
+                    ) : isActive ? (
+                      <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#2563EB] text-white ring-4 ring-blue-50 dark:ring-blue-950/40 animate-pulse">
+                        •
+                      </div>
+                    ) : (
+                      <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 text-gray-500 dark:text-gray-455 text-[8px] font-extrabold">
+                        {index + 1}
+                      </div>
+                    )}
+                    
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className={`text-xs ${isDone ? "line-through text-gray-400 font-semibold" : isActive ? "text-slate-855 dark:text-gray-100 font-extrabold" : "text-slate-800 dark:text-gray-300 font-bold"}`}>
+                          {ev.event}
+                        </h4>
+                        {isDone ? (
+                          <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-bold uppercase tracking-wider">
+                            Done
+                          </span>
+                        ) : isActive ? (
+                          <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-500 text-[8px] font-bold uppercase tracking-wider animate-pulse">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-450 dark:text-gray-505 text-[8px] font-bold uppercase tracking-wider">
+                            Upcoming
+                          </span>
+                        )}
+                      </div>
+                      <span className={`text-[9px] font-bold block mt-0.5 ${isActive ? "text-[#2563EB] dark:text-[#FF9933]" : "text-gray-400 dark:text-gray-400"}`}>
+                        {ev.date} {isActive && "(Live Now!)"}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">May 5 – May 25, 2026</span>
-                </div>
-              </div>
-
-              {/* Event 2 */}
-              <div className="relative group">
-                {/* Connector Dot */}
-                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#2563EB] text-white ring-4 ring-blue-50 dark:ring-blue-950/40 animate-pulse">
-                  •
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-extrabold text-slate-800 dark:text-gray-100">
-                      UGEAC State Merit Rank Release
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-500 text-[8px] font-bold uppercase tracking-wider animate-pulse">
-                      Active
-                    </span>
-                  </div>
-                  <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">May 30, 2026 (Live Now!)</span>
-                </div>
-              </div>
-
-              {/* Event 3 */}
-              <div className="relative group flex flex-col justify-start">
-                {/* Connector Dot */}
-                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
-                  3
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
-                      Online Choice Filling Starts
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
-                      Upcoming
-                    </span>
-                  </div>
-                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 4 – June 9, 2026</span>
-                </div>
-              </div>
-
-              {/* Event 4 */}
-              <div className="relative group">
-                {/* Connector Dot */}
-                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
-                  4
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
-                      Round 1 Seat Allotment
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
-                      Upcoming
-                    </span>
-                  </div>
-                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 14, 2026</span>
-                </div>
-              </div>
-
-              {/* Event 5 */}
-              <div className="relative group">
-                {/* Connector Dot */}
-                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
-                  5
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
-                      Round 1 Document Verification
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
-                      Upcoming
-                    </span>
-                  </div>
-                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 15 – June 18, 2026</span>
-                </div>
-              </div>
-
-              {/* Event 6 */}
-              <div className="relative group">
-                {/* Connector Dot */}
-                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
-                  6
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
-                      Round 2 Seat Allotment & Admission
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
-                      Upcoming
-                    </span>
-                  </div>
-                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 23 – June 26, 2026</span>
-                </div>
-              </div>
+                );
+              })}
 
             </div>
           </div>

@@ -189,6 +189,26 @@ export const getCutoff = (
   category: string,
   gender: string = "Co-ed"
 ): Cutoff => {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("bihareduconnect_cutoffs");
+    if (stored) {
+      try {
+        const parsed: Cutoff[] = JSON.parse(stored);
+        const match = parsed.find(
+          c =>
+            c.collegeCode === collegeCode &&
+            c.branchCode === branchCode &&
+            c.year === year &&
+            c.round === round &&
+            c.category === category
+        );
+        if (match) return match;
+      } catch (e) {
+        console.error("Error reading stored cutoffs", e);
+      }
+    }
+  }
+
   const match = cutoffsData.find(
     c =>
       c.collegeCode === collegeCode &&

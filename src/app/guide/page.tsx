@@ -29,7 +29,7 @@ import { getCutoff } from "../../data/cutoffs";
 import { useApp } from "../../context/AppContext";
 
 export default function CounsellingGuide() {
-  const { user } = useApp();
+  const { user, colleges, bulkFiles, guideSteps } = useApp();
   const [activeStep, setActiveStep] = useState(0);
 
   const [isPremiumUnlocked, setIsPremiumUnlocked] = useState(false);
@@ -126,7 +126,7 @@ export default function CounsellingGuide() {
       return;
     }
     
-    const college = collegesData.find((c) => c.id === selectedCollegeId);
+    const college = colleges.find((c) => c.id === selectedCollegeId);
     if (!college) return;
     
     const isDuplicate = simChoices.some(
@@ -266,50 +266,22 @@ export default function CounsellingGuide() {
     setSelectedBranch("");
   };
 
-  const steps = [
-    {
-      title: "1. Online Registration",
-      subtitle: "UGEAC Portal Setup",
-      icon: FileText,
-      color: "border-[#FF9933] text-[#FF9933]",
-      description: "Candidates must visit the official BCECE Board website and click on the 'UGEAC Online Application Portal'. Register using your JEE Main Roll Number, password, mobile number, and email. Pay the non-refundable registration fee (₹1200 for UR/BC/EBC; ₹600 for SC/ST/DQ) online via Net Banking/Credit Card."
-    },
-    {
-      title: "2. Merit List & State Rank",
-      subtitle: "State Merit Cards",
-      icon: Milestone,
-      color: "border-[#2563EB] text-[#2563EB]",
-      description: "After checking registration details, the BCECE Board releases the official Bihar State Engineering Merit List (UGEAC Rank Cards). This list maps your JEE Main score into a State Merit Rank (UR Rank and Category Rank). This UGEAC State Rank is the ONLY rank used for seat allocation. You must download and print this Rank Card."
-    },
-    {
-      title: "3. Choice Filling",
-      subtitle: "Option Entries",
-      icon: Layers,
-      color: "border-[#138808] text-[#138808]",
-      description: "Log in using your UGEAC credentials. You will see a list of available government engineering colleges and branch options. Select your preferred options and arrange them in descending order of your priority. You can add as many choices as you wish. There is no extra charge or penalty for adding multiple choices."
-    },
-    {
-      title: "4. Choice Locking",
-      subtitle: "Locking & Verification",
-      icon: Lock,
-      color: "border-amber-500 text-amber-500",
-      description: "Once satisfied with your choice hierarchy, click 'Lock Choices'. This requires OTP verification sent to your registered mobile and email. Remember: **If you do not lock choices manually, your last saved choices will be locked automatically at the deadline.** However, manual locking is highly recommended."
-    },
-    {
-      title: "5. Seat Allotment Round 1",
-      subtitle: "Allotment Letter",
-      icon: Building,
-      color: "border-purple-500 text-purple-500",
-      description: "BCECE publishes the Round 1 Seat Allotment results on their portal. Log in to check your allocation status. If allocated, you must download your 'Seat Allotment Letter'. You will be asked a crucial question: **'Do you want to participate in upgrade for Round 2?'** Choose 'Yes' (Upgrade) or 'No' (Freeze)."
-    },
-    {
-      title: "6. Document Verification (DV)",
-      subtitle: "Physical Verification",
-      icon: UserCheck,
-      color: "border-emerald-500 text-emerald-500",
-      description: "Regardless of whether you Freeze or Upgrade, you MUST physically report to your designated 'Nodal Verification Center' (typically one of the main engineering colleges) with all original documents for verification. If your documents are verified successfully, you will get a slip. Failure to report for DV in Round 1 cancels your entire application!"
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case "FileText": return FileText;
+      case "Milestone": return Milestone;
+      case "Layers": return Layers;
+      case "Lock": return Lock;
+      case "Building": return Building;
+      case "UserCheck": return UserCheck;
+      default: return HelpCircle;
     }
-  ];
+  };
+
+  const steps = guideSteps.map((step) => ({
+    ...step,
+    icon: getIconComponent(step.iconName)
+  }));
 
   return (
     <AuthGate>
@@ -343,29 +315,50 @@ export default function CounsellingGuide() {
           </p>
           
           {isPremiumUnlocked ? (
-            <div className="flex flex-wrap gap-2.5 pt-2">
-              <button
-                onClick={() => setShowPaymentModal(true)}
-                className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-emerald-500/25 transition-all cursor-pointer"
-                title="Click to view Payment details / QR Scanner again"
-              >
-                ✓ Premium Unlocked (₹99 Paid)
-              </button>
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); alert("Success: UGEAC_2026_Counselling_Handbook.pdf downloaded successfully!"); }}
-                className="px-3.5 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:shadow transition-shadow"
-              >
-                📥 Download PDF Guide
-              </a>
-              <a
-                href="https://wa.me/919999999999"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3.5 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:bg-emerald-500/15 transition-all"
-              >
-                💬 Join WhatsApp Group
-              </a>
+            <div className="flex flex-col gap-3 pt-2 w-full text-left">
+              <div className="flex flex-wrap gap-2.5">
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  className="px-3 py-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-emerald-500/25 transition-all cursor-pointer"
+                  title="Click to view Payment details / QR Scanner again"
+                >
+                  ✓ Premium Unlocked (₹99 Paid)
+                </button>
+                <a
+                  href="https://wa.me/919999999999"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:bg-emerald-500/15 transition-all"
+                >
+                  💬 Join WhatsApp Group
+                </a>
+              </div>
+              
+              {bulkFiles && bulkFiles.length > 0 && (
+                <div className="mt-4 space-y-2 border-t border-dashed border-slate-200 dark:border-slate-800 pt-4 w-full">
+                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-300 mb-2">Available Handbooks & Circular Downloads:</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {bulkFiles.map((file, idx) => (
+                      <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div className="min-w-0">
+                          <p className="font-extrabold text-xs text-slate-850 dark:text-gray-250 truncate pr-2" title={file.name}>
+                            {file.name}
+                          </p>
+                          <span className="text-[9px] text-gray-400 font-bold block uppercase tracking-wide mt-0.5">
+                            {file.type} | Size: {file.size}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => alert(`Success: ${file.name} downloaded successfully!`)}
+                          className="px-3 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow text-white text-[9px] font-extrabold uppercase tracking-widest rounded-xl shrink-0 cursor-pointer"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-2 pt-2">
@@ -638,7 +631,7 @@ export default function CounsellingGuide() {
                       className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-gray-200 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                       <option value="">-- Choose Bihar Govt College --</option>
-                      {collegesData.map((c) => (
+                      {colleges.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name} ({c.location})
                         </option>
@@ -657,7 +650,7 @@ export default function CounsellingGuide() {
                       >
                         <option value="">-- Choose Branch --</option>
                         {selectedCollegeId &&
-                          collegesData
+                          colleges
                             .find((c) => c.id === selectedCollegeId)
                             ?.branches.map((b) => (
                               <option key={b} value={b}>

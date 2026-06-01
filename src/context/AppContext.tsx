@@ -31,6 +31,29 @@ export interface RegisteredUser {
   password?: string;
 }
 
+export interface BulkFile {
+  name: string;
+  type: string;
+  size: string;
+  date: string;
+  status: "Uploaded" | "Pending";
+}
+
+export interface TimelineEvent {
+  id: number;
+  event: string;
+  date: string;
+  status: "Active" | "Upcoming" | "Done";
+}
+
+export interface GuideStep {
+  title: string;
+  subtitle: string;
+  description: string;
+  iconName: string;
+  color: string;
+}
+
 interface AppContextType {
   colleges: College[];
   cutoffs: Cutoff[];
@@ -48,6 +71,21 @@ interface AppContextType {
   updateCollege: (college: College) => void;
   deleteCollege: (collegeId: string) => void;
   
+  // Dynamic Sync Additions
+  bulkFiles: BulkFile[];
+  addBulkFile: (file: BulkFile) => void;
+  deleteBulkFile: (fileName: string) => void;
+  
+  timelineEvents: TimelineEvent[];
+  addTimelineEvent: (event: Omit<TimelineEvent, "id">) => void;
+  updateTimelineEvent: (id: number, updated: Partial<TimelineEvent>) => void;
+  deleteTimelineEvent: (id: number) => void;
+  
+  guideSteps: GuideStep[];
+  updateGuideStep: (index: number, updated: Partial<GuideStep>) => void;
+  
+  injectCutoffs: (newCutoffs: Cutoff[]) => void;
+  
   // Authentication
   user: User | null;
   showAuthModal: boolean;
@@ -64,6 +102,64 @@ interface AppContextType {
   loginUser: (emailOrName: string, passOrPercentile: string) => { success: boolean; error?: string };
 }
 
+const defaultBulkFiles: BulkFile[] = [
+  { name: "UGEAC_2026_Counselling_Handbook.pdf", type: "Circular Guide", size: "3.4 MB", date: "2026-06-01", status: "Uploaded" },
+  { name: "Seat_Matrix_Govt_Engineering_2026.xlsx", type: "Seat Matrix", size: "850 KB", date: "2026-05-28", status: "Uploaded" },
+  { name: "Official_Information_Bulletin_2026.pdf", type: "BCECE Circular", size: "6.2 MB", date: "2026-05-20", status: "Uploaded" }
+];
+
+const defaultTimelineEvents: TimelineEvent[] = [
+  { id: 1, event: "Online Registration Start", date: "June 05, 2026", status: "Active" },
+  { id: 2, event: "UGEAC Merit List Publication", date: "June 18, 2026", status: "Upcoming" },
+  { id: 3, event: "Choice Filling & Locking Phase", date: "June 22 - June 26, 2026", status: "Upcoming" },
+  { id: 4, event: "Round 1 Seat Allotment Publication", date: "July 02, 2026", status: "Upcoming" }
+];
+
+const defaultGuideSteps: GuideStep[] = [
+  {
+    title: "1. Online Registration",
+    subtitle: "UGEAC Portal Setup",
+    iconName: "FileText",
+    color: "border-[#FF9933] text-[#FF9933]",
+    description: "Candidates must visit the official BCECE Board website and click on the 'UGEAC Online Application Portal'. Register using your JEE Main Roll Number, password, mobile number, and email. Pay the non-refundable registration fee (₹1200 for UR/BC/EBC; ₹600 for SC/ST/DQ) online via Net Banking/Credit Card."
+  },
+  {
+    title: "2. Merit List & State Rank",
+    subtitle: "State Merit Cards",
+    iconName: "Milestone",
+    color: "border-[#2563EB] text-[#2563EB]",
+    description: "After checking registration details, the BCECE Board releases the official Bihar State Engineering Merit List (UGEAC Rank Cards). This list maps your JEE Main score into a State Merit Rank (UR Rank and Category Rank). This UGEAC State Rank is the ONLY rank used for seat allocation. You must download and print this Rank Card."
+  },
+  {
+    title: "3. Choice Filling",
+    subtitle: "Option Entries",
+    iconName: "Layers",
+    color: "border-[#138808] text-[#138808]",
+    description: "Log in using your UGEAC credentials. You will see a list of available government engineering colleges and branch options. Select your preferred options and arrange them in descending order of your priority. You can add as many choices as you wish. There is no extra charge or penalty for adding multiple choices."
+  },
+  {
+    title: "4. Choice Locking",
+    subtitle: "Locking & Verification",
+    iconName: "Lock",
+    color: "border-amber-500 text-amber-500",
+    description: "Once satisfied with your choice hierarchy, click 'Lock Choices'. This requires OTP verification sent to your registered mobile and email. Remember: **If you do not lock choices manually, your last saved choices will be locked automatically at the deadline.** However, manual locking is highly recommended."
+  },
+  {
+    title: "5. Seat Allotment Round 1",
+    subtitle: "Allotment Letter",
+    iconName: "Building",
+    color: "border-purple-500 text-purple-500",
+    description: "BCECE publishes the Round 1 Seat Allotment results on their portal. Log in to check your allocation status. If allocated, you must download your 'Seat Allotment Letter'. You will be asked a crucial question: **'Do you want to participate in upgrade for Round 2?'** Choose 'Yes' (Upgrade) or 'No' (Freeze)."
+  },
+  {
+    title: "6. Document Verification (DV)",
+    subtitle: "Physical Verification",
+    iconName: "UserCheck",
+    color: "border-emerald-500 text-emerald-500",
+    description: "Regardless of whether you Freeze or Upgrade, you MUST physically report to your designated 'Nodal Verification Center' (typically one of the main engineering colleges) with all original documents for verification. If your documents are verified successfully, you will get a slip. Failure to report for DV in Round 1 cancels your entire application!"
+  }
+];
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -74,6 +170,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [savedPredictions, setSavedPredictions] = useState<SavedPrediction[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [totalVisits, setTotalVisits] = useState<number>(0);
+
+  // Dynamic States
+  const [bulkFiles, setBulkFiles] = useState<BulkFile[]>(defaultBulkFiles);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(defaultTimelineEvents);
+  const [guideSteps, setGuideSteps] = useState<GuideStep[]>(defaultGuideSteps);
 
   // Authentication States
   const [user, setUser] = useState<User | null>(null);
@@ -101,6 +202,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } else {
         setColleges(collegesData);
+      }
+
+      // Cutoffs Dynamic Loading
+      const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
+      if (storedCutoffs) {
+        setCutoffs(JSON.parse(storedCutoffs));
+      } else {
+        setCutoffs(cutoffsData);
+        localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
+      }
+
+      // Bulk Files Dynamic Loading
+      const storedBulkFiles = localStorage.getItem("bihareduconnect_bulk_files");
+      if (storedBulkFiles) {
+        setBulkFiles(JSON.parse(storedBulkFiles));
+      } else {
+        setBulkFiles(defaultBulkFiles);
+        localStorage.setItem("bihareduconnect_bulk_files", JSON.stringify(defaultBulkFiles));
+      }
+
+      // Timeline Events Dynamic Loading
+      const storedTimelineEvents = localStorage.getItem("bihareduconnect_timeline_events");
+      if (storedTimelineEvents) {
+        setTimelineEvents(JSON.parse(storedTimelineEvents));
+      } else {
+        setTimelineEvents(defaultTimelineEvents);
+        localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
+      }
+
+      // Guide Steps Dynamic Loading
+      const storedGuideSteps = localStorage.getItem("bihareduconnect_guide_steps");
+      if (storedGuideSteps) {
+        setGuideSteps(JSON.parse(storedGuideSteps));
+      } else {
+        setGuideSteps(defaultGuideSteps);
+        localStorage.setItem("bihareduconnect_guide_steps", JSON.stringify(defaultGuideSteps));
       }
 
       const storedUser = localStorage.getItem("bihareduconnect_user");
@@ -218,6 +355,86 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setColleges((prev) => {
       const updated = prev.filter((c) => c.id !== collegeId);
       saveToLocalStorage("bihareduconnect_colleges", updated);
+      return updated;
+    });
+  };
+
+  // Dynamic Datastore Handlers
+  const addBulkFile = (file: BulkFile) => {
+    setBulkFiles((prev) => {
+      const updated = [file, ...prev];
+      saveToLocalStorage("bihareduconnect_bulk_files", updated);
+      return updated;
+    });
+  };
+
+  const deleteBulkFile = (fileName: string) => {
+    setBulkFiles((prev) => {
+      const updated = prev.filter((f) => f.name !== fileName);
+      saveToLocalStorage("bihareduconnect_bulk_files", updated);
+      return updated;
+    });
+  };
+
+  const addTimelineEvent = (event: Omit<TimelineEvent, "id">) => {
+    setTimelineEvents((prev) => {
+      const nextId = prev.length > 0 ? Math.max(...prev.map((e) => e.id)) + 1 : 1;
+      const newEvent: TimelineEvent = { ...event, id: nextId };
+      const updated = [...prev, newEvent];
+      saveToLocalStorage("bihareduconnect_timeline_events", updated);
+      return updated;
+    });
+  };
+
+  const updateTimelineEvent = (id: number, updatedFields: Partial<TimelineEvent>) => {
+    setTimelineEvents((prev) => {
+      const updated = prev.map((ev) => (ev.id === id ? { ...ev, ...updatedFields } : ev));
+      saveToLocalStorage("bihareduconnect_timeline_events", updated);
+      return updated;
+    });
+  };
+
+  const deleteTimelineEvent = (id: number) => {
+    setTimelineEvents((prev) => {
+      const updated = prev.filter((ev) => ev.id !== id);
+      saveToLocalStorage("bihareduconnect_timeline_events", updated);
+      return updated;
+    });
+  };
+
+  const updateGuideStep = (index: number, updatedFields: Partial<GuideStep>) => {
+    setGuideSteps((prev) => {
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = { ...updated[index], ...updatedFields };
+      }
+      saveToLocalStorage("bihareduconnect_guide_steps", updated);
+      return updated;
+    });
+  };
+
+  const injectCutoffs = (newCutoffs: Cutoff[]) => {
+    setCutoffs((prev) => {
+      const updated = [...prev];
+      newCutoffs.forEach((newC) => {
+        const idx = updated.findIndex(
+          (c) =>
+            c.collegeCode === newC.collegeCode &&
+            c.branchCode === newC.branchCode &&
+            c.year === newC.year &&
+            c.round === newC.round &&
+            c.category === newC.category
+        );
+        if (idx !== -1) {
+          updated[idx] = newC;
+        } else {
+          if (!newC.id) {
+            newC.id = `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          }
+          updated.push(newC);
+        }
+      });
+      saveToLocalStorage("bihareduconnect_cutoffs", updated);
       return updated;
     });
   };
@@ -412,6 +629,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCollege,
         updateCollege,
         deleteCollege,
+        
+        // Dynamic Sync Additions
+        bulkFiles,
+        addBulkFile,
+        deleteBulkFile,
+        timelineEvents,
+        addTimelineEvent,
+        updateTimelineEvent,
+        deleteTimelineEvent,
+        guideSteps,
+        updateGuideStep,
+        injectCutoffs,
         
         // Auth values
         user,
