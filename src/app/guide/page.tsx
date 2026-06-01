@@ -461,7 +461,37 @@ export default function CounsellingGuide() {
           {/* Subtle decorative glowing background indicator */}
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF9933]/5 dark:bg-[#FF9933]/10 rounded-full blur-xl pointer-events-none" />
           
-          <div>
+          {!isPremiumUnlocked ? (
+            /* LOCK OVERLAY */
+            <div className="text-center py-8 px-4 flex flex-col items-center justify-center gap-4 relative z-10 w-full h-full my-auto">
+              <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center animate-pulse">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-base font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">
+                  🔒 Counselling Simulator Locked
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm leading-relaxed mx-auto">
+                  The Premium UGEAC 2026 Choice Allotment Simulator is locked. Unlock now for only <strong>₹99</strong> to simulate Round 1 & Round 2 allotments, compare cutoffs, and lock preferences!
+                </p>
+              </div>
+              
+              <ul className="text-left text-[11px] text-gray-550 dark:text-gray-400 space-y-1.5 list-disc pl-5 max-w-xs font-medium mx-auto">
+                <li>Simulate Round 1 & Round 2 Allotments</li>
+                <li>Compare cutoffs of 38+ Bihar Engineering Colleges</li>
+                <li>Arrange unlimited choices & preferences</li>
+                <li>Expert Counselling strategy instructions</li>
+              </ul>
+              
+              <button
+                onClick={() => setShowPaymentModal(true)}
+                className="w-full max-w-xs py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:from-[#ff8800] hover:to-[#0f7c05] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider shadow-md hover:shadow-lg transition-all duration-300 transform active:scale-95 cursor-pointer mt-2"
+              >
+                Unlock Premium Simulator (₹99)
+              </button>
+            </div>
+          ) : (
+            <div>
             <h2 className="text-lg font-bold text-slate-850 dark:text-white flex items-center justify-between gap-2 mb-3 border-b border-gray-100 dark:border-slate-850 pb-2">
               <span className="flex items-center gap-2">
                 <Layers className="w-5.5 h-5.5 text-[#FF9933]" />
@@ -969,6 +999,7 @@ export default function CounsellingGuide() {
             )}
 
           </div>
+        )}
 
           <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-2">
             <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
@@ -1011,6 +1042,36 @@ export default function CounsellingGuide() {
               <span className="text-[8px] text-[#138808] font-bold tracking-widest uppercase mt-1 relative z-10">
                 UPI: 9296276633@axl
               </span>
+            </div>
+
+            {/* Direct Pay / UPI Launch apps block to resolve "scanner not opening" on mobile */}
+            <div className="space-y-2 text-center">
+              <span className="text-[9px] text-gray-400 font-extrabold uppercase block tracking-wider">
+                Or Tap to Pay Directly on Mobile:
+              </span>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { name: "GPay", color: "bg-blue-50 dark:bg-slate-950 border-blue-500/10 text-blue-500 hover:bg-blue-100" },
+                  { name: "PhonePe", color: "bg-purple-50 dark:bg-slate-950 border-purple-500/10 text-purple-500 hover:bg-purple-100" },
+                  { name: "Paytm", color: "bg-sky-50 dark:bg-slate-950 border-sky-500/10 text-sky-500 hover:bg-sky-100" },
+                  { name: "BHIM", color: "bg-orange-50 dark:bg-slate-950 border-orange-500/10 text-orange-500 hover:bg-orange-100" }
+                ].map((app) => (
+                  <a
+                    key={app.name}
+                    href="upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=99&cu=INR&tn=Premium%20Counselling%20Unlock"
+                    className={`py-2 border rounded-xl flex flex-col items-center justify-center text-[10px] font-black tracking-tighter uppercase transition-all ${app.color}`}
+                  >
+                    {app.name}
+                  </a>
+                ))}
+              </div>
+              <a
+                href="upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=99&cu=INR&tn=Premium%20Counselling%20Unlock"
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] hover:text-white dark:text-blue-400 dark:hover:text-white dark:bg-slate-850 border border-[#2563EB]/20 dark:border-slate-800 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all duration-300"
+              >
+                <span>🚀 Pay via any UPI App</span>
+              </a>
+              <span className="text-[9px] text-gray-400 block">Tapping GPay/PhonePe opens pay screen directly on mobile devices</span>
             </div>
 
             <div className="flex gap-3 pt-2">
