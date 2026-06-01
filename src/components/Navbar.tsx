@@ -52,7 +52,10 @@ export const Navbar: React.FC = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo & Brand Identity */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link 
+              href={user ? (user.isAdmin ? "/admin" : "/dashboard") : "/"} 
+              className="flex items-center gap-2 group"
+            >
               <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF9933] to-[#138808] text-white shadow-md shadow-[#FF9933]/10 transform transition-transform group-hover:scale-105 duration-300">
                 <GraduationCap className="w-6 h-6" />
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -72,7 +75,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation Links */}
-          {user && !isAdminRoute && (
+          {user && !user.isAdmin && !isAdminRoute && (
             <nav className="hidden lg:flex space-x-1">
               {navLinks.map((link) => {
                 const Icon = link.icon;
@@ -103,7 +106,7 @@ export const Navbar: React.FC = () => {
                 {/* Saved Predictions Count removed per user instruction */}
 
                 {/* Favorite Colleges Count */}
-                {!isAdminRoute && (
+                {!user.isAdmin && !isAdminRoute && (
                   <Link
                     href="/dashboard"
                     className="relative p-2 text-gray-500 hover:text-[#138808] dark:text-gray-400 dark:hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
@@ -144,12 +147,12 @@ export const Navbar: React.FC = () => {
 
                 {/* Sleek Profile Link Button */}
                 <Link
-                  href="/dashboard"
+                  href={user.isAdmin ? "/admin" : "/dashboard"}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 dark:from-slate-800 dark:to-slate-900 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] dark:text-[#FF9933] hover:text-white dark:hover:text-white text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border border-[#2563EB]/15 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transform active:scale-95 cursor-pointer"
-                  title="My Profile / Dashboard"
+                  title={user.isAdmin ? "Admin Panel" : "My Profile / Dashboard"}
                 >
                   <User className="w-3.5 h-3.5 shrink-0" />
-                  <span>Profile</span>
+                  <span>{user.isAdmin ? "Admin" : "Profile"}</span>
                 </Link>
               </>
             ) : (
@@ -199,7 +202,7 @@ export const Navbar: React.FC = () => {
         <div className="lg:hidden border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 space-y-1">
           {user ? (
             <>
-              {!isAdminRoute && (
+              {!user.isAdmin && !isAdminRoute && (
                 <>
                   <Link
                     href="/dashboard"
@@ -231,7 +234,7 @@ export const Navbar: React.FC = () => {
                 </>
               )}
               <div className="border-t border-gray-100 dark:border-slate-800 my-2 pt-2 flex flex-col gap-2.5 px-3">
-                {!isAdminRoute && (
+                {!user.isAdmin && !isAdminRoute && (
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
@@ -257,7 +260,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 )}
 
-                {isAdminRoute && (
+                {isAdminRoute && !user.isAdmin && (
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}

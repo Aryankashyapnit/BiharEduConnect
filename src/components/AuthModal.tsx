@@ -76,12 +76,15 @@ export const AuthModal: React.FC = () => {
       setIsSubmitting(false);
       
       if (res.success) {
-        setSuccessMsg(emailClean === "admin@bihareduconnect.in" ? "Welcome back, Administrator!" : "Successfully logged in!");
+        const isAdmin = emailClean === "admin@bihareduconnect.in";
+        setSuccessMsg(isAdmin ? "Welcome back, Administrator!" : "Successfully logged in!");
         setTimeout(() => {
           setShowAuthModal(false);
           setSignInEmail("");
           setSignInPass("");
-          if (pendingRedirect) {
+          if (isAdmin) {
+            router.push("/admin");
+          } else if (pendingRedirect) {
             router.push(pendingRedirect);
             setPendingRedirect(null);
           } else {
@@ -193,21 +196,25 @@ export const AuthModal: React.FC = () => {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      loginDemo(nameVal, pctVal);
+      const res = loginDemo(nameVal, pctVal);
       setIsSubmitting(false);
-      setSuccessMsg("Logged in with Demo Account successfully!");
       
-      setTimeout(() => {
-        setShowAuthModal(false);
-        setDemoName("");
-        setDemoPercentile("");
-        if (pendingRedirect) {
-          router.push(pendingRedirect);
-          setPendingRedirect(null);
-        } else {
-          router.push("/dashboard");
-        }
-      }, 1000);
+      if (res.success) {
+        setSuccessMsg("Logged in with Demo Account successfully!");
+        setTimeout(() => {
+          setShowAuthModal(false);
+          setDemoName("");
+          setDemoPercentile("");
+          if (pendingRedirect) {
+            router.push(pendingRedirect);
+            setPendingRedirect(null);
+          } else {
+            router.push("/dashboard");
+          }
+        }, 1000);
+      } else {
+        setErrorMsg(res.error || "Demo login failed");
+      }
     }, 800);
   };
 

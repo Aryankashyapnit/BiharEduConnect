@@ -28,6 +28,7 @@ import {
   MessageSquare,
   Mail,
   Lock,
+  Unlock,
   PlusCircle,
   Search,
   ChevronRight
@@ -60,7 +61,11 @@ export default function AdminDashboard() {
     resetCutoffs,
     seatMatrix,
     updateSeatMatrixEntry,
-    resetSeatMatrix
+    resetSeatMatrix,
+    blockedEmails,
+    blockStudent,
+    unblockStudent,
+    visitorLogs
   } = useApp();
 
   // Route protection alert
@@ -89,6 +94,7 @@ export default function AdminDashboard() {
 
   // Tab 6: Students CRUD & Visit Chat states
   const [studentSearch, setStudentSearch] = useState("");
+  const [activeCandidateFilter, setActiveCandidateFilter] = useState<"standard" | "demo">("standard");
   const [studentFormName, setStudentFormName] = useState("");
   const [studentFormEmail, setStudentFormEmail] = useState("");
   const [studentFormPercentile, setStudentFormPercentile] = useState<number>(90.0);
@@ -1797,13 +1803,39 @@ export default function AdminDashboard() {
 
               {/* Registered Candidates List */}
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
-                <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-850 pb-2">
-                  <h3 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5">
-                    <span>Registered Candidates List</span>
+                <div className="flex flex-col gap-3 border-b border-gray-100 dark:border-slate-850 pb-3">
+                  <h3 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5 justify-between">
+                    <span>Candidate Accounts Directory</span>
                     <span className="bg-gray-100 dark:bg-slate-800 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                      {registeredUsers.length}
+                      {registeredUsers.length} total
                     </span>
                   </h3>
+                  
+                  {/* Premium Tab Selector for Standard & Demo Accounts */}
+                  <div className="flex border border-gray-100 dark:border-slate-800 rounded-xl overflow-hidden p-1 bg-gray-50/50 dark:bg-slate-950/60 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveCandidateFilter("standard")}
+                      className={`flex-1 py-1.5 text-[10px] font-extrabold uppercase tracking-wider rounded-lg transition-all ${
+                        activeCandidateFilter === "standard"
+                          ? "bg-[#2563EB] text-white shadow-sm"
+                          : "text-gray-400 hover:text-slate-700 dark:hover:text-white"
+                      }`}
+                    >
+                      👤 Standard ({registeredUsers.filter(u => !u.email.includes(".demo@bihareduconnect.in")).length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveCandidateFilter("demo")}
+                      className={`flex-1 py-1.5 text-[10px] font-extrabold uppercase tracking-wider rounded-lg transition-all ${
+                        activeCandidateFilter === "demo"
+                          ? "bg-amber-500 text-white shadow-sm"
+                          : "text-gray-400 hover:text-[#FF9933]"
+                      }`}
+                    >
+                      ⚡ Demo/Guest ({registeredUsers.filter(u => u.email.includes(".demo@bihareduconnect.in")).length})
+                    </button>
+                  </div>
                 </div>
 
                 <div className="relative">
@@ -1824,40 +1856,84 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     registeredUsers
-                      .filter(u => 
-                        u.name.toLowerCase().includes(studentSearch.toLowerCase()) || 
-                        u.email.toLowerCase().includes(studentSearch.toLowerCase())
-                      )
-                      .map((stud) => (
-                        <div key={stud.email} className="p-3 bg-slate-50/50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-xl flex items-center justify-between transition-all hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                          <div className="flex items-center gap-2.5 text-left min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 font-extrabold text-sm uppercase">
-                              {stud.name.charAt(0)}
+                      .filter(u => {
+                        const isDemo = u.email.includes(".demo@bihareduconnect.in");
+                        const matchesFilter = activeCandidateFilter === "demo" ? isDemo : !isDemo;
+                        const matchesSearch = u.name.toLowerCase().includes(studentSearch.toLowerCase()) || u.email.toLowerCase().includes(studentSearch.toLowerCase());
+                        return matchesFilter && matchesSearch;
+                      })
+                      .map((stud) => {
+                        const isBlocked = blockedEmails.includes(stud.email.toLowerCase().trim());
+                        return (
+                          <div key={stud.email} className={`p-3 border rounded-xl flex items-center justify-between transition-all ${
+                            isBlocked 
+                              ? "bg-red-50/30 dark:bg-red-950/5 border-red-200/50 dark:border-red-900/20" 
+                              : "bg-slate-50/50 dark:bg-slate-950 border-gray-150 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                          }`}>
+                            <div className="flex items-center gap-2.5 text-left min-w-0">
+                              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-extrabold text-sm uppercase ${
+                                isBlocked 
+                                  ? "bg-red-500/10 text-red-500" 
+                                  : "bg-amber-500/10 text-amber-500"
+                              }`}>
+                                {stud.name.charAt(0)}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-extrabold text-xs text-slate-800 dark:text-gray-150 leading-tight truncate">{stud.name}</h4>
+                                  {isBlocked && (
+                                    <span className="px-1.5 py-0.2 rounded bg-red-500/10 text-red-500 text-[8px] font-bold uppercase tracking-wider">
+                                      Suspended
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-gray-550 dark:text-gray-400 block truncate">{stud.email}</span>
+                                <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">Percentile: {stud.percentile}%</span>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <h4 className="font-extrabold text-xs text-slate-800 dark:text-gray-150 leading-tight truncate">{stud.name}</h4>
-                              <span className="text-[10px] text-gray-550 dark:text-gray-400 block truncate">{stud.email}</span>
-                              <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">Percentile: {stud.percentile}%</span>
+                            <div className="flex items-center gap-1.5">
+                              {/* Block/Unblock toggle */}
+                              <button
+                                onClick={() => {
+                                  if (isBlocked) {
+                                    unblockStudent(stud.email);
+                                    showNotification(`✓ Reactivated account for ${stud.name}`);
+                                  } else {
+                                    if (confirm(`Are you sure you want to suspend/block candidate ${stud.name} (${stud.email})?`)) {
+                                      blockStudent(stud.email);
+                                      showNotification(`✓ Suspended candidate ${stud.name}`);
+                                    }
+                                  }
+                                }}
+                                className={`p-1.5 rounded cursor-pointer transition-colors ${
+                                  isBlocked 
+                                    ? "text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20" 
+                                    : "text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                                }`}
+                                title={isBlocked ? "Unblock Student Access" : "Suspend/Block Student Access"}
+                              >
+                                {isBlocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                              </button>
+                              
+                              <button
+                                onClick={() => handleStartEditStudent(stud)}
+                                className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded cursor-pointer transition-colors"
+                                title="Edit Details"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              
+                              <button
+                                onClick={() => handleDeleteStudent(stud.email)}
+                                className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded cursor-pointer transition-colors"
+                                title="Remove Registration"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => handleStartEditStudent(stud)}
-                              className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded cursor-pointer transition-colors"
-                              title="Edit Details"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteStudent(stud.email)}
-                              className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded cursor-pointer transition-colors"
-                              title="Remove Registration"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                   )}
                 </div>
               </div>
@@ -2000,7 +2076,81 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
-          </div>
+            </div>
+
+            {/* Detailed Platform Visitor Log Tracking Table */}
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col gap-4 mt-6">
+              <div className="border-b border-gray-100 dark:border-slate-850 pb-3 text-left">
+                <h3 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-2">
+                  <Database className="w-5 h-5 text-[#138808]" />
+                  <span>Platform Visitor Visit Logging Table</span>
+                  <span className="bg-emerald-500/10 text-emerald-505 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    Real-time Logs
+                  </span>
+                </h3>
+                <p className="text-[10px] text-gray-400 mt-0.5">
+                  Tracks exactly who loaded the portal, their candidate credentials, JEE percentile, and aggregate visits count.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-slate-850">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-950 text-gray-500 dark:text-gray-400 font-extrabold uppercase text-[9px] tracking-wider border-b border-gray-100 dark:border-slate-850">
+                      <th className="p-3.5">Visitor Identity</th>
+                      <th className="p-3.5">Email Address</th>
+                      <th className="p-3.5">JEE Main Pct</th>
+                      <th className="p-3.5 text-center">Platform Visits</th>
+                      <th className="p-3.5 text-right">Last Visit Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-slate-850">
+                    {visitorLogs && visitorLogs.length > 0 ? (
+                      visitorLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                          <td className="p-3.5 font-bold">
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-800 dark:text-gray-200">{log.name}</span>
+                              {log.role === "Standard" ? (
+                                <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 text-[8px] font-extrabold uppercase">
+                                  Standard
+                                </span>
+                              ) : log.role === "Guest" ? (
+                                <span className="px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[8px] font-extrabold uppercase">
+                                  Guest
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.2 rounded bg-slate-500/10 text-gray-500 border border-gray-205 dark:border-slate-800 text-[8px] font-extrabold uppercase">
+                                  Anon
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3.5 text-gray-500 dark:text-gray-450 font-semibold">{log.email}</td>
+                          <td className="p-3.5 font-extrabold text-[#2563EB] dark:text-[#FF9933]">
+                            {log.percentile !== undefined ? `${log.percentile.toFixed(2)}%` : "N/A"}
+                          </td>
+                          <td className="p-3.5 text-center">
+                            <span className="px-2 py-0.5 rounded-full bg-blue-500/15 text-[#2563EB] font-black text-[10px]">
+                              {log.visitCount} visits
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-right font-bold text-gray-400 dark:text-slate-500 text-[10px]">
+                            {log.lastVisitTime}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="p-6 text-center text-gray-400">
+                          No visitor logs captured yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
         </div>
       )}
 

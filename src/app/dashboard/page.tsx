@@ -24,6 +24,7 @@ import {
   Lock
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AuthGate } from "../../components/AuthGate";
 
 export default function StudentDashboard() {
@@ -39,6 +40,14 @@ export default function StudentDashboard() {
     timelineEvents
   } = useApp();
 
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && user.isAdmin) {
+      router.replace("/admin");
+    }
+  }, [user, router]);
+
   // Upgrade Guest Account states
   const [upgradeEmail, setUpgradeEmail] = useState("");
   const [upgradePhone, setUpgradePhone] = useState("");
@@ -46,6 +55,14 @@ export default function StudentDashboard() {
   const [upgradeError, setUpgradeError] = useState("");
   const [upgradeSuccess, setUpgradeSuccess] = useState("");
   const [isUpgrading, setIsUpgrading] = useState(false);
+
+  if (user && user.isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold uppercase tracking-widest text-xs">
+        <span className="animate-pulse">Loading Clearance Credentials...</span>
+      </div>
+    );
+  }
 
   const handleUpgradeSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { branchNames } from "../../data/colleges";
+import { getCutoff } from "../../data/cutoffs";
 import { 
   GitCompare, 
   Building, 
@@ -26,6 +27,10 @@ export default function CompareTools() {
   const [col1, setCol1] = useState(colleges[0]?.id || "");
   const [col2, setCol2] = useState(colleges[1]?.id || "");
   const [col3, setCol3] = useState(colleges[2]?.id || "");
+
+  // Cutoff comparison states
+  const [cutoffCategory, setCutoffCategory] = useState("UR");
+  const [cutoffBranch, setCutoffBranch] = useState("CSE");
 
   const college1Obj = colleges.find((c) => c.id === col1);
   const college2Obj = colleges.find((c) => c.id === col2);
@@ -164,6 +169,40 @@ export default function CompareTools() {
           </div>
         </div>
 
+        {/* Cutoff comparison state selectors */}
+        <div className="bg-slate-50 dark:bg-slate-950/60 p-4 border border-gray-150 dark:border-slate-800 rounded-2xl mb-6 flex flex-wrap gap-4 items-center justify-between text-xs font-bold text-left">
+          <div className="space-y-1">
+            <span className="text-[#2563EB] block uppercase text-[10px] tracking-wide">⚡ Closing Cutoffs Side-by-Side Comparison</span>
+            <p className="text-[11px] text-gray-400 font-semibold leading-tight">Compare historical round-wise closing ranks for the selected branch and category below</p>
+          </div>
+          <div className="flex gap-3">
+            <div>
+              <label className="block text-[9px] text-gray-400 font-bold uppercase mb-1">Branch</label>
+              <select
+                value={cutoffBranch}
+                onChange={(e) => setCutoffBranch(e.target.value)}
+                className="px-2.5 py-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 dark:text-white font-bold"
+              >
+                {["CSE", "ECE", "EE", "EEE", "ME", "CE", "IT"].map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[9px] text-gray-400 font-bold uppercase mb-1">Category</label>
+              <select
+                value={cutoffCategory}
+                onChange={(e) => setCutoffCategory(e.target.value)}
+                className="px-2.5 py-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 dark:text-white font-bold"
+              >
+                {["UR", "BC", "EBC", "SC", "ST", "EWS", "RCG"].map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
         {/* Matrix details */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs sm:text-sm">
@@ -245,6 +284,76 @@ export default function CompareTools() {
                 <td className="py-4 px-4 leading-normal text-xs text-gray-550 dark:text-gray-400 font-medium">{college1Obj?.recruits.slice(0, 4).join(", ")}</td>
                 <td className="py-4 px-4 leading-normal text-xs text-gray-550 dark:text-gray-400 font-medium">{college2Obj?.recruits.slice(0, 4).join(", ")}</td>
                 <td className="py-4 px-4 leading-normal text-xs text-gray-550 dark:text-gray-400 font-medium">{college3Obj?.recruits.slice(0, 4).join(", ")}</td>
+              </tr>
+              {/* Divider for Cutoff statistics */}
+              <tr className="bg-slate-50/50 dark:bg-slate-950/40 text-[9px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">
+                <td className="py-2.5 px-3 border-y border-gray-150 dark:border-slate-800" colSpan={4}>
+                  ⚡ UGEAC Closing Ranks ({cutoffBranch} - {cutoffCategory})
+                </td>
+              </tr>
+              {/* 2025 Round 1 Closing */}
+              <tr>
+                <td className="py-4 text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 shrink-0 text-[#2563EB]" />
+                  2025 Round 1 Closing
+                </td>
+                <td className="py-4 px-4 font-bold text-[#2563EB]">
+                  {college1Obj ? getCutoff(college1Obj.code, cutoffBranch, 2025, 1, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 font-bold text-[#2563EB]">
+                  {college2Obj ? getCutoff(college2Obj.code, cutoffBranch, 2025, 1, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 font-bold text-[#2563EB]">
+                  {college3Obj ? getCutoff(college3Obj.code, cutoffBranch, 2025, 1, cutoffCategory).closingRank : "-"}
+                </td>
+              </tr>
+              {/* 2025 Round 2 Closing */}
+              <tr>
+                <td className="py-4 text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 shrink-0 text-[#138808]" />
+                  2025 Round 2 Closing
+                </td>
+                <td className="py-4 px-4 font-bold text-[#138808]">
+                  {college1Obj ? getCutoff(college1Obj.code, cutoffBranch, 2025, 2, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 font-bold text-[#138808]">
+                  {college2Obj ? getCutoff(college2Obj.code, cutoffBranch, 2025, 2, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 font-bold text-[#138808]">
+                  {college3Obj ? getCutoff(college3Obj.code, cutoffBranch, 2025, 2, cutoffCategory).closingRank : "-"}
+                </td>
+              </tr>
+              {/* 2024 Round 1 Closing */}
+              <tr>
+                <td className="py-4 text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 shrink-0 text-[#FF9933]" />
+                  2024 Round 1 Closing
+                </td>
+                <td className="py-4 px-4 font-bold text-slate-800 dark:text-gray-150">
+                  {college1Obj ? getCutoff(college1Obj.code, cutoffBranch, 2024, 1, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 font-bold text-slate-800 dark:text-gray-150">
+                  {college2Obj ? getCutoff(college2Obj.code, cutoffBranch, 2024, 1, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 font-bold text-slate-800 dark:text-gray-150">
+                  {college3Obj ? getCutoff(college3Obj.code, cutoffBranch, 2024, 1, cutoffCategory).closingRank : "-"}
+                </td>
+              </tr>
+              {/* 2024 Round 2 Closing */}
+              <tr>
+                <td className="py-4 text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 shrink-0 text-slate-400" />
+                  2024 Round 2 Closing
+                </td>
+                <td className="py-4 px-4 text-gray-500 dark:text-gray-400 font-bold">
+                  {college1Obj ? getCutoff(college1Obj.code, cutoffBranch, 2024, 2, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 text-gray-500 dark:text-gray-400 font-bold">
+                  {college2Obj ? getCutoff(college2Obj.code, cutoffBranch, 2024, 2, cutoffCategory).closingRank : "-"}
+                </td>
+                <td className="py-4 px-4 text-gray-500 dark:text-gray-400 font-bold">
+                  {college3Obj ? getCutoff(college3Obj.code, cutoffBranch, 2024, 2, cutoffCategory).closingRank : "-"}
+                </td>
               </tr>
             </tbody>
           </table>

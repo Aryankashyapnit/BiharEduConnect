@@ -54,6 +54,16 @@ export interface GuideStep {
   color: string;
 }
 
+export interface VisitorLog {
+  id: string;
+  name: string;
+  email: string;
+  percentile?: number;
+  visitCount: number;
+  lastVisitTime: string;
+  role: "Standard" | "Guest" | "Anonymous";
+}
+
 interface AppContextType {
   colleges: College[];
   cutoffs: Cutoff[];
@@ -96,7 +106,7 @@ interface AppContextType {
   pendingRedirect: string | null;
   setShowAuthModal: (show: boolean) => void;
   setPendingRedirect: (path: string | null) => void;
-  loginDemo: (name: string, percentile: number) => void;
+  loginDemo: (name: string, percentile: number) => { success: boolean; error?: string };
   loginAdmin: (email: string, pass: string) => boolean;
   logout: () => void;
   registeredUsers: RegisteredUser[];
@@ -104,6 +114,10 @@ interface AppContextType {
   updateRegisteredUser: (oldEmail: string, updatedUser: RegisteredUser) => { success: boolean; error?: string };
   deleteRegisteredUser: (email: string) => void;
   loginUser: (emailOrName: string, passOrPercentile: string) => { success: boolean; error?: string };
+  blockedEmails: string[];
+  blockStudent: (email: string) => void;
+  unblockStudent: (email: string) => void;
+  visitorLogs: VisitorLog[];
 }
 
 const defaultBulkFiles: BulkFile[] = [
@@ -185,6 +199,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
+  const [blockedEmails, setBlockedEmails] = useState<string[]>([]);
+  const [visitorLogs, setVisitorLogs] = useState<VisitorLog[]>([]);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -208,23 +224,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setColleges(collegesData);
       }
 
-      // Cutoffs Dynamic Loading
+      // Cutoffs Dynamic Loading & Migration
       const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
+      let activeCutoffs = cutoffsData;
       if (storedCutoffs) {
-        setCutoffs(JSON.parse(storedCutoffs));
+        try {
+          const parsed = JSON.parse(storedCutoffs);
+          if (parsed.length < 1000) {
+            activeCutoffs = cutoffsData;
+            localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
+          } else {
+            activeCutoffs = parsed;
+          }
+        } catch (e) {
+          activeCutoffs = cutoffsData;
+          localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
+        }
       } else {
-        setCutoffs(cutoffsData);
         localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
       }
+      setCutoffs(activeCutoffs);
 
-      // Seat Matrix Dynamic Loading
+      // Seat Matrix Dynamic Loading & Migration
       const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
+      let activeSeatMatrix = seatMatrixData;
       if (storedSeatMatrix) {
-        setSeatMatrix(JSON.parse(storedSeatMatrix));
+        try {
+          const parsed = JSON.parse(storedSeatMatrix);
+          if (parsed.length < 50) {
+            activeSeatMatrix = seatMatrixData;
+            localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
+          } else {
+            activeSeatMatrix = parsed;
+          }
+        } catch (e) {
+          activeSeatMatrix = seatMatrixData;
+          localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
+        }
       } else {
-        setSeatMatrix(seatMatrixData);
         localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
       }
+      setSeatMatrix(activeSeatMatrix);
 
       // Bulk Files Dynamic Loading
       const storedBulkFiles = localStorage.getItem("bihareduconnect_bulk_files");
@@ -257,7 +297,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedUser) setUser(JSON.parse(storedUser));
 
       const storedUsers = localStorage.getItem("bihareduconnect_registered_users");
-      if (storedUsers) setRegisteredUsers(JSON.parse(storedUsers));
+      if (storedUsers) {
+        setRegisteredUsers(JSON.parse(storedUsers));
+      } else {
+        const defaultUsers: RegisteredUser[] = [
+          { name: "Aman Raj", email: "amanraj.demo@bihareduconnect.in", percentile: 88.5, password: "demo" },
+          { name: "Priya Sharma", email: "priyasharma.demo@bihareduconnect.in", percentile: 94.2, password: "demo" },
+          { name: "Rohan Kumar", email: "rohan.kumar@gmail.com", percentile: 91.5, password: "student123" }
+        ];
+        setRegisteredUsers(defaultUsers);
+        localStorage.setItem("bihareduconnect_registered_users", JSON.stringify(defaultUsers));
+      }
+
+      const storedBlocked = localStorage.getItem("bihareduconnect_blocked_emails");
+      if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
       const storedVisits = localStorage.getItem("bihareduconnect_total_visits");
       const initialVisits = storedVisits ? parseInt(storedVisits, 10) : 124;
@@ -282,6 +335,114 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
   }, []);
+
+  const recordVisit = (currentUser: User | null) => {
+    if (typeof window === "undefined") return;
+    
+    const stored = localStorage.getItem("bihareduconnect_visitor_logs");
+    let logs: VisitorLog[] = [];
+    if (stored) {
+      try {
+        logs = JSON.parse(stored);
+      } catch (e) {
+        logs = [];
+      }
+    }
+    
+    if (logs.length === 0) {
+      logs = [
+        { id: "vis-1", name: "Rohan Kumar", email: "rohan.kumar@gmail.com", percentile: 91.5, visitCount: 5, lastVisitTime: "01 Jun 2026, 07:15 PM", role: "Standard" },
+        { id: "vis-2", name: "Aman Raj", email: "amanraj.demo@bihareduconnect.in", percentile: 88.5, visitCount: 12, lastVisitTime: "01 Jun 2026, 07:32 PM", role: "Guest" },
+        { id: "vis-3", name: "Priya Sharma", email: "priyasharma.demo@bihareduconnect.in", percentile: 94.2, visitCount: 8, lastVisitTime: "01 Jun 2026, 07:44 PM", role: "Guest" },
+        { id: "vis-4", name: "Anonymous Guest #301", email: "anonymous.guest301@bihareduconnect.in", visitCount: 3, lastVisitTime: "01 Jun 2026, 04:12 PM", role: "Anonymous" }
+      ];
+      localStorage.setItem("bihareduconnect_visitor_logs", JSON.stringify(logs));
+    }
+    
+    const timeStr = new Date().toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+    
+    if (currentUser) {
+      if (currentUser.isAdmin) {
+        setVisitorLogs(logs);
+        return;
+      }
+      
+      const emailClean = currentUser.email ? currentUser.email.toLowerCase().trim() : `${currentUser.name.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
+      const existingIdx = logs.findIndex(l => l.email.toLowerCase().trim() === emailClean);
+      
+      if (existingIdx !== -1) {
+        logs[existingIdx].visitCount += 1;
+        logs[existingIdx].lastVisitTime = timeStr;
+        logs[existingIdx].name = currentUser.name;
+        logs[existingIdx].percentile = currentUser.percentile;
+        logs[existingIdx].role = currentUser.email ? "Standard" : "Guest";
+      } else {
+        logs.unshift({
+          id: `vis-${Date.now()}`,
+          name: currentUser.name,
+          email: emailClean,
+          percentile: currentUser.percentile,
+          visitCount: 1,
+          lastVisitTime: timeStr,
+          role: currentUser.email ? "Standard" : "Guest"
+        });
+      }
+    } else {
+      const anonEmail = "anonymous.guest301@bihareduconnect.in";
+      const existingIdx = logs.findIndex(l => l.email === anonEmail);
+      if (existingIdx !== -1) {
+        logs[existingIdx].visitCount += 1;
+        logs[existingIdx].lastVisitTime = timeStr;
+      } else {
+        logs.unshift({
+          id: `vis-${Date.now()}`,
+          name: "Anonymous Guest #301",
+          email: anonEmail,
+          visitCount: 1,
+          lastVisitTime: timeStr,
+          role: "Anonymous"
+        });
+      }
+    }
+    
+    setVisitorLogs(logs);
+    localStorage.setItem("bihareduconnect_visitor_logs", JSON.stringify(logs));
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const sessionVisitedLog = sessionStorage.getItem("bihareduconnect_session_visited_log");
+      if (!sessionVisitedLog) {
+        sessionStorage.setItem("bihareduconnect_session_visited_log", "true");
+        recordVisit(user);
+      } else {
+        const stored = localStorage.getItem("bihareduconnect_visitor_logs");
+        if (stored) {
+          try {
+            setVisitorLogs(JSON.parse(stored));
+          } catch (e) {
+            setVisitorLogs([]);
+          }
+        } else {
+          const defaultLogs: VisitorLog[] = [
+            { id: "vis-1", name: "Rohan Kumar", email: "rohan.kumar@gmail.com", percentile: 91.5, visitCount: 5, lastVisitTime: "01 Jun 2026, 07:15 PM", role: "Standard" },
+            { id: "vis-2", name: "Aman Raj", email: "amanraj.demo@bihareduconnect.in", percentile: 88.5, visitCount: 12, lastVisitTime: "01 Jun 2026, 07:32 PM", role: "Guest" },
+            { id: "vis-3", name: "Priya Sharma", email: "priyasharma.demo@bihareduconnect.in", percentile: 94.2, visitCount: 8, lastVisitTime: "01 Jun 2026, 07:44 PM", role: "Guest" },
+            { id: "vis-4", name: "Anonymous Guest #301", email: "anonymous.guest301@bihareduconnect.in", visitCount: 3, lastVisitTime: "01 Jun 2026, 04:12 PM", role: "Anonymous" }
+          ];
+          setVisitorLogs(defaultLogs);
+          localStorage.setItem("bihareduconnect_visitor_logs", JSON.stringify(defaultLogs));
+        }
+      }
+    }
+  }, [user]);
 
   // Sync state helpers
   const saveToLocalStorage = (key: string, data: any) => {
@@ -487,14 +648,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
  
   // Authentication Helpers
-  const loginDemo = (name: string, percentile: number) => {
+  const loginDemo = (name: string, percentile: number): { success: boolean; error?: string } => {
+    const nameClean = name.trim();
+    const dummyEmail = `${nameClean.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
+    
+    // Check if blocked
+    if (blockedEmails.includes(dummyEmail)) {
+      return { success: false, error: "Your guest session has been suspended by the administrator." };
+    }
+    
+    // Register dynamically if not exists
+    const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === dummyEmail);
+    if (!exists) {
+      const newDemoReg: RegisteredUser = {
+        name: nameClean,
+        email: dummyEmail,
+        percentile,
+        password: "demo"
+      };
+      const updatedUsers = [...registeredUsers, newDemoReg];
+      setRegisteredUsers(updatedUsers);
+      saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+    }
+    
     const demoUser: User = {
-      name,
+      name: nameClean,
       percentile,
+      email: dummyEmail,
       isAdmin: false
     };
     setUser(demoUser);
     saveToLocalStorage("bihareduconnect_user", demoUser);
+    return { success: true };
   };
 
   const loginAdmin = (email: string, pass: string): boolean => {
@@ -620,6 +805,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
     
     if (matchedUser) {
+      if (blockedEmails.includes(matchedUser.email.toLowerCase().trim())) {
+        return { success: false, error: "Your account has been suspended by the administrator." };
+      }
+      
       const userSession: User = {
         name: matchedUser.name,
         email: matchedUser.email,
@@ -634,9 +823,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // 3. Fallback to instant Demo/Guest login if a numeric percentile is entered as the password
     const percentileVal = Number(passClean);
     if (inputClean && !isNaN(percentileVal) && percentileVal >= 0 && percentileVal <= 100) {
+      const dummyEmail = `${inputClean.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
+      
+      if (blockedEmails.includes(dummyEmail)) {
+        return { success: false, error: "Your account has been suspended by the administrator." };
+      }
+      
+      // Check if already in registeredUsers
+      const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === dummyEmail);
+      if (!exists) {
+        const newDemoReg: RegisteredUser = {
+          name: inputClean,
+          email: dummyEmail,
+          percentile: percentileVal,
+          password: "demo"
+        };
+        const updatedUsers = [...registeredUsers, newDemoReg];
+        setRegisteredUsers(updatedUsers);
+        saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+      }
+      
       const demoUser: User = {
         name: inputClean,
         percentile: percentileVal,
+        email: dummyEmail,
         isAdmin: false
       };
       setUser(demoUser);
@@ -656,6 +866,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem("bihareduconnect_user");
       window.location.href = "/";
     }
+  };
+
+  const blockStudent = (email: string) => {
+    const emailClean = email.toLowerCase().trim();
+    setBlockedEmails((prev) => {
+      if (prev.includes(emailClean)) return prev;
+      const updated = [...prev, emailClean];
+      saveToLocalStorage("bihareduconnect_blocked_emails", updated);
+      return updated;
+    });
+  };
+
+  const unblockStudent = (email: string) => {
+    const emailClean = email.toLowerCase().trim();
+    setBlockedEmails((prev) => {
+      const updated = prev.filter(e => e !== emailClean);
+      saveToLocalStorage("bihareduconnect_blocked_emails", updated);
+      return updated;
+    });
   };
 
   return (
@@ -706,7 +935,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         registerUser,
         updateRegisteredUser,
         deleteRegisteredUser,
-        loginUser
+        loginUser,
+        blockedEmails,
+        blockStudent,
+        unblockStudent,
+        visitorLogs
       }}
     >
       {children}
