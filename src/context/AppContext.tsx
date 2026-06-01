@@ -24,6 +24,13 @@ export interface User {
   isAdmin: boolean;
 }
 
+export interface RegisteredUser {
+  name: string;
+  email: string;
+  percentile: number;
+  password?: string;
+}
+
 interface AppContextType {
   colleges: College[];
   cutoffs: Cutoff[];
@@ -49,6 +56,9 @@ interface AppContextType {
   loginDemo: (name: string, percentile: number) => void;
   loginAdmin: (email: string, pass: string) => boolean;
   logout: () => void;
+  registeredUsers: RegisteredUser[];
+  registerUser: (name: string, email: string, percentile: number, pass: string) => { success: boolean; error?: string };
+  loginUser: (emailOrName: string, passOrPercentile: string) => { success: boolean; error?: string };
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -65,6 +75,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
+  const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -80,6 +91,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const storedUser = localStorage.getItem("bihareduconnect_user");
       if (storedUser) setUser(JSON.parse(storedUser));
+
+      const storedUsers = localStorage.getItem("bihareduconnect_registered_users");
+      if (storedUsers) setRegisteredUsers(JSON.parse(storedUsers));
 
       const storedDark = localStorage.getItem("bihareduconnect_dark");
       if (storedDark) {
@@ -207,6 +221,92 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return false;
   };
 
+  const registerUser = (name: string, email: string, percentile: number, pass: string): { success: boolean; error?: string } => {
+    const emailLower = email.toLowerCase().trim();
+    if (emailLower === "admin@bihareduconnect.in") {
+      return { success: false, error: "This email address is reserved." };
+    }
+    
+    const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === emailLower);
+    if (exists) {
+      return { success: false, error: "An account with this email already exists." };
+    }
+    
+    const newUser: RegisteredUser = {
+      name: name.trim(),
+      email: emailLower,
+      percentile,
+      password: pass.trim()
+    };
+    
+    const updatedUsers = [...registeredUsers, newUser];
+    setRegisteredUsers(updatedUsers);
+    saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+    
+    const userSession: User = {
+      name: newUser.name,
+      email: newUser.email,
+      percentile: newUser.percentile,
+      isAdmin: false
+    };
+    setUser(userSession);
+    saveToLocalStorage("bihareduconnect_user", userSession);
+    
+    return { success: true };
+  };
+
+  const loginUser = (emailOrName: string, passOrPercentile: string): { success: boolean; error?: string } => {
+    const inputClean = emailOrName.trim();
+    const passClean = passOrPercentile.trim();
+    
+    // 1. Secret Admin check
+    if (inputClean === "admin@bihareduconnect.in" && passClean === "admin123") {
+      const adminUser: User = {
+        name: "Admin Profile",
+        email: inputClean,
+        isAdmin: true
+      };
+      setUser(adminUser);
+      saveToLocalStorage("bihareduconnect_user", adminUser);
+      return { success: true };
+    }
+    
+    // 2. Check registered users
+    const matchedUser = registeredUsers.find(
+      u => u.email.toLowerCase().trim() === inputClean.toLowerCase() && u.password === passClean
+    );
+    
+    if (matchedUser) {
+      const userSession: User = {
+        name: matchedUser.name,
+        email: matchedUser.email,
+        percentile: matchedUser.percentile,
+        isAdmin: false
+      };
+      setUser(userSession);
+      saveToLocalStorage("bihareduconnect_user", userSession);
+      return { success: true };
+    }
+    
+    // 3. Fallback to instant Demo/Guest login if a numeric percentile is entered as the password
+    const percentileVal = Number(passClean);
+    if (inputClean && !isNaN(percentileVal) && percentileVal >= 0 && percentileVal <= 100) {
+      const demoUser: User = {
+        name: inputClean,
+        percentile: percentileVal,
+        isAdmin: false
+      };
+      setUser(demoUser);
+      saveToLocalStorage("bihareduconnect_user", demoUser);
+      return { success: true };
+    }
+    
+    return { 
+      success: false, 
+      error: "Invalid credentials. Please enter a valid registered email and password, or use Name and JEE Percentile for guest sign in." 
+    };
+  };
+
   const logout = () => {
     setUser(null);
     if (typeof window !== "undefined") {
@@ -240,7 +340,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setPendingRedirect,
         loginDemo,
         loginAdmin,
-        logout
+        logout,
+        registeredUsers,
+        registerUser,
+        loginUser
       }}
     >
       {children}

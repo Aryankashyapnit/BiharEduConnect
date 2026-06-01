@@ -73,6 +73,7 @@ export default function Homepage() {
   const [formDescription, setFormDescription] = useState("");
   const [formCampusSize, setFormCampusSize] = useState("35 Acres");
   const [formBranches, setFormBranches] = useState("CSE, ECE, EE, ME, CE");
+  const [formImage, setFormImage] = useState("");
 
   const showNotification = (msg: string) => {
     setSuccessMsg(msg);
@@ -96,6 +97,7 @@ export default function Homepage() {
     setFormDescription("A government college of engineering in Bihar.");
     setFormCampusSize("30 Acres");
     setFormBranches("CSE, ECE, EE, ME, CE");
+    setFormImage("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=600");
   };
 
   const handleEditClick = (col: College) => {
@@ -117,6 +119,7 @@ export default function Homepage() {
     setFormDescription(col.description);
     setFormCampusSize(col.campusSize);
     setFormBranches(col.branches.join(", "));
+    setFormImage(col.image || "");
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -141,7 +144,7 @@ export default function Homepage() {
       campusSize: formCampusSize,
       branches: branchesArray,
       recruits: ["TCS", "Wipro", "Infosys", "L&T"],
-      image: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=600"
+      image: formImage.trim() || "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=600"
     };
 
     if (isEditing) {
@@ -918,6 +921,15 @@ export default function Homepage() {
                     <label className="block font-bold text-gray-400 uppercase mb-1">Official Website</label>
                     <input
                       type="url" required value={formWebsite} onChange={(e) => setFormWebsite(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-gray-400 uppercase mb-1">College Profile Image URL</label>
+                    <input
+                      type="url" required value={formImage} onChange={(e) => setFormImage(e.target.value)}
+                      placeholder="e.g. https://images.unsplash.com/... or hosted image URL"
                       className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
                     />
                   </div>
