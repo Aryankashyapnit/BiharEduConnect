@@ -1,3 +1,5 @@
+import { collegesData } from "./colleges";
+
 export interface SeatMatrixEntry {
   collegeCode: string;
   branchCode: string;
@@ -15,98 +17,72 @@ export const seatCategories = [
   { code: "RCG", name: "Reserved Category Girls", percentage: 3 }
 ];
 
-// Seed basic Seat Matrices for top colleges
-export const seatMatrixData: SeatMatrixEntry[] = [
-  // MIT Muzaffarpur
-  {
-    collegeCode: "MIT-MUZAFFARPUR",
-    branchCode: "CSE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "MIT-MUZAFFARPUR",
-    branchCode: "IT",
-    totalSeats: 40,
-    categorySeats: { UR: 16, BC: 5, EBC: 7, SC: 6, ST: 0, EWS: 4, RCG: 2 }
-  },
-  {
-    collegeCode: "MIT-MUZAFFARPUR",
-    branchCode: "ECE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "MIT-MUZAFFARPUR",
-    branchCode: "EE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "MIT-MUZAFFARPUR",
-    branchCode: "ME",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "MIT-MUZAFFARPUR",
-    branchCode: "CE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
+// Helper to programmatically construct realistic, category-wise seat distribution
+const generateSeatMatrix = (): SeatMatrixEntry[] => {
+  const generated: SeatMatrixEntry[] = [];
 
-  // BCE Bhagalpur
-  {
-    collegeCode: "BCE-BHAGALPUR",
-    branchCode: "CSE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "BCE-BHAGALPUR",
-    branchCode: "ECE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "BCE-BHAGALPUR",
-    branchCode: "EE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "BCE-BHAGALPUR",
-    branchCode: "ME",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  },
-  {
-    collegeCode: "BCE-BHAGALPUR",
-    branchCode: "CE",
-    totalSeats: 60,
-    categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
-  }
-];
+  collegesData.forEach((college) => {
+    college.branches.forEach((branch) => {
+      // Standard Gov Engineering intake is 60. IT in MIT Muzaffarpur is 40.
+      const total = (college.code === "MIT-MUZAFFARPUR" && branch === "IT") ? 40 : 60;
+      
+      const UR = Math.round(total * 0.40);
+      const BC = Math.round(total * 0.12);
+      const EBC = Math.round(total * 0.18);
+      const SC = Math.round(total * 0.16);
+      const ST = total === 60 ? 1 : 0;
+      const EWS = Math.round(total * 0.10);
+      
+      // Allocate the exact mathematical remainder to RCG to sum to total perfectly
+      const RCG = total - (UR + BC + EBC + SC + ST + EWS);
 
-// Helper to generate a realistic seat matrix dynamic split if not explicitly seeded
+      generated.push({
+        collegeCode: college.code,
+        branchCode: branch,
+        totalSeats: total,
+        categorySeats: { UR, BC, EBC, SC, ST, EWS, RCG }
+      });
+    });
+  });
+
+  return generated;
+};
+
+// Seed Seat Matrices programmatically for all colleges & branches
+export const seatMatrixData: SeatMatrixEntry[] = generateSeatMatrix();
+
+// Helper to retrieve seat matrix, reading from client localStorage dynamic updates first
 export const getSeatMatrix = (collegeCode: string, branchCode: string): SeatMatrixEntry => {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("bihareduconnect_seat_matrix");
+    if (stored) {
+      try {
+        const parsed: SeatMatrixEntry[] = JSON.parse(stored);
+        const match = parsed.find(s => s.collegeCode === collegeCode && s.branchCode === branchCode);
+        if (match) return match;
+      } catch (e) {
+        console.error("Error reading stored seat matrix", e);
+      }
+    }
+  }
+
   const match = seatMatrixData.find(s => s.collegeCode === collegeCode && s.branchCode === branchCode);
   if (match) return match;
 
-  // Let's assume standard intake of 60 seats for Govt Engineering Colleges in Bihar
+  // Final fallback split if not found
   const total = 60;
-  const UR = Math.round(total * 0.40);
-  const BC = Math.round(total * 0.12);
-  const EBC = Math.round(total * 0.18);
-  const SC = Math.round(total * 0.16);
-  const ST = Math.round(total * 0.01) || 0;
-  const EWS = Math.round(total * 0.10);
-  const RCG = total - (UR + BC + EBC + SC + ST + EWS); // Remainder for reserved category girls
-
   return {
     collegeCode,
     branchCode,
     totalSeats: total,
-    categorySeats: { UR, BC, EBC, SC, ST, EWS, RCG }
+    categorySeats: {
+      UR: 24,
+      BC: 7,
+      EBC: 11,
+      SC: 10,
+      ST: 1,
+      EWS: 6,
+      RCG: 1
+    }
   };
 };

@@ -4,7 +4,6 @@ import React, { use } from "react";
 import { useApp } from "../../../context/AppContext";
 import { branchNames } from "../../../data/colleges";
 import { getSeatMatrix } from "../../../data/seatMatrix";
-import { cutoffsData } from "../../../data/cutoffs";
 import { 
   Building, 
   MapPin, 
@@ -28,7 +27,7 @@ interface CollegeDetailsProps {
 export default function CollegeDetails({ params }: CollegeDetailsProps) {
   // Unwrap parameters according to Next.js 15 client-side standards
   const { id } = use(params);
-  const { colleges, favorites, addFavorite, removeFavorite } = useApp();
+  const { colleges, favorites, addFavorite, removeFavorite, cutoffs } = useApp();
 
   const college = colleges.find((c) => c.id === id);
 
@@ -62,7 +61,7 @@ export default function CollegeDetails({ params }: CollegeDetailsProps) {
   };
 
   // Fetch college specific cutoffs (showing 2025 Round 1 cutoffs for UR category as reference)
-  const collegeCutoffs = cutoffsData.filter(
+  const collegeCutoffs = cutoffs.filter(
     (c) => c.collegeCode === college.code && c.year === 2025 && c.round === 1 && c.category === "UR"
   );
 

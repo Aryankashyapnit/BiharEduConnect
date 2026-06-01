@@ -54,7 +54,13 @@ export default function AdminDashboard() {
     deleteTimelineEvent,
     guideSteps,
     updateGuideStep,
-    injectCutoffs
+    injectCutoffs,
+    cutoffs,
+    deleteCutoff,
+    resetCutoffs,
+    seatMatrix,
+    updateSeatMatrixEntry,
+    resetSeatMatrix
   } = useApp();
 
   // Route protection alert
@@ -93,6 +99,24 @@ export default function AdminDashboard() {
   // Chat Logs viewer states
   const [chatSessions, setChatSessions] = useState<any[]>([]);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+  // Tab 3: Admin Cutoff Filters
+  const [adminCutoffSearch, setAdminCutoffSearch] = useState("");
+  const [adminCutoffYear, setAdminCutoffYear] = useState<number | "All">("All");
+  const [adminCutoffRound, setAdminCutoffRound] = useState<number | "All">("All");
+  const [adminCutoffCategory, setAdminCutoffCategory] = useState<string | "All">("All");
+
+  // Seat Matrix Editor states
+  const [isEditingSeats, setIsEditingSeats] = useState(false);
+  const [seatEditorCollegeCode, setSeatEditorCollegeCode] = useState<string | null>(null);
+  const [seatEditorBranch, setSeatEditorBranch] = useState<string>("");
+  const [seatUr, setSeatUr] = useState<number>(24);
+  const [seatBc, setSeatBc] = useState<number>(7);
+  const [seatEbc, setSeatEbc] = useState<number>(11);
+  const [seatSc, setSeatSc] = useState<number>(10);
+  const [seatSt, setSeatSt] = useState<number>(1);
+  const [seatEws, setSeatEws] = useState<number>(6);
+  const [seatRcg, setSeatRcg] = useState<number>(1);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -215,6 +239,51 @@ export default function AdminDashboard() {
     setChatSessions(mockSessions);
     setSelectedSessionId(mockSessions[0].id);
     showNotification("✓ Mock chat sessions generated for testing!");
+  };
+
+  const handleOpenSeatEditor = (collegeCode: string, branchCode: string) => {
+    const existing = seatMatrix.find(s => s.collegeCode === collegeCode && s.branchCode === branchCode) || {
+      collegeCode,
+      branchCode,
+      totalSeats: 60,
+      categorySeats: { UR: 24, BC: 7, EBC: 11, SC: 10, ST: 1, EWS: 6, RCG: 1 }
+    };
+    
+    setSeatEditorCollegeCode(collegeCode);
+    setSeatEditorBranch(branchCode);
+    setSeatUr(existing.categorySeats.UR || 0);
+    setSeatBc(existing.categorySeats.BC || 0);
+    setSeatEbc(existing.categorySeats.EBC || 0);
+    setSeatSc(existing.categorySeats.SC || 0);
+    setSeatSt(existing.categorySeats.ST || 0);
+    setSeatEws(existing.categorySeats.EWS || 0);
+    setSeatRcg(existing.categorySeats.RCG || 0);
+    setIsEditingSeats(true);
+  };
+
+  const handleSaveSeats = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!seatEditorCollegeCode || !seatEditorBranch) return;
+
+    const total = seatUr + seatBc + seatEbc + seatSc + seatSt + seatEws + seatRcg;
+    const entry = {
+      collegeCode: seatEditorCollegeCode,
+      branchCode: seatEditorBranch,
+      totalSeats: total,
+      categorySeats: {
+        UR: seatUr,
+        BC: seatBc,
+        EBC: seatEbc,
+        SC: seatSc,
+        ST: seatSt,
+        EWS: seatEws,
+        RCG: seatRcg
+      }
+    };
+
+    updateSeatMatrixEntry(entry);
+    setIsEditingSeats(false);
+    showNotification(`✓ Seat matrix updated for ${seatEditorCollegeCode} - ${seatEditorBranch} (Total Seats: ${total})`);
   };
 
   // ==========================================
@@ -782,8 +851,139 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {isEditingSeats && (
+              <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 shadow-md relative text-left">
+                <button
+                  type="button"
+                  onClick={() => { setIsEditingSeats(false); }}
+                  className="absolute top-5 right-5 text-gray-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <h3 className="text-sm font-bold text-slate-855 dark:text-white mb-3 border-b border-gray-100 dark:border-slate-855 pb-2 flex items-center gap-1.5">
+                  <Layers className="w-4.5 h-4.5 text-emerald-500 animate-pulse" />
+                  Edit Seat Allocation Matrix
+                </h3>
+
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal mb-4">
+                  Define the exact category seat allocations for <strong>{seatEditorCollegeCode}</strong> (Branch: <strong>{seatEditorBranch}</strong>).
+                </p>
+
+                <form onSubmit={handleSaveSeats} className="space-y-3.5 text-[10px]">
+                  <div>
+                    <label className="block font-bold text-gray-400 uppercase mb-1">Branch/Specialization</label>
+                    <select
+                      value={seatEditorBranch}
+                      onChange={(e) => {
+                        if (seatEditorCollegeCode) {
+                          handleOpenSeatEditor(seatEditorCollegeCode, e.target.value);
+                        }
+                      }}
+                      className="w-full p-2.5 rounded-xl border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:border-emerald-500"
+                    >
+                      {colleges.find(c => c.code === seatEditorCollegeCode)?.branches.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="border-t border-gray-100 dark:border-slate-850 my-2" />
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">UR Seats</label>
+                      <input
+                        type="number" min="0" required value={seatUr} onChange={(e) => setSeatUr(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">BC Seats</label>
+                      <input
+                        type="number" min="0" required value={seatBc} onChange={(e) => setSeatBc(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">EBC Seats</label>
+                      <input
+                        type="number" min="0" required value={seatEbc} onChange={(e) => setSeatEbc(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">SC Seats</label>
+                      <input
+                        type="number" min="0" required value={seatSc} onChange={(e) => setSeatSc(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">ST Seats</label>
+                      <input
+                        type="number" min="0" required value={seatSt} onChange={(e) => setSeatSt(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">EWS Seats</label>
+                      <input
+                        type="number" min="0" required value={seatEws} onChange={(e) => setSeatEws(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">RCG Seats</label>
+                      <input
+                        type="number" min="0" required value={seatRcg} onChange={(e) => setSeatRcg(Number(e.target.value))}
+                        className="w-full p-2 rounded-lg border border-gray-250 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-155 dark:border-slate-850 rounded-xl">
+                    <span className="font-bold text-gray-400 uppercase block mb-1">Seats intake summary</span>
+                    <span className="font-extrabold text-xs text-[#2563EB]">Total seats calculated: {seatUr + seatBc + seatEbc + seatSc + seatSt + seatEws + seatRcg} Seats</span>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="submit"
+                      className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow transition-colors"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Seat Allocations
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Reset seat matrix of this college to default percentages?")) {
+                          resetSeatMatrix();
+                          setIsEditingSeats(false);
+                          showNotification("✓ Seat Matrix reset to baseline defaults!");
+                        }
+                      }}
+                      className="px-3.5 py-2.5 border border-red-500/25 text-red-500 rounded-xl font-bold hover:bg-red-500/5 cursor-pointer"
+                      title="Reset Matrix"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
             {/* Colleges datastore grid layout */}
-            <div className={(isCreating || isEditing) ? "lg:col-span-7" : "lg:col-span-12"}>
+            <div className={(isCreating || isEditing || isEditingSeats) ? "lg:col-span-7" : "lg:col-span-12"}>
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden text-left">
                 <div className="px-5 py-4 border-b border-gray-200 dark:border-slate-850 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950">
                   <h4 className="font-extrabold text-slate-850 dark:text-white flex items-center gap-1.5 text-sm">
@@ -832,6 +1032,18 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-5 py-3.5 text-right">
                             <div className="flex gap-2 justify-end">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsEditing(false);
+                                  setIsCreating(false);
+                                  handleOpenSeatEditor(c.code, c.branches[0] || "CSE");
+                                }}
+                                className="p-2 border border-gray-200 dark:border-slate-850 text-gray-400 hover:text-emerald-500 hover:bg-emerald-500/5 rounded-lg cursor-pointer"
+                                title="Edit Category Seat Matrix"
+                              >
+                                <Layers className="w-3.5 h-3.5" />
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleEditClick(c)}
@@ -1012,66 +1224,228 @@ export default function AdminDashboard() {
         {/* TAB 3 CONTENT: CUTOFFS DATABASE MANAGER */}
         {/* ==================================================== */}
         {activeTab === "cutoffs" && (
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm text-left text-xs max-w-4xl mx-auto">
-            <h3 className="text-sm font-bold text-slate-850 dark:text-white mb-3 border-b border-gray-100 dark:border-slate-850 pb-2 flex items-center gap-1.5">
-              <Database className="w-5 h-5 text-amber-500" />
-              Historical Cutoff Injector
-            </h3>
+          <div className="space-y-6 max-w-4xl mx-auto">
+            {/* Injector Card */}
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm text-left text-xs">
+              <h3 className="text-sm font-bold text-slate-850 dark:text-white mb-3 border-b border-gray-100 dark:border-slate-850 pb-2 flex items-center gap-1.5">
+                <Database className="w-5 h-5 text-amber-500" />
+                Historical Cutoff Injector
+              </h3>
 
-            <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
-              Inject round-wise UGEAC closing and opening cutoffs directly in bulk formats. The predictor matches candidates ranks dynamically against this structured dataset.
-            </p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+                Inject round-wise UGEAC closing and opening cutoffs directly in bulk formats. The predictor matches candidates ranks dynamically against this structured dataset.
+              </p>
 
-            <form onSubmit={handleInjectCutoffs} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block font-bold text-gray-400 uppercase">Counselling Session Year</label>
-                  <select
-                    value={cutoffYear}
-                    onChange={(e) => setCutoffYear(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold"
-                  >
-                    <option value={2026}>2026 Cutoffs (Admissions active)</option>
-                    <option value={2025}>2025 Cutoffs (Pre-loaded)</option>
-                    <option value={2024}>2024 Cutoffs (Pre-loaded)</option>
-                  </select>
+              <form onSubmit={handleInjectCutoffs} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block font-bold text-gray-400 uppercase">Counselling Session Year</label>
+                    <select
+                      value={cutoffYear}
+                      onChange={(e) => setCutoffYear(Number(e.target.value))}
+                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold"
+                    >
+                      <option value={2026}>2026 Cutoffs (Admissions active)</option>
+                      <option value={2025}>2025 Cutoffs (Pre-loaded)</option>
+                      <option value={2024}>2024 Cutoffs (Pre-loaded)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block font-bold text-gray-400 uppercase">Counselling Seat Allotment Round</label>
+                    <select
+                      value={cutoffRound}
+                      onChange={(e) => setCutoffRound(Number(e.target.value))}
+                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold"
+                    >
+                      <option value={1}>Round 1 Allotment closing</option>
+                      <option value={2}>Round 2 Sliding Allotment</option>
+                      <option value={3}>Round 3 Mop-Up offline cutoff</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block font-bold text-gray-400 uppercase">Counselling Seat Allotment Round</label>
+                  <label className="block font-bold text-gray-400 uppercase">Paste Bulk Database Data (CSV / JSON format)</label>
+                  <textarea
+                    required
+                    rows={6}
+                    value={bulkCutoffText}
+                    onChange={(e) => setBulkCutoffText(e.target.value)}
+                    placeholder="e.g. COLLEGE_CODE,BRANCH_CODE,UR_CLOSING,BC_CLOSING,EBC_CLOSING&#10;MIT-MUZAFFARPUR,CSE,1250,1580,1850&#10;BCE-BHAGALPUR,CSE,1800,2100,2400"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-mono text-[10px]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isInjectingCutoffs}
+                  className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  {isInjectingCutoffs ? "Parsing Data Sheet..." : "Load & Merge Cutoffs Database"}
+                </button>
+              </form>
+            </div>
+
+            {/* Cutoffs Explorer & Deletion Table */}
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm text-left text-xs">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 pb-2 border-b border-gray-100 dark:border-slate-850">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5">
+                    <Database className="w-4.5 h-4.5 text-[#2563EB]" />
+                    <span>Manage Injected Cutoffs Database ({cutoffs.length})</span>
+                  </h3>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Explore, search, filter and remove specific cutoff records from UGEAC datastore</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm("Are you sure you want to reset all cutoffs to standard 2024-2025 database defaults? Any custom uploads will be replaced.")) {
+                      resetCutoffs();
+                      showNotification("✓ Cutoffs database reset to baseline defaults!");
+                    }
+                  }}
+                  className="px-3 py-1.5 border border-red-500/25 text-red-500 hover:bg-red-500/5 text-[9px] font-extrabold uppercase rounded-lg cursor-pointer transition-all active:scale-95 animate-pulse"
+                >
+                  Reset to Defaults
+                </button>
+              </div>
+
+              {/* Filters Block */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Search text</label>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={adminCutoffSearch}
+                      onChange={(e) => setAdminCutoffSearch(e.target.value)}
+                      placeholder="College or Branch..."
+                      className="w-full pl-8 pr-2 py-2 text-[10px] border border-gray-200 dark:border-slate-850 rounded-lg bg-gray-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Year</label>
                   <select
-                    value={cutoffRound}
-                    onChange={(e) => setCutoffRound(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold"
+                    value={adminCutoffYear}
+                    onChange={(e) => setAdminCutoffYear(e.target.value === "All" ? "All" : Number(e.target.value))}
+                    className="w-full px-2 py-2 text-[10px] border border-gray-200 dark:border-slate-850 rounded-lg bg-gray-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:border-amber-500"
                   >
-                    <option value={1}>Round 1 Allotment closing</option>
-                    <option value={2}>Round 2 Sliding Allotment</option>
-                    <option value={3}>Round 3 Mop-Up offline cutoff</option>
+                    <option value="All">All Years</option>
+                    <option value={2025}>2025 Session</option>
+                    <option value={2024}>2024 Session</option>
+                    <option value={2026}>2026 Session</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Round</label>
+                  <select
+                    value={adminCutoffRound}
+                    onChange={(e) => setAdminCutoffRound(e.target.value === "All" ? "All" : Number(e.target.value))}
+                    className="w-full px-2 py-2 text-[10px] border border-gray-200 dark:border-slate-850 rounded-lg bg-gray-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="All">All Rounds</option>
+                    <option value={1}>Round 1</option>
+                    <option value={2}>Round 2</option>
+                    <option value={3}>Round 3 (Mop-Up)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Category</label>
+                  <select
+                    value={adminCutoffCategory}
+                    onChange={(e) => setAdminCutoffCategory(e.target.value)}
+                    className="w-full px-2 py-2 text-[10px] border border-gray-200 dark:border-slate-850 rounded-lg bg-gray-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="All">All Categories</option>
+                    {["UR", "BC", "EBC", "SC", "ST", "EWS", "RCG"].map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </select>
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="block font-bold text-gray-400 uppercase">Paste Bulk Database Data (CSV / JSON format)</label>
-                <textarea
-                  required
-                  rows={6}
-                  value={bulkCutoffText}
-                  onChange={(e) => setBulkCutoffText(e.target.value)}
-                  placeholder="e.g. COLLEGE_CODE,BRANCH_CODE,UR_CLOSING,BC_CLOSING,EBC_CLOSING&#10;MIT-MUZAFFARPUR,CSE,1250,1580,1850&#10;BCE-BHAGALPUR,CSE,1800,2100,2400"
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-mono text-[10px]"
-                />
-              </div>
+              {/* Table list */}
+              <div className="overflow-x-auto text-[10px] max-h-[350px] overflow-y-auto border border-gray-150 dark:border-slate-850 rounded-xl">
+                {(() => {
+                  const filtered = cutoffs.filter(c => {
+                    const matchSearch = adminCutoffSearch === "" || 
+                      c.collegeCode.toLowerCase().includes(adminCutoffSearch.toLowerCase()) ||
+                      c.branchCode.toLowerCase().includes(adminCutoffSearch.toLowerCase());
+                    const matchYear = adminCutoffYear === "All" || c.year === adminCutoffYear;
+                    const matchRound = adminCutoffRound === "All" || c.round === adminCutoffRound;
+                    const matchCategory = adminCutoffCategory === "All" || c.category === adminCutoffCategory;
+                    return matchSearch && matchYear && matchRound && matchCategory;
+                  });
 
-              <button
-                type="submit"
-                disabled={isInjectingCutoffs}
-                className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                {isInjectingCutoffs ? "Parsing Data Sheet..." : "Load & Merge Cutoffs Database"}
-              </button>
-            </form>
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="text-center py-8 text-gray-400 font-bold">
+                        No matching cutoff records found in datastore.
+                      </div>
+                    );
+                  }
+
+                  // Slice results to keep UI lightning fast
+                  const sliced = filtered.slice(0, 100);
+
+                  return (
+                    <table className="w-full border-collapse text-left">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-gray-455 dark:text-gray-400 font-bold uppercase tracking-wider text-[9px]">
+                          <th className="px-4 py-2">College Code</th>
+                          <th className="px-4 py-2">Branch</th>
+                          <th className="px-4 py-2 text-center">Year</th>
+                          <th className="px-4 py-2 text-center">Round</th>
+                          <th className="px-4 py-2 text-center">Cat</th>
+                          <th className="px-4 py-2 text-center text-[#2563EB]">Opening</th>
+                          <th className="px-4 py-2 text-center text-[#138808]">Closing</th>
+                          <th className="px-4 py-2 text-right">Delete</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-150 dark:divide-slate-800/80 font-bold text-slate-700 dark:text-gray-300">
+                        {sliced.map((c) => (
+                          <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                            <td className="px-4 py-2">{c.collegeCode}</td>
+                            <td className="px-4 py-2">
+                              <span className="px-1.5 py-0.5 rounded bg-[#FF9933]/10 text-[#FF9933] text-[9px] font-extrabold uppercase">{c.branchCode}</span>
+                            </td>
+                            <td className="px-4 py-2 text-center">{c.year}</td>
+                            <td className="px-4 py-2 text-center">R{c.round}</td>
+                            <td className="px-4 py-2 text-center">
+                              <span className="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[8px] font-extrabold">{c.category}</span>
+                            </td>
+                            <td className="px-4 py-2 text-center text-[#2563EB]">{c.openingRank}</td>
+                            <td className="px-4 py-2 text-center text-[#138808]">{c.closingRank}</td>
+                            <td className="px-4 py-2 text-right">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  deleteCutoff(c.id);
+                                  showNotification(`✓ Removed cutoff record: ${c.collegeCode} - ${c.branchCode} (${c.category})`);
+                                }}
+                                className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded cursor-pointer transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  );
+                })()}
+              </div>
+              <div className="mt-3 text-right text-[9px] text-gray-400 font-bold">
+                ⚠️ Displaying top 100 matches to ensure fluid browser responsiveness. Clear filters to explore rest of datastore.
+              </div>
+            </div>
           </div>
         )}
 

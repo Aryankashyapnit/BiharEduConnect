@@ -85,6 +85,10 @@ interface AppContextType {
   updateGuideStep: (index: number, updated: Partial<GuideStep>) => void;
   
   injectCutoffs: (newCutoffs: Cutoff[]) => void;
+  deleteCutoff: (id: string) => void;
+  resetCutoffs: () => void;
+  updateSeatMatrixEntry: (entry: SeatMatrixEntry) => void;
+  resetSeatMatrix: () => void;
   
   // Authentication
   user: User | null;
@@ -211,6 +215,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else {
         setCutoffs(cutoffsData);
         localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
+      }
+
+      // Seat Matrix Dynamic Loading
+      const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
+      if (storedSeatMatrix) {
+        setSeatMatrix(JSON.parse(storedSeatMatrix));
+      } else {
+        setSeatMatrix(seatMatrixData);
+        localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
       }
 
       // Bulk Files Dynamic Loading
@@ -439,6 +452,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const deleteCutoff = (id: string) => {
+    setCutoffs((prev) => {
+      const updated = prev.filter((c) => c.id !== id);
+      saveToLocalStorage("bihareduconnect_cutoffs", updated);
+      return updated;
+    });
+  };
+
+  const resetCutoffs = () => {
+    setCutoffs(cutoffsData);
+    saveToLocalStorage("bihareduconnect_cutoffs", cutoffsData);
+  };
+
+  const updateSeatMatrixEntry = (entry: SeatMatrixEntry) => {
+    setSeatMatrix((prev) => {
+      const updated = [...prev];
+      const idx = updated.findIndex(
+        (s) => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode
+      );
+      if (idx !== -1) {
+        updated[idx] = entry;
+      } else {
+        updated.push(entry);
+      }
+      saveToLocalStorage("bihareduconnect_seat_matrix", updated);
+      return updated;
+    });
+  };
+
+  const resetSeatMatrix = () => {
+    setSeatMatrix(seatMatrixData);
+    saveToLocalStorage("bihareduconnect_seat_matrix", seatMatrixData);
+  };
+ 
   // Authentication Helpers
   const loginDemo = (name: string, percentile: number) => {
     const demoUser: User = {
@@ -641,6 +688,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         guideSteps,
         updateGuideStep,
         injectCutoffs,
+        deleteCutoff,
+        resetCutoffs,
+        updateSeatMatrixEntry,
+        resetSeatMatrix,
         
         // Auth values
         user,

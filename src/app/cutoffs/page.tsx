@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
-import { getCutoff, cutoffsData } from "../../data/cutoffs";
+import { getCutoff } from "../../data/cutoffs";
 import { branchNames } from "../../data/colleges";
 import { 
   TrendingUp, 
@@ -17,7 +17,7 @@ import {
 import { AuthGate } from "../../components/AuthGate";
 
 export default function CutoffExplorer() {
-  const { colleges } = useApp();
+  const { colleges, cutoffs } = useApp();
 
   // Filter States
   const [selectedYear, setSelectedYear] = useState(2025);
@@ -30,7 +30,7 @@ export default function CutoffExplorer() {
   const branches = ["CSE", "ECE", "EE", "EEE", "ME", "CE", "IT"];
 
   // Filtered List
-  const filteredCutoffs = cutoffsData.filter((cutoff) => {
+  const filteredCutoffs = cutoffs.filter((cutoff) => {
     const matchYear = cutoff.year === selectedYear;
     const matchRound = cutoff.round === selectedRound;
     const matchCollege = selectedCollege === "All" || cutoff.collegeCode === selectedCollege;
