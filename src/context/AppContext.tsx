@@ -390,6 +390,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUser(null);
     if (typeof window !== "undefined") {
       localStorage.removeItem("bihareduconnect_user");
+      window.location.href = "/";
     }
   };
 
