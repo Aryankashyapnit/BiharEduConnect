@@ -5,6 +5,7 @@ import { AppProvider } from "../context/AppContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AIChatbot from "../components/AIChatbot";
+import { AuthModal } from "../components/AuthModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <AIChatbot />
+          <AuthModal />
         </AppProvider>
       </body>
     </html>

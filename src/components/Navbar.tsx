@@ -20,18 +20,25 @@ import {
 } from "lucide-react";
 
 export const Navbar: React.FC = () => {
-  const { favorites, savedPredictions, darkMode, toggleDarkMode } = useApp();
+  const { 
+    favorites, 
+    savedPredictions, 
+    darkMode, 
+    toggleDarkMode,
+    user,
+    logout,
+    setShowAuthModal
+  } = useApp();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
+    { href: "/colleges", label: "Colleges DB", icon: GraduationCap },
     { href: "/predictor", label: "Predictor", icon: Compass },
     { href: "/cutoffs", label: "Cutoffs", icon: TrendingUp },
-    { href: "/seats", label: "Seat Matrix", icon: Layers },
-    { href: "/colleges", label: "Colleges DB", icon: GraduationCap },
     { href: "/compare", label: "Compare Tools", icon: GitCompare },
     { href: "/guide", label: "Counselling Guide", icon: Info },
-    { href: "/about", label: "About Us", icon: Info }
+    { href: "/#about-us", label: "About Us", icon: Info }
   ];
 
   const isActive = (path: string) => pathname === path;
@@ -62,74 +69,114 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex space-x-1">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const active = isActive(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    active
-                      ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${active ? "text-[#2563EB] dark:text-[#FF9933]" : "text-gray-400 dark:text-gray-400"}`} />
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+          {user && (
+            <nav className="hidden lg:flex space-x-1">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const active = isActive(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      active
+                        ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${active ? "text-[#2563EB] dark:text-[#FF9933]" : "text-gray-400 dark:text-gray-400"}`} />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
 
-          {/* Desktop Right Panel (State indicators, dark mode, admin) */}
+          {/* Desktop Right Panel */}
           <div className="hidden lg:flex items-center space-x-3">
-            {/* Saved Predictions Count */}
-            <Link
-              href="/dashboard"
-              className="relative p-2 text-gray-500 hover:text-[#FF9933] dark:text-gray-400 dark:hover:text-[#FF9933] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
-              title="Saved Predictions"
-            >
-              <TrendingUp className="w-5 h-5" />
-              {savedPredictions.length > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF9933] text-[10px] font-bold text-white shadow-sm animate-pulse">
-                  {savedPredictions.length}
+            {user ? (
+              <>
+                {/* User Greeting */}
+                <span className="text-xs font-semibold text-gray-500 dark:text-gray-450 mr-1.5">
+                  Hi, {user.name.split(" ")[0]}
                 </span>
-              )}
-            </Link>
 
-            {/* Favorite Colleges Count */}
-            <Link
-              href="/dashboard"
-              className="relative p-2 text-gray-500 hover:text-[#138808] dark:text-gray-400 dark:hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
-              title="Favorite Colleges"
-            >
-              <Bookmark className="w-5 h-5" />
-              {favorites.length > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#138808] text-[10px] font-bold text-white shadow-sm">
-                  {favorites.length}
-                </span>
-              )}
-            </Link>
+                {/* Saved Predictions Count */}
+                <Link
+                  href="/dashboard"
+                  className="relative p-2 text-gray-500 hover:text-[#FF9933] dark:text-gray-400 dark:hover:text-[#FF9933] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
+                  title="Saved Predictions"
+                >
+                  <TrendingUp className="w-5 h-5" />
+                  {savedPredictions.length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF9933] text-[10px] font-bold text-white shadow-sm animate-pulse">
+                      {savedPredictions.length}
+                    </span>
+                  )}
+                </Link>
 
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 text-gray-500 hover:text-[#2563EB] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+                {/* Favorite Colleges Count */}
+                <Link
+                  href="/dashboard"
+                  className="relative p-2 text-gray-500 hover:text-[#138808] dark:text-gray-400 dark:hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
+                  title="Favorite Colleges"
+                >
+                  <Bookmark className="w-5 h-5" />
+                  {favorites.length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#138808] text-[10px] font-bold text-white shadow-sm">
+                      {favorites.length}
+                    </span>
+                  )}
+                </Link>
 
-            {/* Admin Access Panel Link */}
-            <Link
-              href="/#admin-panel"
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold tracking-wider uppercase border-gray-200 dark:border-slate-800 text-gray-500 hover:text-amber-500 hover:border-amber-500/30 dark:text-gray-400 transition-all duration-200"
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              Admin
-            </Link>
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={toggleDarkMode}
+                  className="p-2 text-gray-500 hover:text-[#2563EB] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
+                  aria-label="Toggle theme"
+                >
+                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                {/* Admin Access Panel Link (if admin) */}
+                {user.isAdmin && (
+                  <Link
+                    href="/#admin-panel"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold tracking-wider uppercase border-amber-500/20 text-amber-500 hover:bg-amber-500/5 transition-all duration-200"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    Admin
+                  </Link>
+                )}
+
+                {/* Logout Button */}
+                <button
+                  onClick={logout}
+                  className="px-3.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/25 hover:bg-red-500 text-red-600 hover:text-white text-xs font-bold uppercase transition-all duration-200 cursor-pointer"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={toggleDarkMode}
+                  className="p-2 text-gray-500 hover:text-[#2563EB] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
+                  aria-label="Toggle theme"
+                >
+                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                {/* Sign In Button */}
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-md text-white text-xs font-extrabold uppercase tracking-wide cursor-pointer transform hover:-translate-y-0.5 transition-all duration-200 animate-pulse"
+                >
+                  Sign In
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Right Controls */}
@@ -155,43 +202,76 @@ export const Navbar: React.FC = () => {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 space-y-1">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const active = isActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-all duration-200 ${
-                  active
-                    ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900"
-                }`}
+          {user ? (
+            <>
+              <div className="px-3 py-1.5 text-xs font-bold text-[#FF9933]">
+                Hi, {user.name}
+              </div>
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const active = isActive(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-all duration-200 ${
+                      active
+                        ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900"
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 ${active ? "text-[#2563EB]" : "text-gray-400"}`} />
+                    {link.label}
+                  </Link>
+                );
+              })}
+              <div className="border-t border-gray-100 dark:border-slate-800 my-2 pt-2 flex flex-col gap-2.5 px-3">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#2563EB]"
+                >
+                  <Bookmark className="w-5 h-5" />
+                  Favorites ({favorites.length})
+                </Link>
+                
+                {user.isAdmin && (
+                  <Link
+                    href="/#admin-panel"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-1.5 text-xs text-amber-500 font-bold border border-amber-500/20 px-2.5 py-1.5 rounded-md"
+                  >
+                    <ShieldAlert className="w-4 h-4" />
+                    ADMIN PANEL
+                  </Link>
+                )}
+
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-xs font-bold uppercase cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="py-4 px-3 flex flex-col items-center gap-3 text-center">
+              <p className="text-xs text-gray-500">Sign in to unlock UGEAC counselling tools.</p>
+              <button
+                onClick={() => {
+                  setShowAuthModal(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-bold rounded-lg text-xs uppercase cursor-pointer"
               >
-                <Icon className={`w-5 h-5 ${active ? "text-[#2563EB]" : "text-gray-400"}`} />
-                {link.label}
-              </Link>
-            );
-          })}
-          <div className="border-t border-gray-100 dark:border-slate-800 my-2 pt-2 flex items-center justify-between px-3">
-            <Link
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#2563EB]"
-            >
-              <Bookmark className="w-5 h-5" />
-              Favorites ({favorites.length})
-            </Link>
-            <Link
-              href="/#admin-panel"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-1 text-xs text-amber-500 font-bold border border-amber-500/20 px-2.5 py-1 rounded-md"
-            >
-              <ShieldAlert className="w-4 h-4" />
-              ADMIN PANEL
-            </Link>
-          </div>
+                Sign In
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>

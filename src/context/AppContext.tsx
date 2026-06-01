@@ -17,6 +17,13 @@ export interface SavedPrediction {
   date: string;
 }
 
+export interface User {
+  name: string;
+  percentile?: number;
+  email?: string;
+  isAdmin: boolean;
+}
+
 interface AppContextType {
   colleges: College[];
   cutoffs: Cutoff[];
@@ -32,6 +39,16 @@ interface AppContextType {
   addCollege: (college: College) => void;
   updateCollege: (college: College) => void;
   deleteCollege: (collegeId: string) => void;
+  
+  // Authentication
+  user: User | null;
+  showAuthModal: boolean;
+  pendingRedirect: string | null;
+  setShowAuthModal: (show: boolean) => void;
+  setPendingRedirect: (path: string | null) => void;
+  loginDemo: (name: string, percentile: number) => void;
+  loginAdmin: (email: string, pass: string) => boolean;
+  logout: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -44,6 +61,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [savedPredictions, setSavedPredictions] = useState<SavedPrediction[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
+  // Authentication States
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
+
   // Load from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -55,6 +77,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const storedColleges = localStorage.getItem("bihareduconnect_colleges");
       if (storedColleges) setColleges(JSON.parse(storedColleges));
+
+      const storedUser = localStorage.getItem("bihareduconnect_user");
+      if (storedUser) setUser(JSON.parse(storedUser));
 
       const storedDark = localStorage.getItem("bihareduconnect_dark");
       if (storedDark) {
@@ -157,6 +182,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  // Authentication Helpers
+  const loginDemo = (name: string, percentile: number) => {
+    const demoUser: User = {
+      name,
+      percentile,
+      isAdmin: false
+    };
+    setUser(demoUser);
+    saveToLocalStorage("bihareduconnect_user", demoUser);
+  };
+
+  const loginAdmin = (email: string, pass: string): boolean => {
+    if (email === "admin@bihareduconnect.in" && pass === "admin123") {
+      const adminUser: User = {
+        name: "Admin Profile",
+        email,
+        isAdmin: true
+      };
+      setUser(adminUser);
+      saveToLocalStorage("bihareduconnect_user", adminUser);
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => {
+    setUser(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("bihareduconnect_user");
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -173,7 +230,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deletePrediction,
         addCollege,
         updateCollege,
-        deleteCollege
+        deleteCollege,
+        
+        // Auth values
+        user,
+        showAuthModal,
+        pendingRedirect,
+        setShowAuthModal,
+        setPendingRedirect,
+        loginDemo,
+        loginAdmin,
+        logout
       }}
     >
       {children}

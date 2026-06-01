@@ -64,7 +64,7 @@ export const Footer: React.FC = () => {
                 { href: "/guide", label: "Counselling Step-by-Step" },
                 { href: "/colleges", label: "Bihar Colleges Directory" },
                 { href: "/dashboard", label: "Saved Predictions Log" },
-                { href: "/about", label: "About BiharEduConnect" },
+                { href: "/#about-us", label: "About BiharEduConnect" },
                 { href: "/seo", label: "BCECE Admission FAQ" }
               ].map((link) => (
                 <li key={link.href}>

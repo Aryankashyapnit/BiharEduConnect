@@ -33,9 +33,25 @@ import {
 } from "lucide-react";
 
 export default function Homepage() {
-  const { colleges, addCollege, updateCollege, deleteCollege } = useApp();
+  const { 
+    colleges, 
+    addCollege, 
+    updateCollege, 
+    deleteCollege,
+    user,
+    setShowAuthModal,
+    setPendingRedirect
+  } = useApp();
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  const handleGuardClick = (e: React.MouseEvent, path: string) => {
+    if (!user) {
+      e.preventDefault();
+      setPendingRedirect(path);
+      setShowAuthModal(true);
+    }
+  };
 
   // Admin Panel Local States
   const [successMsg, setSuccessMsg] = useState("");
@@ -256,6 +272,7 @@ export default function Homepage() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
                 <Link
                   href="/predictor"
+                  onClick={(e) => handleGuardClick(e, "/predictor")}
                   className="px-6 py-3.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-lg shadow-[#138808]/20 text-white font-bold rounded-xl text-sm flex items-center gap-1.5 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
                 >
                   Predict My College
@@ -263,12 +280,14 @@ export default function Homepage() {
                 </Link>
                 <Link
                   href="/cutoffs"
+                  onClick={(e) => handleGuardClick(e, "/cutoffs")}
                   className="px-6 py-3.5 border border-gray-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-850 dark:text-gray-300 font-bold rounded-xl text-sm transition-colors cursor-pointer"
                 >
                   Check Cutoffs
                 </Link>
                 <Link
                   href="/guide"
+                  onClick={(e) => handleGuardClick(e, "/guide")}
                   className="px-6 py-3.5 text-[#2563EB] hover:text-[#2563EB]/80 font-bold text-sm hover:underline cursor-pointer"
                 >
                   Counselling Guide ➔
@@ -393,6 +412,7 @@ export default function Homepage() {
 
                 <Link
                   href={feat.href}
+                  onClick={(e) => handleGuardClick(e, feat.href)}
                   className="flex items-center gap-1.5 text-xs text-[#2563EB] dark:text-[#FF9933] font-bold hover:underline"
                 >
                   {feat.actionText}
@@ -468,6 +488,7 @@ export default function Homepage() {
                 <div className="mt-5">
                   <Link
                     href="/guide"
+                    onClick={(e) => handleGuardClick(e, "/guide")}
                     className="w-full py-2.5 bg-[#2563EB] hover:bg-[#2563EB]/90 text-white font-bold rounded-xl text-xs text-center uppercase tracking-wider block transition-colors cursor-pointer"
                   >
                     View Step-by-Step Guide
@@ -570,258 +591,437 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* 7. ADMINISTRATIVE ACCESS PORTAL SECTION */}
-      <section id="admin-panel" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-250 dark:border-slate-900 transition-colors scroll-mt-20">
-        <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-wider mb-3">
-            <ShieldAlert className="w-3.5 h-3.5" />
-            Administrative Control Area
+      {/* 6.5 ABOUT US SECTION */}
+      <section id="about-us" className="bg-slate-50 dark:bg-slate-900/10 border-t border-b border-gray-200 dark:border-slate-900 py-16 transition-colors scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9933]/10 text-[#FF9933] text-xs font-bold uppercase tracking-wider mb-3">
+              <GraduationCap className="w-3.5 h-3.5" />
+              Our Mission & Vision
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
+              About <span className="bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808] bg-clip-text text-transparent">BiharEduConnect</span>
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
+              Empowering engineering aspirants of Bihar with advanced prediction systems and interactive guides for a seamless admissions journey.
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">
-            BiharEduConnect <span className="text-amber-500">Database Administration</span>
-          </h2>
-          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-            Create new college entries, update placement averages, edit dynamic branches, or delete college files instantly.
-          </p>
-        </div>
 
-        {successMsg && (
-          <div className="max-w-2xl mx-auto mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl flex items-center gap-2 text-sm font-bold shadow-sm">
-            <CheckCircle className="w-5 h-5 shrink-0" />
-            {successMsg}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Edit / Creation form sidepanel */}
-          {(isCreating || isEditing) && (
-            <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-amber-500/30 rounded-2xl p-6 shadow-md relative">
-              <button
-                type="button"
-                onClick={() => { setIsEditing(false); setIsCreating(false); }}
-                className="absolute top-4 right-4 text-gray-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <h3 className="text-sm font-bold text-slate-850 dark:text-white mb-4 flex items-center gap-1.5 border-b border-gray-100 dark:border-slate-850 pb-2">
-                <SlidersHorizontal className="w-4 h-4 text-amber-500" />
-                {isEditing ? "Edit College Profile" : "Create New College Profile"}
+          {/* Main Core Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16">
+            {/* Left text block */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
+                Democratizing Technical Admissions in Bihar
               </h3>
-
-              <form onSubmit={handleSave} className="space-y-3.5 text-[11px]">
+              <p className="text-sm text-gray-650 dark:text-gray-400 leading-relaxed">
+                Every year, over 15,000 students qualified in JEE Main participate in the Under Graduate Engineering Admission Counselling (UGEAC) conducted by the BCECE Board, Patna. Due to the complex nature of state reservation systems, round-wise cutoff dynamic thresholds, and document requirements, many high-merit candidates miss out on securing branches in their dream institutions.
+              </p>
+              <p className="text-sm text-gray-650 dark:text-gray-400 leading-relaxed">
+                <strong>BiharEduConnect</strong> was conceived as a comprehensive, independent candidate helper to resolve this information gap. By building dynamic, client-side indexers and predictor tools, we provide students with instant, accurate insights regarding B.Tech vacancies, hostel fees, and branch scopes across Bihar's 38 government engineering colleges.
+              </p>
+              <div className="p-4 bg-[#138808]/5 border border-[#138808]/20 rounded-2xl flex gap-3">
+                <CheckCircle className="w-6 h-6 text-[#138808] shrink-0 mt-0.5" />
                 <div>
-                  <label className="block font-bold text-gray-400 uppercase mb-1">College Name</label>
-                  <input
-                    type="text" required value={formName} onChange={(e) => setFormName(e.target.value)}
-                    placeholder="e.g. Gaya College of Engineering"
-                    className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                  />
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-gray-150">BCECEB Compliant Guidance</h4>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal mt-0.5">
+                    Our step-by-step guides strictly follow latest BCECE Board bulletins, helping candidates prepare resident, category, and educational certificates accurately.
+                  </p>
                 </div>
+              </div>
+            </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Unique Code</label>
-                    <input
-                      type="text" required value={formCode} onChange={(e) => setFormCode(e.target.value)}
-                      placeholder="e.g. GCE-GAYA"
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
+            {/* Right side graphics panel */}
+            <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+              <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800/80 p-6 shadow-xl relative">
+                <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#FF9933] via-[#2563EB] to-[#138808] opacity-20 blur-sm"></div>
+                
+                <div className="space-y-6 text-left">
+                  {/* Mission block */}
+                  <div className="flex gap-4">
+                    <div className="p-3 bg-[#FF9933]/15 text-[#FF9933] rounded-xl shrink-0 h-11 w-11 flex items-center justify-center font-bold">
+                      <Award className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">Our Mission</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-normal mt-1">
+                        To deliver highly accurate rank predictions and choice strategies, making the admission path transparent and stress-free.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Location (City)</label>
-                    <input
-                      type="text" required value={formLocation} onChange={(e) => setFormLocation(e.target.value)}
-                      placeholder="e.g. Gaya"
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Established</label>
-                    <input
-                      type="number" required value={formEstablished} onChange={(e) => setFormEstablished(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">NIRF Rank</label>
-                    <input
-                      type="number" value={formNirf} onChange={(e) => setFormNirf(e.target.value === "" ? "" : Number(e.target.value))}
-                      placeholder="None"
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Campus Size</label>
-                    <input
-                      type="text" required value={formCampusSize} onChange={(e) => setFormCampusSize(e.target.value)}
-                      placeholder="35 Acres"
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
+                  {/* Vision block */}
+                  <div className="flex gap-4">
+                    <div className="p-3 bg-[#138808]/15 text-[#138808] rounded-xl shrink-0 h-11 w-11 flex items-center justify-center font-bold">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">Our Vision</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-normal mt-1">
+                        To cultivate a robust digital resource catalog for every aspiring technical graduate in Bihar, fostering merit-driven college allocations.
+                      </p>
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Avg Placement (LPA)</label>
-                    <input
-                      type="number" step="0.1" required value={formAvgPack} onChange={(e) => setFormAvgPack(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Max Placement (LPA)</label>
-                    <input
-                      type="number" step="0.1" required value={formHighestPack} onChange={(e) => setFormHighestPack(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                </div>
+          {/* Meet the Founders */}
+          <div className="mb-16">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <h3 className="text-2xl font-extrabold text-slate-800 dark:text-white flex items-center justify-center gap-1.5">
+                <Users className="w-6 h-6 text-[#2563EB]" />
+                Meet Our Founders
+              </h3>
+              <p className="text-xs text-gray-450 dark:text-gray-400 mt-1.5">
+                The visionary minds from premier technical institutions driving transparent admissions in Bihar.
+              </p>
+            </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Tuition Fee (Annual)</label>
-                    <input
-                      type="number" required value={formTuition} onChange={(e) => setFormTuition(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-gray-400 uppercase mb-1">Hostel Fee (Annual)</label>
-                    <input
-                      type="number" required={formHostelAvail} disabled={!formHostelAvail} value={formHostelFee} onChange={(e) => setFormHostelFee(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500 disabled:opacity-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 py-1">
-                  <input
-                    type="checkbox" id="home-hostel" checked={formHostelAvail} onChange={(e) => setFormHostelAvail(e.target.checked)}
-                    className="rounded text-amber-550 focus:ring-amber-500 cursor-pointer"
-                  />
-                  <label htmlFor="home-hostel" className="font-bold text-slate-700 dark:text-gray-300 cursor-pointer">Hostel Facilities Available</label>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-gray-400 uppercase mb-1">Branches (Comma separated)</label>
-                  <input
-                    type="text" required value={formBranches} onChange={(e) => setFormBranches(e.target.value)}
-                    placeholder="CSE, ECE, EE, ME, CE"
-                    className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-gray-400 uppercase mb-1">Official Website</label>
-                  <input
-                    type="url" required value={formWebsite} onChange={(e) => setFormWebsite(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-gray-400 uppercase mb-1">Description Profile</label>
-                  <textarea
-                    required value={formDescription} onChange={(e) => setFormDescription(e.target.value)}
-                    rows={2} placeholder="Provide overview description..."
-                    className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold flex items-center justify-center gap-1.5 cursor-pointer mt-3"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {[
+                {
+                  name: "ARYAN SINGH KASHYAP",
+                  role: "Founder",
+                  college: "National Institute of Technology, Agartala (NIT Agartala)",
+                  color: "border-[#FF9933]/30 bg-gradient-to-br from-[#FF9933]/5 to-transparent",
+                  badgeColor: "bg-[#FF9933]/10 text-[#FF9933]"
+                },
+                {
+                  name: "PANDAV YADAV",
+                  role: "Co-Founder",
+                  college: "Government Engineering College, Banka (GEC Banka)",
+                  color: "border-[#138808]/30 bg-gradient-to-br from-[#138808]/5 to-transparent",
+                  badgeColor: "bg-[#138808]/10 text-[#138808]"
+                }
+              ].map((f, i) => (
+                <div
+                  key={i}
+                  className={`p-6 border rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 flex items-start gap-4 text-left ${f.color}`}
                 >
-                  <Save className="w-4 h-4" />
-                  {isEditing ? "Save Profile Details" : "Create College Profile"}
-                </button>
-              </form>
+                  <div className={`p-4 rounded-2xl shrink-0 ${f.badgeColor} flex items-center justify-center font-extrabold text-sm shadow-inner`}>
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide inline-block ${f.badgeColor}`}>
+                      {f.role}
+                    </span>
+                    <h4 className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white leading-snug tracking-tight">
+                      {f.name}
+                    </h4>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#138808] shrink-0" />
+                      {f.college}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Core Values */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-200 dark:border-slate-850 p-8">
+            <h3 className="text-xl font-bold text-center text-slate-800 dark:text-white mb-8">
+              Our Foundational Values
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "Data Transparency",
+                  description: "We compile real-world round-by-round BCECE cutoff closing ranks to ensure candidates have accurate information before finalizing choice entries.",
+                  icon: TrendingUp,
+                  color: "text-[#2563EB] bg-[#2563EB]/10 border-[#2563EB]/20"
+                },
+                {
+                  title: "Student-First Design",
+                  description: "Our mobile-first predictor calculators and checklists are built intentionally for candidates across all of Bihar's rural and urban sectors.",
+                  icon: Compass,
+                  color: "text-[#FF9933] bg-[#FF9933]/10 border-[#FF9933]/20"
+                },
+                {
+                  title: "Counselling Clarity",
+                  description: "Demystifying complex seat reservation categories (BC, EBC, EWS, RCG) and nodal verification guidelines to avoid accidental application rejections.",
+                  icon: Layers,
+                  color: "text-[#138808] bg-[#138808]/10 border-[#138808]/20"
+                }
+              ].map((v, i) => {
+                const Icon = v.icon;
+                return (
+                  <div key={i} className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-gray-150 dark:border-slate-850 shadow-sm flex flex-col items-center text-center space-y-4">
+                    <div className={`p-3 rounded-xl border shrink-0 ${v.color}`}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <h4 className="font-bold text-slate-800 dark:text-gray-250">{v.title}</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {v.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 7. ADMINISTRATIVE ACCESS PORTAL SECTION */}
+      {user?.isAdmin && (
+        <section id="admin-panel" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-gray-250 dark:border-slate-900 transition-colors scroll-mt-20">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-wider mb-3">
+              <ShieldAlert className="w-3.5 h-3.5" />
+              Administrative Control Area
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">
+              BiharEduConnect <span className="text-amber-500">Database Administration</span>
+            </h2>
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+              Create new college entries, update placement averages, edit dynamic branches, or delete college files instantly.
+            </p>
+          </div>
+
+          {successMsg && (
+            <div className="max-w-2xl mx-auto mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl flex items-center gap-2 text-sm font-bold shadow-sm">
+              <CheckCircle className="w-5 h-5 shrink-0" />
+              {successMsg}
             </div>
           )}
 
-          {/* Database Grid list of colleges */}
-          <div className={(isCreating || isEditing) ? "lg:col-span-7" : "lg:col-span-12"}>
-            <div className="bg-white dark:bg-slate-900 border border-gray-250/70 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-gray-200 dark:border-slate-850 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900">
-                <div>
-                  <h4 className="font-extrabold text-slate-850 dark:text-white flex items-center gap-1.5 text-sm">
-                    <Building className="w-4.5 h-4.5 text-amber-500" />
-                    Manage Colleges Datastore
-                  </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Edit / Creation form sidepanel */}
+            {(isCreating || isEditing) && (
+              <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-amber-500/30 rounded-2xl p-6 shadow-md relative">
+                <button
+                  type="button"
+                  onClick={() => { setIsEditing(false); setIsCreating(false); }}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <h3 className="text-sm font-bold text-slate-850 dark:text-white mb-4 flex items-center gap-1.5 border-b border-gray-100 dark:border-slate-850 pb-2">
+                  <SlidersHorizontal className="w-4 h-4 text-amber-500" />
+                  {isEditing ? "Edit College Profile" : "Create New College Profile"}
+                </h3>
+
+                <form onSubmit={handleSave} className="space-y-3.5 text-[11px]">
+                  <div>
+                    <label className="block font-bold text-gray-400 uppercase mb-1">College Name</label>
+                    <input
+                      type="text" required value={formName} onChange={(e) => setFormName(e.target.value)}
+                      placeholder="e.g. Gaya College of Engineering"
+                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Unique Code</label>
+                      <input
+                        type="text" required value={formCode} onChange={(e) => setFormCode(e.target.value)}
+                        placeholder="e.g. GCE-GAYA"
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Location (City)</label>
+                      <input
+                        type="text" required value={formLocation} onChange={(e) => setFormLocation(e.target.value)}
+                        placeholder="e.g. Gaya"
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Established</label>
+                      <input
+                        type="number" required value={formEstablished} onChange={(e) => setFormEstablished(Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">NIRF Rank</label>
+                      <input
+                        type="number" value={formNirf} onChange={(e) => setFormNirf(e.target.value === "" ? "" : Number(e.target.value))}
+                        placeholder="None"
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Campus Size</label>
+                      <input
+                        type="text" required value={formCampusSize} onChange={(e) => setFormCampusSize(e.target.value)}
+                        placeholder="35 Acres"
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Avg Placement (LPA)</label>
+                      <input
+                        type="number" step="0.1" required value={formAvgPack} onChange={(e) => setFormAvgPack(Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Max Placement (LPA)</label>
+                      <input
+                        type="number" step="0.1" required value={formHighestPack} onChange={(e) => setFormHighestPack(Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Tuition Fee (Annual)</label>
+                      <input
+                        type="number" required value={formTuition} onChange={(e) => setFormTuition(Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-gray-400 uppercase mb-1">Hostel Fee (Annual)</label>
+                      <input
+                        type="number" required={formHostelAvail} disabled={!formHostelAvail} value={formHostelFee} onChange={(e) => setFormHostelFee(Number(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500 disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 py-1">
+                    <input
+                      type="checkbox" id="home-hostel" checked={formHostelAvail} onChange={(e) => setFormHostelAvail(e.target.checked)}
+                      className="rounded text-amber-550 focus:ring-amber-500 cursor-pointer"
+                    />
+                    <label htmlFor="home-hostel" className="font-bold text-slate-700 dark:text-gray-300 cursor-pointer">Hostel Facilities Available</label>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-gray-400 uppercase mb-1">Branches (Comma separated)</label>
+                    <input
+                      type="text" required value={formBranches} onChange={(e) => setFormBranches(e.target.value)}
+                      placeholder="CSE, ECE, EE, ME, CE"
+                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-gray-400 uppercase mb-1">Official Website</label>
+                    <input
+                      type="url" required value={formWebsite} onChange={(e) => setFormWebsite(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-gray-400 uppercase mb-1">Description Profile</label>
+                    <textarea
+                      required value={formDescription} onChange={(e) => setFormDescription(e.target.value)}
+                      rows={2} placeholder="Provide overview description..."
+                      className="w-full px-3 py-2 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold flex items-center justify-center gap-1.5 cursor-pointer mt-3"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isEditing ? "Save Profile Details" : "Create College Profile"}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Database Grid list of colleges */}
+            <div className={(isCreating || isEditing) ? "lg:col-span-7" : "lg:col-span-12"}>
+              <div className="bg-white dark:bg-slate-900 border border-gray-250/70 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <div className="px-5 py-3.5 border-b border-gray-200 dark:border-slate-850 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900">
+                  <div>
+                    <h4 className="font-extrabold text-slate-850 dark:text-white flex items-center gap-1.5 text-sm">
+                      <Building className="w-4.5 h-4.5 text-amber-500" />
+                      Manage Colleges Datastore
+                    </h4>
+                  </div>
+
+                  {!(isCreating || isEditing) && (
+                    <button
+                      type="button"
+                      onClick={handleCreateNew}
+                      className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5 animate-bounce" />
+                      Add College Record
+                    </button>
+                  )}
                 </div>
 
-                {!(isCreating || isEditing) && (
-                  <button
-                    type="button"
-                    onClick={handleCreateNew}
-                    className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5 animate-bounce" />
-                    Add College Record
-                  </button>
-                )}
-              </div>
-
-              <div className="overflow-x-auto text-xs">
-                <table className="w-full border-collapse text-left">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-gray-450 dark:text-gray-400 font-bold uppercase tracking-wider text-[10px]">
-                      <th className="px-5 py-3">College (Code)</th>
-                      <th className="px-5 py-3">Estd</th>
-                      <th className="px-5 py-3">Avg Placements</th>
-                      <th className="px-5 py-3 text-center">Branches</th>
-                      <th className="px-5 py-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-150 dark:divide-slate-800/80 font-semibold text-slate-700 dark:text-gray-300">
-                    {colleges.map((c) => (
-                      <tr key={c.id} className="hover:bg-slate-50/40 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="px-5 py-3.5">
-                          <div className="font-bold text-slate-800 dark:text-gray-150 leading-snug">{c.name}</div>
-                          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mt-0.5">Code: {c.code} | {c.location}</span>
-                        </td>
-                        <td className="px-5 py-3.5 font-semibold text-gray-600 dark:text-gray-350">
-                          {c.established}
-                        </td>
-                        <td className="px-5 py-3.5 font-bold text-[#138808]">
-                          {c.averagePackage.toFixed(2)} LPA
-                        </td>
-                        <td className="px-5 py-3.5 text-center font-bold text-[#2563EB]">
-                          {c.branches.length}
-                        </td>
-                        <td className="px-5 py-3.5 text-right">
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              type="button"
-                              onClick={() => handleEditClick(c)}
-                              className="p-1.5 border border-gray-200 dark:border-slate-800 text-gray-400 hover:text-amber-500 hover:bg-amber-500/5 rounded-lg cursor-pointer"
-                              title="Edit College Profile"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteClick(c.id)}
-                              className="p-1.5 border border-gray-200 dark:border-slate-800 text-gray-400 hover:text-red-500 hover:bg-red-500/5 rounded-lg cursor-pointer"
-                              title="Delete College Profile"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
+                <div className="overflow-x-auto text-xs">
+                  <table className="w-full border-collapse text-left">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-gray-450 dark:text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+                        <th className="px-5 py-3">College (Code)</th>
+                        <th className="px-5 py-3">Estd</th>
+                        <th className="px-5 py-3">Avg Placements</th>
+                        <th className="px-5 py-3 text-center">Branches</th>
+                        <th className="px-5 py-3 text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-150 dark:divide-slate-800/80 font-semibold text-slate-700 dark:text-gray-300">
+                      {colleges.map((c) => (
+                        <tr key={c.id} className="hover:bg-slate-50/40 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="px-5 py-3.5">
+                            <div className="font-bold text-slate-800 dark:text-gray-150 leading-snug">{c.name}</div>
+                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mt-0.5">Code: {c.code} | {c.location}</span>
+                          </td>
+                          <td className="px-5 py-3.5 font-semibold text-gray-600 dark:text-gray-350">
+                            {c.established}
+                          </td>
+                          <td className="px-5 py-3.5 font-bold text-[#138808]">
+                            {c.averagePackage.toFixed(2)} LPA
+                          </td>
+                          <td className="px-5 py-3.5 text-center font-bold text-[#2563EB]">
+                            {c.branches.length}
+                          </td>
+                          <td className="px-5 py-3.5 text-right">
+                            <div className="flex gap-2 justify-end">
+                              <button
+                                type="button"
+                                onClick={() => handleEditClick(c)}
+                                className="p-1.5 border border-gray-200 dark:border-slate-800 text-gray-400 hover:text-amber-500 hover:bg-amber-500/5 rounded-lg cursor-pointer"
+                                title="Edit College Profile"
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteClick(c.id)}
+                                className="p-1.5 border border-gray-200 dark:border-slate-800 text-gray-400 hover:text-red-500 hover:bg-red-500/5 rounded-lg cursor-pointer"
+                                title="Delete College Profile"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
