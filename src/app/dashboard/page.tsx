@@ -14,7 +14,14 @@ import {
   Compass,
   ArrowRight,
   ShieldCheck,
-  Building
+  Building,
+  User,
+  Mail,
+  Phone,
+  Key,
+  LogOut,
+  Sparkles,
+  Lock
 } from "lucide-react";
 import Link from "next/link";
 import { AuthGate } from "../../components/AuthGate";
@@ -25,8 +32,65 @@ export default function StudentDashboard() {
     savedPredictions, 
     colleges, 
     deletePrediction, 
-    removeFavorite 
+    removeFavorite,
+    user,
+    logout,
+    registerUser
   } = useApp();
+
+  // Upgrade Guest Account states
+  const [upgradeEmail, setUpgradeEmail] = useState("");
+  const [upgradePhone, setUpgradePhone] = useState("");
+  const [upgradePassword, setUpgradePassword] = useState("");
+  const [upgradeError, setUpgradeError] = useState("");
+  const [upgradeSuccess, setUpgradeSuccess] = useState("");
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleUpgradeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpgradeError("");
+    setUpgradeSuccess("");
+
+    if (!user) return;
+
+    const emailClean = upgradeEmail.trim();
+    const phoneClean = upgradePhone.trim();
+    const passClean = upgradePassword.trim();
+
+    if (!emailClean || !emailClean.includes("@")) {
+      setUpgradeError("Please enter a valid email address");
+      return;
+    }
+    if (!phoneClean || phoneClean.replace(/\D/g, "").length < 10) {
+      setUpgradeError("Please enter a valid 10-digit phone number");
+      return;
+    }
+    if (!passClean || passClean.length < 4) {
+      setUpgradeError("Choose a password with at least 4 characters");
+      return;
+    }
+
+    setIsUpgrading(true);
+
+    setTimeout(() => {
+      const res = registerUser(
+        user.name,
+        emailClean,
+        user.percentile || 90.0,
+        passClean
+      );
+      setIsUpgrading(false);
+
+      if (res.success) {
+        setUpgradeSuccess("Profile completed successfully! Your account has been upgraded.");
+        setUpgradeEmail("");
+        setUpgradePhone("");
+        setUpgradePassword("");
+      } else {
+        setUpgradeError(res.error || "Upgrade failed. Email might be in use.");
+      }
+    }, 1000);
+  };
 
   // Load favorite college objects
   const favoriteColleges = colleges.filter((c) => favorites.includes(c.id));
@@ -90,9 +154,160 @@ export default function StudentDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* ================= LEFT SIDE: Counselling Progress checklist (Col-4) ================= */}
-        <div className="lg:col-span-4">
-          <div className="bg-white dark:bg-slate-900 border border-gray-250/70 dark:border-slate-800 rounded-2xl p-6 shadow-sm lg:sticky lg:top-24 space-y-6">
+        {/* ================= LEFT SIDE: Candidate Profile & Progress Checklist (Col-4) ================= */}
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+          
+          {/* Candidate Profile Details Card */}
+          <div className="bg-white dark:bg-slate-900 border border-gray-250/70 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-base font-bold text-slate-850 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-850 pb-2">
+              <User className="w-5 h-5 text-[#2563EB]" />
+              Candidate Profile
+            </h2>
+
+            {user && (
+              <div className="space-y-4">
+                {/* User initials avatar block */}
+                <div className="flex items-center gap-3">
+                  <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] text-white font-extrabold text-lg shadow-inner">
+                    {user.name.charAt(0).toUpperCase()}
+                    <span className="absolute bottom-0.5 right-0.5 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-sm text-slate-850 dark:text-gray-100 leading-snug">
+                      {user.name}
+                    </h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      {user.isAdmin ? (
+                        <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[9px] font-bold uppercase tracking-wider">
+                          🛡️ Administrator
+                        </span>
+                      ) : user.email ? (
+                        <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[9px] font-bold uppercase tracking-wider">
+                          ⚡ Standard Account
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5">
+                          <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                          Guest Account
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Candidate credentials / info list */}
+                <div className="space-y-2.5 text-xs border-t border-b border-gray-100 dark:border-slate-850 py-3.5">
+                  <div className="flex justify-between items-center text-gray-500 dark:text-gray-450">
+                    <span className="font-bold uppercase tracking-wider text-[9px]">JEE Percentile</span>
+                    <span className="font-extrabold text-slate-800 dark:text-gray-200">
+                      {user.percentile !== undefined ? `${user.percentile.toFixed(2)}%` : "N/A"}
+                    </span>
+                  </div>
+                  {user.email && (
+                    <div className="flex justify-between items-center text-gray-500 dark:text-gray-450">
+                      <span className="font-bold uppercase tracking-wider text-[9px]">Email Address</span>
+                      <span className="font-bold text-slate-800 dark:text-gray-200 truncate max-w-[140px]" title={user.email}>
+                        {user.email}
+                      </span>
+                    </div>
+                  )}
+                  {/* Mock phone/password details for standard profile */}
+                  {user.email && (
+                    <div className="flex justify-between items-center text-gray-500 dark:text-gray-455">
+                      <span className="font-bold uppercase tracking-wider text-[9px]">Phone Number</span>
+                      <span className="font-bold text-slate-800 dark:text-gray-200">+91 9*******89</span>
+                    </div>
+                  )}
+                  {user.email && (
+                    <div className="flex justify-between items-center text-gray-500 dark:text-gray-455">
+                      <span className="font-bold uppercase tracking-wider text-[9px]">Password Security</span>
+                      <span className="font-bold text-slate-400 dark:text-slate-600 tracking-widest text-[8px]">••••••••</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upgrade Profile CTA Form for guest/demo users */}
+                {!user.email && !user.isAdmin && (
+                  <div className="p-4 bg-amber-500/5 dark:bg-amber-950/10 border border-amber-500/20 rounded-xl space-y-3">
+                    <div className="space-y-1">
+                      <h4 className="text-[11px] font-extrabold text-amber-700 dark:text-amber-400 uppercase tracking-wide flex items-center gap-1">
+                        ⚠️ Complete the profile information
+                      </h4>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal">
+                        Upgrade your guest account to a standard verified profile to unlock permanent progress tracking.
+                      </p>
+                    </div>
+
+                    {upgradeError && (
+                      <div className="p-2 bg-red-500/10 text-red-500 border border-red-500/20 text-[10px] font-bold rounded-lg text-center">
+                        {upgradeError}
+                      </div>
+                    )}
+                    {upgradeSuccess && (
+                      <div className="p-2 bg-emerald-550/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-bold rounded-lg text-center">
+                        {upgradeSuccess}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleUpgradeSubmit} className="space-y-2">
+                      <div>
+                        <input
+                          type="email"
+                          required
+                          value={upgradeEmail}
+                          onChange={(e) => setUpgradeEmail(e.target.value)}
+                          placeholder="Enter your Email Address"
+                          className="w-full px-3 py-2 text-[11px] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-[#FF9933] font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          required
+                          value={upgradePhone}
+                          onChange={(e) => setUpgradePhone(e.target.value)}
+                          placeholder="10-digit Phone Number"
+                          className="w-full px-3 py-2 text-[11px] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-[#FF9933] font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="password"
+                          required
+                          value={upgradePassword}
+                          onChange={(e) => setUpgradePassword(e.target.value)}
+                          placeholder="Choose Password (Min 4 chars)"
+                          className="w-full px-3 py-2 text-[11px] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none focus:border-[#FF9933] font-semibold"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={isUpgrading}
+                        className="w-full py-2 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-md text-white font-extrabold text-[10px] uppercase tracking-wider rounded-lg transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {isUpgrading ? "Upgrading..." : "Complete Profile"}
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {/* Log Out button inside Profile Card */}
+                <button
+                  onClick={logout}
+                  className="w-full py-2 bg-red-500/10 border border-red-500/25 hover:bg-red-500 text-red-650 hover:text-white rounded-xl text-xs font-extrabold uppercase transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm shadow-red-500/5 hover:shadow-none"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout Candidate Session
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Counselling Step Tracker Card */}
+          <div className="bg-white dark:bg-slate-900 border border-gray-250/70 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
             <div>
               <h2 className="text-base font-bold text-slate-850 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-850 pb-2">
                 <CheckSquare className="w-5 h-5 text-[#138808]" />
@@ -136,6 +351,138 @@ export default function StudentDashboard() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* UGEAC 2026 Official Timeline & Schedule */}
+          <div className="bg-white dark:bg-slate-900 border border-gray-250/70 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-850 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-slate-850 pb-2">
+                <Clock className="w-5 h-5 text-[#FF9933]" />
+                UGEAC 2026 Counselling Timeline
+              </h2>
+              <p className="text-[11px] text-gray-400 mt-1">
+                Official BCECE schedule details for engineering seat selection.
+              </p>
+            </div>
+
+            {/* Vertical Timeline Nodes */}
+            <div className="relative pl-6 border-l border-gray-150 dark:border-slate-800 space-y-5 py-2.5 ml-2.5">
+              
+              {/* Event 1 */}
+              <div className="relative group">
+                {/* Connector Dot */}
+                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white font-extrabold text-[8px] ring-4 ring-emerald-50 dark:ring-emerald-950/40">
+                  ✓
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-bold text-gray-400 line-through">
+                      Online Registration & Fee Paid
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-bold uppercase tracking-wider">
+                      Done
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">May 5 – May 25, 2026</span>
+                </div>
+              </div>
+
+              {/* Event 2 */}
+              <div className="relative group">
+                {/* Connector Dot */}
+                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#2563EB] text-white ring-4 ring-blue-50 dark:ring-blue-950/40 animate-pulse">
+                  •
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-extrabold text-slate-800 dark:text-gray-100">
+                      UGEAC State Merit Rank Release
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-500 text-[8px] font-bold uppercase tracking-wider animate-pulse">
+                      Active
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">May 30, 2026 (Live Now!)</span>
+                </div>
+              </div>
+
+              {/* Event 3 */}
+              <div className="relative group flex flex-col justify-start">
+                {/* Connector Dot */}
+                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
+                  3
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
+                      Online Choice Filling Starts
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
+                      Upcoming
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 4 – June 9, 2026</span>
+                </div>
+              </div>
+
+              {/* Event 4 */}
+              <div className="relative group">
+                {/* Connector Dot */}
+                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
+                  4
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
+                      Round 1 Seat Allotment
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
+                      Upcoming
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 14, 2026</span>
+                </div>
+              </div>
+
+              {/* Event 5 */}
+              <div className="relative group">
+                {/* Connector Dot */}
+                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
+                  5
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
+                      Round 1 Document Verification
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
+                      Upcoming
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 15 – June 18, 2026</span>
+                </div>
+              </div>
+
+              {/* Event 6 */}
+              <div className="relative group">
+                {/* Connector Dot */}
+                <div className="absolute -left-[31px] top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 text-[8px] font-extrabold">
+                  6
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-300">
+                      Round 2 Seat Allotment & Admission
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 text-[8px] font-bold uppercase tracking-wider">
+                      Upcoming
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-gray-400 font-bold block mt-0.5">June 23 – June 26, 2026</span>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

@@ -16,7 +16,9 @@ import {
   Layers, 
   Info,
   GitCompare,
-  Compass
+  Compass,
+  User,
+  Clock
 } from "lucide-react";
 
 export const Navbar: React.FC = () => {
@@ -31,13 +33,15 @@ export const Navbar: React.FC = () => {
   } = useApp();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isAdminRoute = pathname === "/admin";
 
   const navLinks = [
     { href: "/colleges", label: "Colleges DB", icon: GraduationCap },
     { href: "/predictor", label: "Predictor", icon: Compass },
     { href: "/cutoffs", label: "Cutoffs", icon: TrendingUp },
     { href: "/compare", label: "Compare Tools", icon: GitCompare },
-    { href: "/guide", label: "Counselling Guide", icon: Info }
+    { href: "/guide", label: "Counselling Guide", icon: Info },
+    { href: "/timeline", label: "Timeline", icon: Clock }
   ];
 
   const isActive = (path: string) => pathname === path;
@@ -68,7 +72,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation Links */}
-          {user && (
+          {user && !isAdminRoute && (
             <nav className="hidden lg:flex space-x-1">
               {navLinks.map((link) => {
                 const Icon = link.icon;
@@ -95,38 +99,24 @@ export const Navbar: React.FC = () => {
           <div className="hidden lg:flex items-center space-x-3">
             {user ? (
               <>
-                {/* User Greeting */}
-                <span className="text-xs font-semibold text-gray-500 dark:text-gray-450 mr-1.5">
-                  Hi, {user.name.split(" ")[0]}
-                </span>
-
-                {/* Saved Predictions Count */}
-                <Link
-                  href="/dashboard"
-                  className="relative p-2 text-gray-500 hover:text-[#FF9933] dark:text-gray-400 dark:hover:text-[#FF9933] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
-                  title="Saved Predictions"
-                >
-                  <TrendingUp className="w-5 h-5" />
-                  {savedPredictions.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF9933] text-[10px] font-bold text-white shadow-sm animate-pulse">
-                      {savedPredictions.length}
-                    </span>
-                  )}
-                </Link>
+                {/* Greeting text removed fully from top navbar per user instruction */}
+                {/* Saved Predictions Count removed per user instruction */}
 
                 {/* Favorite Colleges Count */}
-                <Link
-                  href="/dashboard"
-                  className="relative p-2 text-gray-500 hover:text-[#138808] dark:text-gray-400 dark:hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
-                  title="Favorite Colleges"
-                >
-                  <Bookmark className="w-5 h-5" />
-                  {favorites.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#138808] text-[10px] font-bold text-white shadow-sm">
-                      {favorites.length}
-                    </span>
-                  )}
-                </Link>
+                {!isAdminRoute && (
+                  <Link
+                    href="/dashboard"
+                    className="relative p-2 text-gray-500 hover:text-[#138808] dark:text-gray-400 dark:hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
+                    title="Favorite Colleges"
+                  >
+                    <Bookmark className="w-5 h-5" />
+                    {favorites.length > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#138808] text-[10px] font-bold text-white shadow-sm">
+                        {favorites.length}
+                      </span>
+                    )}
+                  </Link>
+                )}
 
                 {/* Dark Mode Toggle */}
                 <button
@@ -140,21 +130,27 @@ export const Navbar: React.FC = () => {
                 {/* Admin Access Panel Link (if admin) */}
                 {user.isAdmin && (
                   <Link
-                    href="/#admin-panel"
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold tracking-wider uppercase border-amber-500/20 text-amber-500 hover:bg-amber-500/5 transition-all duration-200"
+                    href="/admin"
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold tracking-wider uppercase transition-all duration-200 ${
+                      isAdminRoute
+                        ? "bg-amber-500 text-white border-amber-500 hover:bg-amber-600 shadow-sm"
+                        : "border-amber-500/20 text-amber-500 hover:bg-amber-500/5"
+                    }`}
                   >
                     <ShieldAlert className="w-3.5 h-3.5" />
-                    Admin
+                    Admin Panel
                   </Link>
                 )}
 
-                {/* Logout Button */}
-                <button
-                  onClick={logout}
-                  className="px-3.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/25 hover:bg-red-500 text-red-600 hover:text-white text-xs font-bold uppercase transition-all duration-200 cursor-pointer"
+                {/* Sleek Profile Link Button */}
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 dark:from-slate-800 dark:to-slate-900 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] dark:text-[#FF9933] hover:text-white dark:hover:text-white text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border border-[#2563EB]/15 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transform active:scale-95 cursor-pointer"
+                  title="My Profile / Dashboard"
                 >
-                  Logout
-                </button>
+                  <User className="w-3.5 h-3.5 shrink-0" />
+                  <span>Profile</span>
+                </Link>
               </>
             ) : (
               <>
@@ -170,7 +166,7 @@ export const Navbar: React.FC = () => {
                 {/* Sign In Button */}
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-md text-white text-xs font-extrabold uppercase tracking-wide cursor-pointer transform hover:-translate-y-0.5 transition-all duration-200 animate-pulse"
+                  className="px-4.5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9933] to-[#138808] text-white text-xs font-extrabold uppercase tracking-wider shadow-sm hover:shadow-lg shadow-[#FF9933]/15 hover:from-[#ff8800] hover:to-[#0f7c05] cursor-pointer transform hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
                 >
                   Sign In
                 </button>
@@ -203,58 +199,74 @@ export const Navbar: React.FC = () => {
         <div className="lg:hidden border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3 space-y-1">
           {user ? (
             <>
-              <div className="px-3 py-1.5 text-xs font-bold text-[#FF9933]">
-                Hi, {user.name}
-              </div>
-              {navLinks.map((link) => {
-                const Icon = link.icon;
-                const active = isActive(link.href);
-                return (
+              {!isAdminRoute && (
+                <>
                   <Link
-                    key={link.href}
-                    href={link.href}
+                    href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-all duration-200 ${
-                      active
-                        ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900"
-                    }`}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-bold text-[#FF9933] hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   >
-                    <Icon className={`w-5 h-5 ${active ? "text-[#2563EB]" : "text-gray-400"}`} />
-                    {link.label}
+                    <User className="w-5 h-5 text-[#FF9933]" />
+                    Candidate Dashboard
                   </Link>
-                );
-              })}
+                  {navLinks.map((link) => {
+                    const Icon = link.icon;
+                    const active = isActive(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-all duration-200 ${
+                          active
+                            ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900"
+                        }`}
+                      >
+                        <Icon className={`w-5 h-5 ${active ? "text-[#2563EB]" : "text-gray-400"}`} />
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
               <div className="border-t border-gray-100 dark:border-slate-800 my-2 pt-2 flex flex-col gap-2.5 px-3">
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#2563EB]"
-                >
-                  <Bookmark className="w-5 h-5" />
-                  Favorites ({favorites.length})
-                </Link>
+                {!isAdminRoute && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#2563EB]"
+                  >
+                    <Bookmark className="w-5 h-5" />
+                    Favorites ({favorites.length})
+                  </Link>
+                )}
                 
                 {user.isAdmin && (
                   <Link
-                    href="/#admin-panel"
+                    href="/admin"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-1.5 text-xs text-amber-500 font-bold border border-amber-500/20 px-2.5 py-1.5 rounded-md"
+                    className={`flex items-center gap-1.5 text-xs font-bold border px-2.5 py-1.5 rounded-md ${
+                      isAdminRoute
+                        ? "bg-amber-500 text-white border-amber-500 shadow-sm"
+                        : "text-amber-500 border-amber-500/20"
+                    }`}
                   >
                     <ShieldAlert className="w-4 h-4" />
                     ADMIN PANEL
                   </Link>
                 )}
 
-                <button
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-xs font-bold uppercase cursor-pointer"
-                >
-                  Logout
-                </button>
+                {isAdminRoute && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-1.5 text-xs text-[#2563EB] dark:text-[#FF9933] font-bold border border-[#2563EB]/20 px-2.5 py-1.5 rounded-md"
+                  >
+                    <User className="w-4 h-4 text-[#2563EB]" />
+                    USER DASHBOARD
+                  </Link>
+                )}
               </div>
             </>
           ) : (

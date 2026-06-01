@@ -22,13 +22,16 @@ import Link from "next/link";
 import { AuthGate } from "../../components/AuthGate";
 
 export default function CollegePredictor() {
-  const { colleges, savePrediction, savedPredictions } = useApp();
+  const { colleges, savePrediction, savedPredictions, user } = useApp();
 
   // Form State
+  const [inputType, setInputType] = useState<"percentile" | "rank">("percentile");
+  const [percentile, setPercentile] = useState<number | "">(user?.percentile || "");
   const [rank, setRank] = useState<number | "">("");
   const [category, setCategory] = useState("UR");
   const [gender, setGender] = useState("Co-ed");
   const [quota, setQuota] = useState("Home State");
+  const [round, setRound] = useState<number>(1);
 
   // Output State
   const [predictions, setPredictions] = useState<any[]>([]);
@@ -48,38 +51,53 @@ export default function CollegePredictor() {
 
   const handlePredict = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rank || rank <= 0) return;
+    
+    let targetRank = 0;
+    
+    if (inputType === "percentile") {
+      const pctVal = Number(percentile);
+      if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) {
+        alert("Please enter a valid percentile between 0 and 100");
+        return;
+      }
+      
+      // A realistic exponential curve representing JEE Main Percentile to UGEAC Bihar State Rank
+      const factor = (100 - pctVal);
+      targetRank = Math.round(10 * Math.pow(factor, 1.7) + 1);
+      targetRank = Math.max(1, targetRank);
+    } else {
+      const rankVal = Number(rank);
+      if (isNaN(rankVal) || rankVal <= 0) {
+        alert("Please enter a valid rank number");
+        return;
+      }
+      targetRank = rankVal;
+    }
 
     const results: any[] = [];
 
     // Predict across all colleges and branches
     colleges.forEach((college) => {
       college.branches.forEach((branchCode) => {
-        // Fetch 2025 Round 1 Cutoff
-        const cutoff2025 = getCutoff(college.code, branchCode, 2025, 1, category, gender);
-        // Fetch 2024 Round 1 Cutoff
-        const cutoff2024 = getCutoff(college.code, branchCode, 2024, 1, category, gender);
+        // Fetch 2025 Cutoff for selected round
+        const cutoff2025 = getCutoff(college.code, branchCode, 2025, round, category, gender);
+        // Fetch 2024 Cutoff for selected round
+        const cutoff2024 = getCutoff(college.code, branchCode, 2024, round, category, gender);
 
         let chance: "High" | "Moderate" | "Low" = "Low";
         let chancePercentage = 10;
 
-        if (quota === "Other State") {
-          // Bihar government colleges reserve 100% of seats for Home State candidates
-          chance = "Low";
-          chancePercentage = 5;
+        const closing2025 = cutoff2025.closingRank;
+        
+        if (targetRank <= closing2025 * 0.85) {
+          chance = "High";
+          chancePercentage = Math.min(98, Math.round(98 - (targetRank / closing2025) * 15));
+        } else if (targetRank <= closing2025 * 1.12) {
+          chance = "Moderate";
+          chancePercentage = Math.round(75 - ((targetRank - closing2025 * 0.85) / (closing2025 * 0.27)) * 25);
         } else {
-          const closing2025 = cutoff2025.closingRank;
-          
-          if (rank <= closing2025 * 0.85) {
-            chance = "High";
-            chancePercentage = Math.min(98, Math.round(98 - (rank / closing2025) * 15));
-          } else if (rank <= closing2025 * 1.12) {
-            chance = "Moderate";
-            chancePercentage = Math.round(75 - ((rank - closing2025 * 0.85) / (closing2025 * 0.27)) * 25);
-          } else {
-            chance = "Low";
-            chancePercentage = Math.max(8, Math.round(40 - (rank / closing2025) * 15));
-          }
+          chance = "Low";
+          chancePercentage = Math.max(8, Math.round(40 - (targetRank / closing2025) * 15));
         }
 
         results.push({
@@ -90,7 +108,7 @@ export default function CollegePredictor() {
           cutoff2024,
           chance,
           chancePercentage,
-          rankEntered: rank
+          rankEntered: targetRank
         });
       });
     });
@@ -178,23 +196,68 @@ export default function CollegePredictor() {
             </h2>
 
             <form onSubmit={handlePredict} className="space-y-4">
-              {/* 1. Rank input */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
-                  UGEAC State Merit Rank / BCECE Rank
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={rank}
-                  onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
-                  placeholder="e.g. 1500"
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] font-semibold"
-                />
+              {/* 1. Percentile / Rank Selector Tab */}
+              <div className="flex p-0.5 bg-slate-100 dark:bg-slate-950 rounded-xl border border-gray-200/50 dark:border-slate-800/50 mb-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => setInputType("percentile")}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 cursor-pointer ${
+                    inputType === "percentile"
+                      ? "bg-white dark:bg-slate-850 text-blue-600 dark:text-amber-500 shadow-sm"
+                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  By JEE Percentile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputType("rank")}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 cursor-pointer ${
+                    inputType === "rank"
+                      ? "bg-white dark:bg-slate-850 text-blue-600 dark:text-amber-500 shadow-sm"
+                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  By State Rank
+                </button>
               </div>
 
-              {/* 2. Category select */}
+              {/* 2. Conditionally Rendered Input Field */}
+              {inputType === "percentile" ? (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
+                    JEE Main Percentile <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={percentile}
+                    onChange={(e) => setPercentile(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="e.g. 92.45"
+                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] font-semibold placeholder-slate-400"
+                  />
+                  <p className="text-[10px] text-gray-450 dark:text-gray-500 mt-1 leading-normal">
+                    Enter your percentile. The system will automatically estimate your UGEAC State Merit Rank using a high-precision curve model!
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
+                    UGEAC State Merit Rank / BCECE Rank <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={rank}
+                    onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="e.g. 1500"
+                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] font-semibold placeholder-slate-400"
+                  />
+                </div>
+              )}
+
+              {/* 3. Category select */}
               <div>
                 <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
                   Reservation Category
@@ -212,7 +275,7 @@ export default function CollegePredictor() {
                 </select>
               </div>
 
-              {/* 3. Gender selection */}
+              {/* 4. Gender selection */}
               <div>
                 <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
                   Gender Pool
@@ -235,24 +298,24 @@ export default function CollegePredictor() {
                 </div>
               </div>
 
-              {/* 4. Domicile selection */}
+              {/* 5. Counselling Round selection */}
               <div>
                 <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
-                  Domicile Quota
+                  Counselling Round
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["Home State", "Other State"].map((q) => (
+                  {[1, 2].map((r) => (
                     <button
-                      key={q}
+                      key={r}
                       type="button"
-                      onClick={() => setQuota(q)}
-                      className={`py-2 px-3 rounded-xl border text-sm font-bold transition-all ${
-                        quota === q
+                      onClick={() => setRound(r)}
+                      className={`py-2 px-3 rounded-xl border text-sm font-bold transition-all duration-200 ${
+                        round === r
                           ? "bg-[#138808] border-[#138808] text-white"
                           : "border-gray-250 dark:border-slate-800 text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       }`}
                     >
-                      {q === "Home State" ? "Bihar Domicile" : "Other State"}
+                      Round {r}
                     </button>
                   ))}
                 </div>
@@ -267,15 +330,6 @@ export default function CollegePredictor() {
                 <ArrowRight className="w-5 h-5" />
               </button>
             </form>
-
-            {quota === "Other State" && (
-              <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-[10px] text-amber-600 leading-normal">
-                  **Warning**: Government engineering colleges in Bihar allocate 100% B.Tech seats exclusively to Bihar Domicile students via UGEAC. Other State candidates are only eligible under vacant Institutional/Mop-up quotas.
-                </p>
-              </div>
-            )}
           </div>
         </div>
 

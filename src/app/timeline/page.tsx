@@ -1,0 +1,225 @@
+"use client";
+
+import React from "react";
+import { useApp } from "../../context/AppContext";
+import { 
+  Clock, 
+  CheckCircle2, 
+  HelpCircle, 
+  Calendar, 
+  ChevronRight, 
+  ArrowRight,
+  ShieldCheck,
+  Compass,
+  AlertCircle
+} from "lucide-react";
+import Link from "next/link";
+import { AuthGate } from "../../components/AuthGate";
+
+export default function CounsellingTimelinePage() {
+  const { user } = useApp();
+
+  return (
+    <AuthGate>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Page Header */}
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FF9933]/10 text-[#FF9933] text-xs font-extrabold uppercase tracking-widest mb-3">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
+            Official Schedule Hub
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-805 dark:text-white tracking-tight">
+            Bihar UGEAC 2026 <span className="bg-gradient-to-r from-[#FF9933] to-[#138808] bg-clip-text text-transparent">Counselling Timeline</span>
+          </h1>
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            Track key milestones, official dates, and next steps for BCECE Bihar state government engineering admissions.
+          </p>
+        </div>
+
+        {/* Central Vertical Timeline */}
+        <div className="relative border-l-2 border-gray-100 dark:border-slate-850 pl-8 ml-4 md:ml-8 space-y-10 py-4">
+          
+          {/* Phase 1 */}
+          <div className="relative group">
+            {/* Pulsating Indicator Badge */}
+            <div className="absolute -left-[42px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white font-extrabold text-xs ring-4 ring-emerald-50 dark:ring-emerald-950/40">
+              ✓
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-extrabold uppercase tracking-wider">
+                  Phase 1: Completed
+                </span>
+                <span className="text-[11px] text-gray-400 font-extrabold flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  May 5 – May 25, 2026
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white group-hover:text-emerald-500 transition-colors leading-snug">
+                Online Registration & BCECE/UGEAC Fee Payment
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                Candidates registered successfully on the BCECE board portal, paid the standard UGEAC counselling security deposit, and uploaded their JEE Main details.
+              </p>
+            </div>
+          </div>
+
+          {/* Phase 2 */}
+          <div className="relative group">
+            {/* Pulsating Indicator Badge */}
+            <div className="absolute -left-[42px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#2563EB] text-white font-extrabold text-xs ring-4 ring-blue-50 dark:ring-blue-950/40 animate-pulse">
+              •
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 border border-[#2563EB]/20 dark:border-blue-900/30 rounded-2xl p-6 shadow-md shadow-[#2563EB]/5 hover:shadow-lg hover:border-[#2563EB]/35 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-1.5 w-full bg-gradient-to-r from-[#FF9933] to-[#138808]" />
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+                <span className="px-2.5 py-0.5 rounded bg-blue-500/15 text-[#2563EB] text-[10px] font-extrabold uppercase tracking-wider animate-pulse">
+                  Phase 2: Active (Live Now!)
+                </span>
+                <span className="text-[11px] text-[#2563EB] font-extrabold flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  May 30, 2026
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white group-hover:text-[#2563EB] transition-colors leading-snug">
+                UGEAC State Merit Rank Release
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                The Bihar BCECE Board has released rank cards for engineering candidates! Log in to the official portal to download your **UGEAC Rank Card** showing your state merit rank.
+              </p>
+              
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-850 flex flex-wrap items-center justify-between gap-3">
+                <span className="text-[10px] text-gray-400 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-[#FF9933]" />
+                  Verify rank prior to preference choice filling!
+                </span>
+                <Link
+                  href="/predictor"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-extrabold text-[10px] uppercase rounded-xl hover:shadow-md transition-shadow"
+                >
+                  Predict colleges now
+                  <Compass className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Phase 3 */}
+          <div className="relative group">
+            {/* Pulsating Indicator Badge */}
+            <div className="absolute -left-[42px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 font-extrabold text-xs">
+              3
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+                  Phase 3: Upcoming
+                </span>
+                <span className="text-[11px] text-gray-400 font-extrabold flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  June 4 – June 9, 2026
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white leading-snug">
+                Online Choice Filling & Preference Locking
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                Log in to BCECE board to enter your target engineering colleges and branches in order of preference. Complete your OTP verification to lock preferences before the final deadline.
+              </p>
+            </div>
+          </div>
+
+          {/* Phase 4 */}
+          <div className="relative group">
+            {/* Pulsating Indicator Badge */}
+            <div className="absolute -left-[42px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 font-extrabold text-xs">
+              4
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+                  Phase 4: Upcoming
+                </span>
+                <span className="text-[11px] text-gray-400 font-extrabold flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  June 14, 2026
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white leading-snug">
+                Round 1 Provisional Seat Allotment
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                Provisional seat allotment results published. Download the allotment letter to view assigned engineering colleges and spécialities. Choose whether to Freeze (admit) or Upgrade (move to round 2).
+              </p>
+            </div>
+          </div>
+
+          {/* Phase 5 */}
+          <div className="relative group">
+            {/* Pulsating Indicator Badge */}
+            <div className="absolute -left-[42px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 font-extrabold text-xs">
+              5
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+                  Phase 5: Upcoming
+                </span>
+                <span className="text-[11px] text-gray-400 font-extrabold flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  June 15 – June 18, 2026
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white leading-snug">
+                Round 1 Document Verification & Admission
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                Physical reporting at designated verification nodes in Bihar (e.g. MIT Muzaffarpur, BCE Bhagalpur, BCE Patna). Bring original academic certificates, marksheet, rank card, and medical checklist.
+              </p>
+            </div>
+          </div>
+
+          {/* Phase 6 */}
+          <div className="relative group">
+            {/* Pulsating Indicator Badge */}
+            <div className="absolute -left-[42px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-gray-250 dark:bg-slate-850 text-gray-400 dark:text-slate-500 font-extrabold text-xs">
+              6
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+                  Phase 6: Upcoming
+                </span>
+                <span className="text-[11px] text-gray-400 font-extrabold flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  June 23 – June 26, 2026
+                </span>
+              </div>
+              <h3 className="text-base font-extrabold text-slate-850 dark:text-white leading-snug">
+                Round 2 Allotment & Document Verification
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                Vacant seats and upgraded selections announced in final second round allotment. Verification of upgraded candidates completed at reporting centres to confirm Bihar engineering admissions.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Small Bottom T&C Disclaimer */}
+        <div className="text-[11px] text-slate-550 dark:text-slate-450 mt-10 border-t border-gray-100 dark:border-slate-850 pt-6 text-center leading-relaxed">
+          * Note: Counselling dates are subject to minor official updates by the BCECE board. Monitor official notifications at{" "}
+          <a href="https://bceceboard.bihar.gov.in" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+            bceceboard.bihar.gov.in
+          </a>.
+        </div>
+      </div>
+    </AuthGate>
+  );
+}

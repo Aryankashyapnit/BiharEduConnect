@@ -37,6 +37,7 @@ interface AppContextType {
   seatMatrix: SeatMatrixEntry[];
   favorites: string[];
   savedPredictions: SavedPrediction[];
+  totalVisits: number;
   darkMode: boolean;
   toggleDarkMode: () => void;
   addFavorite: (collegeId: string) => void;
@@ -58,6 +59,8 @@ interface AppContextType {
   logout: () => void;
   registeredUsers: RegisteredUser[];
   registerUser: (name: string, email: string, percentile: number, pass: string) => { success: boolean; error?: string };
+  updateRegisteredUser: (oldEmail: string, updatedUser: RegisteredUser) => { success: boolean; error?: string };
+  deleteRegisteredUser: (email: string) => void;
   loginUser: (emailOrName: string, passOrPercentile: string) => { success: boolean; error?: string };
 }
 
@@ -70,6 +73,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [favorites, setFavorites] = useState<string[]>([]);
   const [savedPredictions, setSavedPredictions] = useState<SavedPrediction[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [totalVisits, setTotalVisits] = useState<number>(0);
 
   // Authentication States
   const [user, setUser] = useState<User | null>(null);
@@ -87,13 +91,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedPredictions) setSavedPredictions(JSON.parse(storedPredictions));
 
       const storedColleges = localStorage.getItem("bihareduconnect_colleges");
-      if (storedColleges) setColleges(JSON.parse(storedColleges));
+      if (storedColleges) {
+        const parsed = JSON.parse(storedColleges);
+        if (parsed.length < collegesData.length) {
+          setColleges(collegesData);
+          localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
+        } else {
+          setColleges(parsed);
+        }
+      } else {
+        setColleges(collegesData);
+      }
 
       const storedUser = localStorage.getItem("bihareduconnect_user");
       if (storedUser) setUser(JSON.parse(storedUser));
 
       const storedUsers = localStorage.getItem("bihareduconnect_registered_users");
       if (storedUsers) setRegisteredUsers(JSON.parse(storedUsers));
+
+      const storedVisits = localStorage.getItem("bihareduconnect_total_visits");
+      const initialVisits = storedVisits ? parseInt(storedVisits, 10) : 124;
+      setTotalVisits(initialVisits);
+      
+      const sessionVisited = sessionStorage.getItem("bihareduconnect_session_visited");
+      if (!sessionVisited) {
+        const incremented = initialVisits + 1;
+        setTotalVisits(incremented);
+        localStorage.setItem("bihareduconnect_total_visits", incremented.toString());
+        sessionStorage.setItem("bihareduconnect_session_visited", "true");
+      }
 
       const storedDark = localStorage.getItem("bihareduconnect_dark");
       if (storedDark) {
@@ -255,6 +281,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { success: true };
   };
 
+  const updateRegisteredUser = (oldEmail: string, updatedUser: RegisteredUser): { success: boolean; error?: string } => {
+    const oldEmailClean = oldEmail.toLowerCase().trim();
+    const newEmailClean = updatedUser.email.toLowerCase().trim();
+    
+    if (newEmailClean === "admin@bihareduconnect.in") {
+      return { success: false, error: "This email address is reserved." };
+    }
+    
+    if (oldEmailClean !== newEmailClean) {
+      const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === newEmailClean);
+      if (exists) {
+        return { success: false, error: "An account with the new email already exists." };
+      }
+    }
+    
+    const updatedList = registeredUsers.map(u => u.email.toLowerCase().trim() === oldEmailClean ? {
+      ...updatedUser,
+      email: newEmailClean,
+      name: updatedUser.name.trim(),
+      password: updatedUser.password ? updatedUser.password.trim() : ""
+    } : u);
+    
+    setRegisteredUsers(updatedList);
+    saveToLocalStorage("bihareduconnect_registered_users", updatedList);
+    
+    if (user && user.email?.toLowerCase().trim() === oldEmailClean) {
+      const updatedSession: User = {
+        name: updatedUser.name,
+        email: newEmailClean,
+        percentile: updatedUser.percentile,
+        isAdmin: false
+      };
+      setUser(updatedSession);
+      saveToLocalStorage("bihareduconnect_user", updatedSession);
+    }
+    
+    return { success: true };
+  };
+
+  const deleteRegisteredUser = (email: string) => {
+    const emailClean = email.toLowerCase().trim();
+    const updatedList = registeredUsers.filter(u => u.email.toLowerCase().trim() !== emailClean);
+    setRegisteredUsers(updatedList);
+    saveToLocalStorage("bihareduconnect_registered_users", updatedList);
+    
+    if (user && user.email?.toLowerCase().trim() === emailClean) {
+      setUser(null);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("bihareduconnect_user");
+      }
+    }
+  };
+
   const loginUser = (emailOrName: string, passOrPercentile: string): { success: boolean; error?: string } => {
     const inputClean = emailOrName.trim();
     const passClean = passOrPercentile.trim();
@@ -322,6 +401,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         seatMatrix,
         favorites,
         savedPredictions,
+        totalVisits,
         darkMode,
         toggleDarkMode,
         addFavorite,
@@ -343,6 +423,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         logout,
         registeredUsers,
         registerUser,
+        updateRegisteredUser,
+        deleteRegisteredUser,
         loginUser
       }}
     >

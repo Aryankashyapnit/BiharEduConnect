@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useApp } from "../context/AppContext";
 import { 
   Sparkles, 
   MessageSquare, 
@@ -22,6 +23,7 @@ interface Message {
 }
 
 export const AIChatbot: React.FC = () => {
+  const { user } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -45,6 +47,47 @@ export const AIChatbot: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+
+  // Sync active chat session with localStorage for Admin Panel logs
+  useEffect(() => {
+    if (messages.length <= 1) return;
+    
+    try {
+      const storedSessions = localStorage.getItem("bihareduconnect_chat_sessions");
+      let sessions: any[] = storedSessions ? JSON.parse(storedSessions) : [];
+      
+      const sessionId = user ? `session-${user.email || user.name}` : "session-guest";
+      const existingIndex = sessions.findIndex(s => s.id === sessionId);
+      
+      const updatedSession = {
+        id: sessionId,
+        studentName: user ? user.name : "Guest Student",
+        studentEmail: user ? (user.email || "No Email (Guest)") : "guest@bihareduconnect.in",
+        percentile: user ? (user.percentile || 0) : 0,
+        messages: messages.map(m => ({
+          sender: m.sender,
+          text: m.text,
+          timestamp: m.timestamp
+        })),
+        lastMessageTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        })
+      };
+      
+      if (existingIndex > -1) {
+        sessions[existingIndex] = updatedSession;
+      } else {
+        sessions.unshift(updatedSession);
+      }
+      
+      localStorage.setItem("bihareduconnect_chat_sessions", JSON.stringify(sessions));
+    } catch (e) {
+      console.error("Failed to sync chat session to admin log:", e);
+    }
+  }, [messages, user]);
 
   const handleSendMessage = (text: string) => {
     if (!text.trim()) return;

@@ -11,12 +11,241 @@ import {
   HelpCircle,
   Lock,
   UserCheck,
-  Building
+  Building,
+  Sparkles,
+  QrCode,
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
+  ShieldCheck,
+  FileCheck,
+  ArrowRight
 } from "lucide-react";
 import { AuthGate } from "../../components/AuthGate";
+import { collegesData } from "../../data/colleges";
+import { getCutoff } from "../../data/cutoffs";
+import { useApp } from "../../context/AppContext";
 
 export default function CounsellingGuide() {
+  const { user } = useApp();
   const [activeStep, setActiveStep] = useState(0);
+
+  const [isPremiumUnlocked, setIsPremiumUnlocked] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedVal = localStorage.getItem("bihareduconnect_premium_guide");
+      if (storedVal === "true") {
+        setIsPremiumUnlocked(true);
+      }
+    }
+  }, []);
+
+  const handleSimulatePayment = () => {
+    setIsPaying(true);
+    setTimeout(() => {
+      setIsPaying(false);
+      setIsPremiumUnlocked(true);
+      setShowPaymentModal(false);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("bihareduconnect_premium_guide", "true");
+      }
+    }, 1500);
+  };
+
+  // ==========================================
+  // UGEAC counselling choice simulator states
+  // ==========================================
+  const [simPercentile, setSimPercentile] = useState<number | "">(user?.percentile || 90.0);
+  const [simCategory, setSimCategory] = useState("UR");
+  const [simGender, setSimGender] = useState("Co-ed");
+  const [simChoices, setSimChoices] = useState<Array<{
+    collegeId: string;
+    collegeCode: string;
+    collegeName: string;
+    branchCode: string;
+  }>>([]);
+  const [simStage, setSimStage] = useState<"setup" | "filling" | "locking" | "allocated">("setup");
+  const [simOtpInput, setSimOtpInput] = useState("");
+  const [simOtpError, setSimOtpError] = useState("");
+  const [isSimOtpVerifying, setIsSimOtpVerifying] = useState(false);
+  const [allottedSeat, setAllottedSeat] = useState<{
+    collegeName: string;
+    branchCode: string;
+    preferenceIndex: number;
+    closingRank: number;
+    allotmentRank: number;
+  } | null>(null);
+  const [isSimulatingAllotment, setIsSimulatingAllotment] = useState(false);
+  const [freezeDecision, setFreezeDecision] = useState<"freeze" | "upgrade" | null>(null);
+  const [round2Seat, setRound2Seat] = useState<{
+    collegeName: string;
+    branchCode: string;
+    preferenceIndex: number;
+    closingRank: number;
+    allotmentRank: number;
+  } | null>(null);
+  const [isSimulatingRound2, setIsSimulatingRound2] = useState(false);
+  
+  // Choice selection dropdown states
+  const [selectedCollegeId, setSelectedCollegeId] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
+
+  const calculateStateRank = (pctVal: number) => {
+    const factor = (100 - pctVal);
+    const targetRank = Math.round(10 * Math.pow(factor, 1.7) + 1);
+    return Math.max(1, targetRank);
+  };
+
+  const handleAddChoice = () => {
+    if (!selectedCollegeId || !selectedBranch) {
+      alert("Please select a college and branch first!");
+      return;
+    }
+    
+    const college = collegesData.find((c) => c.id === selectedCollegeId);
+    if (!college) return;
+    
+    const isDuplicate = simChoices.some(
+      (c) => c.collegeId === selectedCollegeId && c.branchCode === selectedBranch
+    );
+    if (isDuplicate) {
+      alert("This exact choice is already added to your preference list!");
+      return;
+    }
+    
+    // Premium tier restriction (max 2 choices under free tier)
+    if (!isPremiumUnlocked && simChoices.length >= 2) {
+      setShowPaymentModal(true);
+      return;
+    }
+    
+    setSimChoices((prev) => [
+      ...prev,
+      {
+        collegeId: college.id,
+        collegeCode: college.code,
+        collegeName: college.name,
+        branchCode: selectedBranch
+      }
+    ]);
+    
+    setSelectedBranch("");
+  };
+
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    setSimChoices((prev) => {
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[index - 1];
+      copy[index - 1] = temp;
+      return copy;
+    });
+  };
+
+  const handleMoveDown = (index: number) => {
+    setSimChoices((prev) => {
+      if (index === prev.length - 1) return prev;
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[index + 1];
+      copy[index + 1] = temp;
+      return copy;
+    });
+  };
+
+  const handleRemoveChoice = (index: number) => {
+    setSimChoices((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSimOtpError("");
+    
+    if (simOtpInput !== "1234") {
+      setSimOtpError("Invalid OTP! Use simulator code '1234' to lock choices.");
+      return;
+    }
+    
+    setIsSimOtpVerifying(true);
+    setTimeout(() => {
+      setIsSimOtpVerifying(false);
+      setSimStage("allocated");
+      handleRunAllotment(1);
+    }, 1200);
+  };
+
+  const handleRunAllotment = (roundNum: number) => {
+    const rankVal = calculateStateRank(Number(simPercentile) || 90.0);
+    
+    if (roundNum === 1) {
+      setIsSimulatingAllotment(true);
+      setTimeout(() => {
+        setIsSimulatingAllotment(false);
+        
+        let allocated = null;
+        for (let i = 0; i < simChoices.length; i++) {
+          const choice = simChoices[i];
+          const cutoff = getCutoff(choice.collegeCode, choice.branchCode, 2025, 1, simCategory, simGender);
+          const closingRank = cutoff?.closingRank || (4500 + i * 400); // fallback cutoff
+          
+          if (rankVal <= closingRank) {
+            allocated = {
+              collegeName: choice.collegeName,
+              branchCode: choice.branchCode,
+              preferenceIndex: i + 1,
+              closingRank: Math.round(closingRank),
+              allotmentRank: rankVal
+            };
+            break;
+          }
+        }
+        setAllottedSeat(allocated);
+      }, 1500);
+    } else {
+      setIsSimulatingRound2(true);
+      setTimeout(() => {
+        setIsSimulatingRound2(false);
+        
+        let allocated = null;
+        for (let i = 0; i < simChoices.length; i++) {
+          const choice = simChoices[i];
+          const cutoff = getCutoff(choice.collegeCode, choice.branchCode, 2025, 2, simCategory, simGender);
+          // Simulate standard Round 2 cutoff expansion (closing rank drops / relaxes by ~8-12%)
+          const closingRank = (cutoff?.closingRank || (4500 + i * 400)) * 1.10;
+          
+          if (rankVal <= closingRank) {
+            allocated = {
+              collegeName: choice.collegeName,
+              branchCode: choice.branchCode,
+              preferenceIndex: i + 1,
+              closingRank: Math.round(closingRank),
+              allotmentRank: rankVal
+            };
+            break;
+          }
+        }
+        setRound2Seat(allocated);
+      }, 1500);
+    }
+  };
+
+  const handleResetSimulator = () => {
+    setSimChoices([]);
+    setSimStage("setup");
+    setSimOtpInput("");
+    setSimOtpError("");
+    setAllottedSeat(null);
+    setFreezeDecision(null);
+    setRound2Seat(null);
+    setSelectedCollegeId("");
+    setSelectedBranch("");
+  };
 
   const steps = [
     {
@@ -78,6 +307,63 @@ export default function CounsellingGuide() {
         <p className="mt-3 text-base text-gray-500 dark:text-gray-400">
           A definitive, step-by-step admissions walkthrough for BCECE UGEAC engineering counselling.
         </p>
+      </div>
+
+      {/* Premium Counselling Guide Upgrade Card */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-[#FF9933]/15 to-[#138808]/15 border border-[#FF9933]/30 rounded-3xl p-6 md:p-8 shadow-md relative overflow-hidden mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-tr from-[#138808]/20 to-transparent rounded-full blur-2xl" />
+        <div className="space-y-3 max-w-2xl relative z-10 text-left">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-[#D97706] text-[10px] font-extrabold uppercase tracking-wider">
+            ⭐ Premium Advantage
+          </div>
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-805 dark:text-white leading-tight">
+            Unlock Expert Bihar Engineering <span className="bg-gradient-to-r from-[#FF9933] to-[#138808] bg-clip-text text-transparent">Counselling Handbook</span>
+          </h2>
+          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            Get access to the premium rank-wise college choice priority list, PDF counselling guides, placement statistics excel trackers, and direct WhatsApp group expert help.
+          </p>
+          
+          {isPremiumUnlocked ? (
+            <div className="flex flex-wrap gap-2.5 pt-2">
+              <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1">
+                ✓ Premium Unlocked (₹99 Paid)
+              </span>
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); alert("Success: UGEAC_2026_Counselling_Handbook.pdf downloaded successfully!"); }}
+                className="px-3.5 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:shadow transition-shadow"
+              >
+                📥 Download PDF Guide
+              </a>
+              <a
+                href="https://wa.me/919999999999"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:bg-emerald-500/15 transition-all"
+              >
+                💬 Join WhatsApp Group
+              </a>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 pt-2">
+              <span className="text-2xl font-extrabold text-[#138808] dark:text-[#FF9933]">₹99</span>
+              <span className="text-xs text-gray-400 line-through">₹499</span>
+              <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-bold uppercase tracking-wider">
+                80% OFF
+              </span>
+            </div>
+          )}
+        </div>
+
+        {!isPremiumUnlocked && (
+          <button
+            onClick={() => setShowPaymentModal(true)}
+            className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg shadow-[#FF9933]/10 cursor-pointer transform hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shrink-0 z-10 flex items-center justify-center gap-1.5"
+          >
+            <Sparkles className="w-4 h-4" />
+            Unlock Premium Guide
+          </button>
+        )}
       </div>
 
       {/* Interactive Visual Timeline Container */}
@@ -170,35 +456,518 @@ export default function CounsellingGuide() {
           </div>
         </div>
 
-        {/* Choice filling Mock Visual */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+        {/* UGEAC Counselling Choice & Allotment Simulator */}
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          {/* Subtle decorative glowing background indicator */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF9933]/5 dark:bg-[#FF9933]/10 rounded-full blur-xl pointer-events-none" />
+          
           <div>
-            <h2 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2 mb-3 border-b border-gray-100 dark:border-slate-850 pb-2">
-              <Layers className="w-5.5 h-5.5 text-[#FF9933]" />
-              Model Choice Preference Layout
+            <h2 className="text-lg font-bold text-slate-850 dark:text-white flex items-center justify-between gap-2 mb-3 border-b border-gray-100 dark:border-slate-850 pb-2">
+              <span className="flex items-center gap-2">
+                <Layers className="w-5.5 h-5.5 text-[#FF9933]" />
+                UGEAC Counselling Simulator
+              </span>
+              <span className="px-2 py-0.5 rounded bg-[#FF9933]/15 text-[#FF9933] text-[9px] font-extrabold uppercase tracking-wide">
+                Interactive Mock
+              </span>
             </h2>
-            <p className="text-xs text-gray-500 leading-relaxed mb-4">
-              Here is the standard preference listing format recommended for high-performing choices:
-            </p>
 
-            <div className="space-y-2 text-xs">
-              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl flex items-center justify-between">
-                <span>Preference 1: **MIT Muzaffarpur (CSE)**</span>
-                <span className="text-[10px] text-[#FF9933] font-bold">1st Choice</span>
+            {/* STAGE 1: CREDENTIALS SETUP */}
+            {simStage === "setup" && (
+              <div className="space-y-4 py-2 text-left">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                  Welcome to the BCECE choice filling room! Enter your academic details to simulate a personalized counselling rank card.
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                      JEE Main Percentile
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      max="100"
+                      value={simPercentile}
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        setSimPercentile(val);
+                      }}
+                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <span className="text-[9px] text-gray-400 font-bold mt-1 block">
+                      Estimated UGEAC Bihar Rank: <strong className="text-[#2563EB]">#{calculateStateRank(Number(simPercentile) || 90.0)}</strong>
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                        Caste Category
+                      </label>
+                      <select
+                        value={simCategory}
+                        onChange={(e) => setSimCategory(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-bold text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="UR">General (UR)</option>
+                        <option value="BC">Backward (BC)</option>
+                        <option value="EBC">Extremely Backward (EBC)</option>
+                        <option value="SC">Scheduled Caste (SC)</option>
+                        <option value="ST">Scheduled Tribe (ST)</option>
+                        <option value="EWS">EWS Section</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
+                        Gender Quota
+                      </label>
+                      <select
+                        value={simGender}
+                        onChange={(e) => setSimGender(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-bold text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="Co-ed">Co-Educational</option>
+                        <option value="Female">Female Candidate</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSimStage("filling")}
+                  className="w-full py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg shadow-[#FF9933]/15 transform active:scale-95 transition-all mt-4 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  Enter Choice Filling Room
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl flex items-center justify-between">
-                <span>Preference 2: **BCE Bhagalpur (CSE)**</span>
-                <span className="text-[10px] text-[#2563EB] font-bold">Highly Safe</span>
+            )}
+
+            {/* STAGE 2: CHOICE FILLING & PRIORITY ARRANGEMENT */}
+            {simStage === "filling" && (
+              <div className="space-y-4 py-2 text-left">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-gray-405 font-bold uppercase tracking-wider">
+                    Preference Basket ({simChoices.length} Added)
+                  </span>
+                  <button
+                    onClick={handleResetSimulator}
+                    className="text-[10px] text-red-500 font-bold hover:underline cursor-pointer"
+                  >
+                    Reset Setup
+                  </button>
+                </div>
+
+                {/* Free Tier Alert Indicator */}
+                {!isPremiumUnlocked && (
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2">
+                    <Lock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-normal">
+                      <strong>Demo Mode Active</strong>: You can add up to <strong>2 college choices</strong>. Unlock <span className="underline font-bold cursor-pointer" onClick={() => setShowPaymentModal(true)}>Premium Advantage (₹99)</span> for unlimited preferences & Category Allotments!
+                    </p>
+                  </div>
+                )}
+
+                {/* Selection Dropdowns */}
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-gray-400 uppercase">1. Choose Institution</label>
+                    <select
+                      value={selectedCollegeId}
+                      onChange={(e) => {
+                        setSelectedCollegeId(e.target.value);
+                        setSelectedBranch(""); // Reset branch when college changes
+                      }}
+                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-gray-200 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="">-- Choose Bihar Govt College --</option>
+                      {collegesData.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.location})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 items-end">
+                    <div className="col-span-8 space-y-1">
+                      <label className="text-[9px] font-bold text-gray-400 uppercase">2. Select B.Tech Branch</label>
+                      <select
+                        value={selectedBranch}
+                        onChange={(e) => setSelectedBranch(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-gray-200 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                        disabled={!selectedCollegeId}
+                      >
+                        <option value="">-- Choose Branch --</option>
+                        {selectedCollegeId &&
+                          collegesData
+                            .find((c) => c.id === selectedCollegeId)
+                            ?.branches.map((b) => (
+                              <option key={b} value={b}>
+                                {b} (B.Tech)
+                              </option>
+                            ))}
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleAddChoice}
+                      className="col-span-4 p-2.5 bg-[#138808] hover:bg-[#138808]/90 text-white rounded-xl font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1 shadow-sm hover:shadow cursor-pointer transition-all transform active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preference List container */}
+                {simChoices.length > 0 ? (
+                  <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 pt-1">
+                    {simChoices.map((choice, index) => (
+                      <div key={index} className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-xl flex items-center justify-between text-xs transition-all hover:border-gray-250 dark:hover:border-slate-750">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded bg-blue-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933] font-bold flex items-center justify-center text-[10px]">
+                            {index + 1}
+                          </span>
+                          <div className="text-left">
+                            <p className="font-extrabold text-slate-850 dark:text-gray-200 leading-none truncate max-w-[130px] sm:max-w-[170px]">
+                              {choice.collegeName.replace(" Institute of Technology", "").replace(" College of Engineering", "")}
+                            </p>
+                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{choice.branchCode}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleMoveUp(index)}
+                            disabled={index === 0}
+                            className="p-1 rounded bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-gray-500 disabled:opacity-30 cursor-pointer"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveDown(index)}
+                            disabled={index === simChoices.length - 1}
+                            className="p-1 rounded bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-gray-500 disabled:opacity-30 cursor-pointer"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleRemoveChoice(index)}
+                            className="p-1 rounded bg-red-50 dark:bg-red-950/20 hover:bg-red-100 text-red-500 dark:text-red-400 cursor-pointer"
+                            title="Remove"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() => setSimStage("locking")}
+                      className="w-full py-2.5 bg-[#2563EB] hover:bg-[#2563EB]/95 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-sm hover:shadow mt-4 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Lock className="w-4 h-4" />
+                      Lock Preferences & Submit
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border border-dashed border-gray-200 dark:border-slate-850 rounded-2xl py-10 text-center flex flex-col items-center justify-center space-y-2">
+                    <Layers className="w-8 h-8 text-gray-300 dark:text-slate-800 animate-pulse" />
+                    <p className="text-[10px] text-gray-400 font-bold max-w-[200px] leading-normal">
+                      Your choices are empty! Search and select Bihar govt colleges from the basket above to arrange them.
+                    </p>
+                  </div>
+                )}
               </div>
-              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl flex items-center justify-between">
-                <span>Preference 3: **MIT Muzaffarpur (ECE)**</span>
-                <span className="text-[10px] text-[#138808] font-bold">Highly Popular</span>
+            )}
+
+            {/* STAGE 3: OTP VERIFICATION LOCKING */}
+            {simStage === "locking" && (
+              <form onSubmit={handleVerifyOtp} className="space-y-4 py-4 text-center">
+                <div className="w-12 h-12 bg-amber-50 dark:bg-slate-800 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-2 animate-pulse">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">
+                  OTP Security Lockout
+                </h3>
+                <p className="text-[11px] text-gray-400 max-w-[280px] mx-auto leading-relaxed">
+                  To ensure your UGEAC seat prioritization is tamper-proof, enter simulated passcode <strong className="text-emerald-500 font-bold">1234</strong> below.
+                </p>
+                <div className="max-w-[200px] mx-auto space-y-1">
+                  <input
+                    type="text"
+                    placeholder="Enter 4-Digit OTP"
+                    maxLength={4}
+                    value={simOtpInput}
+                    onChange={(e) => setSimOtpInput(e.target.value.replace(/\D/g, ""))}
+                    className="w-full text-center tracking-[8px] p-2.5 border rounded-xl border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  {simOtpError && (
+                    <span className="text-[9px] text-red-500 font-semibold block">{simOtpError}</span>
+                  )}
+                </div>
+                
+                <div className="flex gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setSimStage("filling")}
+                    className="flex-1 py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg text-slate-700 dark:text-gray-300 font-bold text-xs"
+                  >
+                    Modify Choices
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSimOtpVerifying}
+                    className="flex-1 py-2 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-extrabold text-xs uppercase tracking-wider rounded-lg shadow-sm hover:shadow disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSimOtpVerifying ? "Verifying..." : "Lock Options"}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* STAGE 4: ALLOTMENT LETTER OR NO SEAT NOTIFICATION */}
+            {simStage === "allocated" && (
+              <div className="space-y-4 py-2">
+                {isSimulatingAllotment ? (
+                  <div className="py-12 text-center space-y-4">
+                    <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                      <div className="absolute inset-0 border-4 border-[#2563EB]/25 rounded-full" />
+                      <div className="absolute inset-0 border-4 border-t-[#2563EB] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
+                      <Layers className="w-6 h-6 text-[#2563EB] animate-pulse" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">
+                        UGEAC Allocation Solver
+                      </h3>
+                      <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-950 border border-blue-100 dark:border-slate-900 text-[#2563EB] text-[8px] font-extrabold uppercase tracking-widest mt-1 inline-block">
+                        Matching Category Rank: {simCategory}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 max-w-[285px] mx-auto leading-relaxed">
+                      Matching your calculated UGEAC rank <strong className="text-slate-800 dark:text-white">#{calculateStateRank(Number(simPercentile) || 90.0)}</strong> against historical college cutoffs...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4 text-left text-xs">
+                    {allottedSeat ? (
+                      <div className="space-y-3">
+                        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start gap-2.5">
+                          <div className="p-1.5 bg-emerald-500/20 text-[#138808] rounded-xl shrink-0">
+                            <FileCheck className="w-5.5 h-5.5" />
+                          </div>
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] text-[#138808] font-extrabold uppercase tracking-widest">
+                              Round 1 Provisional Slip
+                            </span>
+                            <h3 className="text-sm font-extrabold text-slate-850 dark:text-white leading-tight">
+                              Seat Allocated Successfully!
+                            </h3>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                              Based on UGEAC merit rules, you qualify for <strong>Choice #{allottedSeat.preferenceIndex}</strong>.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Allotment Details Card */}
+                        <div className="bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-2xl p-4 space-y-2.5 text-xs">
+                          <div className="flex justify-between border-b border-gray-200/50 dark:border-slate-850 pb-2">
+                            <span className="text-gray-400 font-bold">Allotted College:</span>
+                            <span className="font-extrabold text-slate-800 dark:text-white text-right max-w-[160px] truncate">{allottedSeat.collegeName}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-gray-200/50 dark:border-slate-850 pb-2">
+                            <span className="text-gray-400 font-bold">Course Stream:</span>
+                            <span className="font-extrabold text-slate-800 dark:text-white uppercase">{allottedSeat.branchCode} (B.Tech)</span>
+                          </div>
+                          <div className="flex justify-between border-b border-gray-200/50 dark:border-slate-850 pb-2">
+                            <span className="text-gray-400 font-bold">Allocated Category:</span>
+                            <span className="font-extrabold text-[#FF9933]">{simCategory}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-gray-200/50 dark:border-slate-850 pb-2">
+                            <span className="text-gray-400 font-bold">UGEAC Merit Rank:</span>
+                            <span className="font-extrabold text-[#2563EB]">#{allottedSeat.allotmentRank}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400 font-bold">Historical Cutoff:</span>
+                            <span className="font-extrabold text-gray-500 dark:text-gray-300">#{allottedSeat.closingRank}</span>
+                          </div>
+                        </div>
+
+                        {/* Slide vs Freeze Decision panels */}
+                        {freezeDecision === null ? (
+                          <div className="space-y-3 pt-1">
+                            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-2">
+                              <Info className="w-5.5 h-5.5 text-amber-500 shrink-0 mt-0.5" />
+                              <p className="text-[10px] text-amber-600 leading-normal">
+                                <strong>BCECE Tip</strong>: If you select <strong>Freeze</strong>, you claim the college. If you select <strong>Upgrade</strong>, you try for a higher preference in Round 2, while safely retaining this seat if no upgrade qualifies!
+                              </p>
+                            </div>
+                            <div className="flex gap-2.5">
+                              <button
+                                onClick={() => { setFreezeDecision("upgrade"); handleRunAllotment(2); }}
+                                className="flex-1 py-3 border border-orange-500/25 bg-orange-500/5 hover:bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl transition-all cursor-pointer text-center"
+                              >
+                                Slide & Upgrade
+                              </button>
+                              <button
+                                onClick={() => setFreezeDecision("freeze")}
+                                className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-[#138808] text-white text-[10px] font-extrabold uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all cursor-pointer text-center"
+                              >
+                                Freeze & Accept
+                              </button>
+                            </div>
+                          </div>
+                        ) : freezeDecision === "freeze" ? (
+                          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl space-y-3 text-center">
+                            <div className="w-10 h-10 bg-emerald-500/20 text-[#138808] rounded-full flex items-center justify-center mx-auto">
+                              <ShieldCheck className="w-6 h-6 animate-bounce" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-extrabold text-slate-800 dark:text-white uppercase tracking-wider">
+                                Simulated Freeze Successful!
+                              </h4>
+                              <p className="text-[10px] text-gray-400 mt-1 max-w-[240px] mx-auto leading-normal">
+                                Provisional Seat at <strong className="text-slate-800 dark:text-white">{allottedSeat.collegeName}</strong> locked. Download admission letters and report to DV center!
+                              </p>
+                            </div>
+                            
+                            <div className="flex gap-2.5 pt-2 max-w-[220px] mx-auto">
+                              <button
+                                onClick={() => { alert("Success: Simulated Admission Letter generated & saved!"); }}
+                                className="flex-1 py-1.5 bg-[#138808] text-white font-bold text-[9px] uppercase tracking-wider rounded"
+                              >
+                                Download Slip
+                              </button>
+                              <button
+                                onClick={handleResetSimulator}
+                                className="flex-1 py-1.5 border border-gray-200 dark:border-slate-800 text-slate-600 dark:text-gray-400 font-bold text-[9px] uppercase tracking-wider rounded hover:bg-slate-50 dark:hover:bg-slate-850"
+                              >
+                                Try Again
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* ROUND 2 SIMULATION OUTCOME */
+                          <div className="space-y-3">
+                            {isSimulatingRound2 ? (
+                              <div className="py-6 text-center space-y-3 border border-dashed border-gray-150 dark:border-slate-850 rounded-2xl">
+                                <div className="w-8 h-8 border-4 border-[#2563EB]/20 border-t-[#2563EB] rounded-full animate-spin mx-auto" />
+                                <p className="text-[9px] text-gray-400 uppercase tracking-widest font-extrabold">
+                                  Recalculating Round 2 Cutoff drops...
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {round2Seat ? (
+                                  round2Seat.preferenceIndex < allottedSeat.preferenceIndex ? (
+                                    <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl space-y-3 text-left">
+                                      <div className="flex gap-2 items-start">
+                                        <div className="p-1.5 bg-blue-500/20 text-[#2563EB] rounded-xl shrink-0">
+                                          <Sparkles className="w-5 h-5 animate-pulse" />
+                                        </div>
+                                        <div>
+                                          <h4 className="text-xs font-extrabold text-blue-655 dark:text-blue-400 uppercase tracking-wider">
+                                            Seat Upgraded Successfully!
+                                          </h4>
+                                          <p className="text-[10px] text-gray-550 dark:text-gray-400 mt-0.5 leading-normal">
+                                            Round 2 cutoffs relaxed. You climbed from Choice #{allottedSeat.preferenceIndex} to your top-tier <strong>Choice #{round2Seat.preferenceIndex}</strong>!
+                                          </p>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="p-3 bg-white dark:bg-slate-900 border border-blue-500/15 rounded-xl space-y-1.5 text-[11px]">
+                                        <div><strong className="text-gray-400 font-bold">New Institution:</strong> <span className="font-extrabold text-slate-800 dark:text-white">{round2Seat.collegeName}</span></div>
+                                        <div><strong className="text-gray-400 font-bold">New B.Tech Branch:</strong> <span className="font-extrabold text-slate-800 dark:text-white uppercase">{round2Seat.branchCode}</span></div>
+                                        <div><strong className="text-gray-400 font-bold">Rank threshold:</strong> <span className="font-extrabold text-blue-505">#{round2Seat.closingRank}</span></div>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-2xl space-y-2 text-left">
+                                      <h4 className="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Slide Complete: No Change
+                                      </h4>
+                                      <p className="text-[10px] text-gray-400 leading-normal">
+                                        Round 2 cutoffs did not fall enough to grant your higher preferences. Under standard rules, <strong>your Round 1 seat is fully retained!</strong>
+                                      </p>
+                                      <div className="p-3 bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-850 rounded-xl space-y-1.5 text-[11px]">
+                                        <div><strong className="text-gray-400 font-bold">Retained Seat:</strong> <span className="font-extrabold text-slate-800 dark:text-white">{allottedSeat.collegeName}</span></div>
+                                        <div><strong className="text-gray-400 font-bold">Allocated Branch:</strong> <span className="font-extrabold text-slate-800 dark:text-white uppercase">{allottedSeat.branchCode}</span></div>
+                                      </div>
+                                    </div>
+                                  )
+                                ) : (
+                                  <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-2xl space-y-2 text-left">
+                                    <h4 className="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                      Slide Complete: Retain Seat
+                                    </h4>
+                                    <p className="text-[10px] text-gray-400 leading-normal">
+                                      No higher choices matched in Round 2. You retain your allocated Round 1 seat:
+                                    </p>
+                                    <div className="p-3 bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-850 rounded-xl space-y-1.5 text-[11px]">
+                                      <div><strong className="text-gray-400 font-bold">Retained Seat:</strong> <span className="font-extrabold text-slate-800 dark:text-white">{allottedSeat.collegeName}</span></div>
+                                      <div><strong className="text-gray-400 font-bold">Branch:</strong> <span className="font-extrabold text-slate-800 dark:text-white uppercase">{allottedSeat.branchCode}</span></div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                <button
+                                  type="button"
+                                  onClick={handleResetSimulator}
+                                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold rounded-xl uppercase tracking-wider cursor-pointer transition-all"
+                                >
+                                  Reset Simulator
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* NO SEAT ALLOTTED CARD */
+                      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl space-y-3.5 text-center">
+                        <div className="w-10 h-10 bg-amber-500/20 text-[#D97706] rounded-full flex items-center justify-center mx-auto animate-bounce">
+                          <Info className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-extrabold text-[#D97706] uppercase tracking-wider">
+                            Round 1 Seat: Not Allotted
+                          </h4>
+                          <p className="text-[10px] text-gray-400 mt-1 max-w-[240px] mx-auto leading-normal">
+                            No seat allocated in Round 1. Your State Merit Rank <strong>#{calculateStateRank(Number(simPercentile) || 90.0)}</strong> is higher than closing cutoffs of your added choices.
+                          </p>
+                        </div>
+
+                        <div className="p-3 bg-white dark:bg-slate-900 border border-amber-500/15 rounded-xl space-y-2 text-[10px] text-left">
+                          <strong className="text-[#D97706] block border-b pb-1 uppercase tracking-wider">💡 Educational Advice:</strong>
+                          <p className="text-gray-500 dark:text-gray-400 leading-normal">
+                            1. <strong>Don't skip DV</strong>: Under real rules, you must wait for Round 2 upgrade.
+                          </p>
+                          <p className="text-gray-500 dark:text-gray-400 leading-normal">
+                            2. <strong>Add Safer Choices</strong>: Add 4-5 backups lower in your preference basket. Never lock only high-cutoff options.
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={handleResetSimulator}
+                          className="w-full py-2 border border-amber-500/30 text-amber-600 hover:bg-amber-500/10 font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
+                        >
+                          Modify Preference Basket
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl flex items-center justify-between">
-                <span>Preference 4: **BCE Bakhtiyarpur (CSE)**</span>
-                <span className="text-[10px] text-gray-400 font-bold">Safe Back Up</span>
-              </div>
-            </div>
+            )}
+
           </div>
 
           <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-2">
@@ -206,11 +975,64 @@ export default function CounsellingGuide() {
             <p className="text-[10px] text-amber-600 leading-normal">
               **Caution**: Never list safe colleges above dream colleges. If preference 1 matches, Next.js / BCECE locks it and automatically deletes preferences 2, 3, 4! Arrange from most preferred to least preferred.
             </p>
-          </div>
-        </div>
+      </div>
+    </div>
 
       </div>
     </div>
-  </AuthGate>
-);
+
+      {/* Sleek simulated UPI payment modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" onClick={() => setShowPaymentModal(false)}></div>
+          
+          <div className="relative w-full max-w-sm rounded-[24px] bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-850 shadow-2xl z-10 p-6 text-center space-y-4">
+            <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white" onClick={() => setShowPaymentModal(false)}>
+              ✕
+            </button>
+
+            <div className="mx-auto w-12 h-12 rounded-full bg-blue-50 dark:bg-slate-800 flex items-center justify-center text-[#2563EB] mb-2">
+              <QrCode className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-base font-extrabold text-slate-805 dark:text-white">
+              Scan QR or Choose Simulated Pay
+            </h3>
+            
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Pay ₹99 safely to unlock the premium Bihar UGEAC 2026 PDF Handbook & expert counsel sheets.
+            </p>
+
+            {/* Mock QR Code Visual */}
+            <div className="mx-auto w-40 h-40 border border-gray-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 rounded-2xl flex flex-col items-center justify-center p-3 relative group">
+              {/* Outer corner design */}
+              <div className="absolute inset-2 border-2 border-dashed border-[#FF9933]/30 rounded-xl" />
+              <QrCode className="w-20 h-20 text-[#2563EB] relative z-10" />
+              <span className="text-[8px] text-[#138808] font-bold tracking-widest uppercase mt-1 relative z-10">
+                UPI: 9296276633@axl
+              </span>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowPaymentModal(false)}
+                className="flex-1 py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 rounded-lg text-slate-700 dark:text-gray-300 font-bold text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isPaying}
+                onClick={handleSimulatePayment}
+                className="flex-1 py-2 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-lg font-extrabold text-xs uppercase shadow-sm hover:shadow-md disabled:opacity-50"
+              >
+                {isPaying ? "Verifying..." : "Simulate Pay"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AuthGate>
+  );
 }
