@@ -37,8 +37,7 @@ export const Navbar: React.FC = () => {
     { href: "/predictor", label: "Predictor", icon: Compass },
     { href: "/cutoffs", label: "Cutoffs", icon: TrendingUp },
     { href: "/compare", label: "Compare Tools", icon: GitCompare },
-    { href: "/guide", label: "Counselling Guide", icon: Info },
-    { href: "/#about-us", label: "About Us", icon: Info }
+    { href: "/guide", label: "Counselling Guide", icon: Info }
   ];
 
   const isActive = (path: string) => pathname === path;

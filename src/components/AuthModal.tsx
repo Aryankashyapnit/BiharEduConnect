@@ -296,13 +296,7 @@ export const AuthModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Administrative credentials note */}
-              <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 rounded-2xl flex gap-2">
-                <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-relaxed font-semibold">
-                  <strong>Demo Credentials</strong>: Use <code className="bg-slate-100 dark:bg-slate-950 px-1 py-0.5 rounded text-red-500">admin@bihareduconnect.in</code> and password <code className="bg-slate-100 dark:bg-slate-950 px-1 py-0.5 rounded text-red-500">admin123</code> to access datastore profiles.
-                </p>
-              </div>
+
 
               <button
                 type="submit"
