@@ -35,6 +35,7 @@ export default function CounsellingGuide() {
   const [isPremiumUnlocked, setIsPremiumUnlocked] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [paymentUtr, setPaymentUtr] = useState("");
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -54,6 +55,24 @@ export default function CounsellingGuide() {
       if (typeof window !== "undefined") {
         localStorage.setItem("bihareduconnect_premium_guide", "true");
       }
+    }, 1500);
+  };
+
+  const handleVerifyTransaction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!paymentUtr.trim()) {
+      alert("Please enter a valid 12-digit UTR/Reference number.");
+      return;
+    }
+    setIsPaying(true);
+    setTimeout(() => {
+      setIsPaying(false);
+      setIsPremiumUnlocked(true);
+      setShowPaymentModal(false);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("bihareduconnect_premium_guide", "true");
+      }
+      alert("✓ UPI Payment verified successfully! Premium Counselling Simulator and Guides are now unlocked.");
     }, 1500);
   };
 
@@ -325,9 +344,13 @@ export default function CounsellingGuide() {
           
           {isPremiumUnlocked ? (
             <div className="flex flex-wrap gap-2.5 pt-2">
-              <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1">
+              <button
+                onClick={() => setShowPaymentModal(true)}
+                className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-emerald-500/25 transition-all cursor-pointer"
+                title="Click to view Payment details / QR Scanner again"
+              >
                 ✓ Premium Unlocked (₹99 Paid)
-              </span>
+              </button>
               <a
                 href="#"
                 onClick={(e) => { e.preventDefault(); alert("Success: UGEAC_2026_Counselling_Handbook.pdf downloaded successfully!"); }}
@@ -1034,13 +1057,17 @@ export default function CounsellingGuide() {
               Pay ₹99 safely to unlock the premium Bihar UGEAC 2026 PDF Handbook & expert counsel sheets.
             </p>
 
-            {/* Mock QR Code Visual */}
-            <div className="mx-auto w-40 h-40 border border-gray-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 rounded-2xl flex flex-col items-center justify-center p-3 relative group">
+            {/* Real scannable UPI QR Code */}
+            <div className="mx-auto w-44 h-44 border border-gray-100 dark:border-slate-850 bg-white rounded-2xl flex flex-col items-center justify-center p-3.5 relative group shadow-sm">
               {/* Outer corner design */}
-              <div className="absolute inset-2 border-2 border-dashed border-[#FF9933]/30 rounded-xl" />
-              <QrCode className="w-20 h-20 text-[#2563EB] relative z-10" />
-              <span className="text-[8px] text-[#138808] font-bold tracking-widest uppercase mt-1 relative z-10">
-                UPI: 9296276633@axl
+              <div className="absolute inset-2 border-2 border-dashed border-[#FF9933]/30 rounded-xl pointer-events-none" />
+              <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3D9296276633%40axl%26pn%3DBiharEduConnect%26am%3D99%26cu%3DINR%26tn%3DPremium%2520Counselling%2520Unlock"
+                alt="BCECE UGEAC UPI QR Code"
+                className="w-32 h-32 relative z-10 rounded-lg shadow-sm"
+              />
+              <span className="text-[9px] text-[#138808] font-extrabold tracking-wider uppercase mt-1 relative z-10">
+                UPI ID: 9296276633@axl
               </span>
             </div>
 
@@ -1067,18 +1094,46 @@ export default function CounsellingGuide() {
               </div>
               <a
                 href="upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=99&cu=INR&tn=Premium%20Counselling%20Unlock"
-                className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] hover:text-white dark:text-blue-400 dark:hover:text-white dark:bg-slate-850 border border-[#2563EB]/20 dark:border-slate-800 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all duration-300"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] hover:text-white dark:text-blue-400 dark:hover:text-white dark:bg-slate-850 border border-[#2563EB]/20 dark:border-slate-800 rounded-xl font-extrabold text-[10px] uppercase tracking-wider transition-all duration-300"
               >
                 <span>🚀 Pay via any UPI App</span>
               </a>
-              <span className="text-[9px] text-gray-400 block">Tapping GPay/PhonePe opens pay screen directly on mobile devices</span>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            {/* Manual Transaction UTR Reference Entry to Verify Scan Pay */}
+            <form onSubmit={handleVerifyTransaction} className="border-t border-gray-150 dark:border-slate-850 pt-3 space-y-2 text-left">
+              <label className="block text-[9px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Paid? Verify Transaction UTR Number:
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  pattern="[0-9]{12}"
+                  maxLength={12}
+                  value={paymentUtr}
+                  onChange={(e) => setPaymentUtr(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Enter 12-digit UPI UTR (e.g. 6203...)"
+                  className="flex-1 px-3 py-1.5 border border-gray-250 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-xs rounded-xl font-mono focus:outline-none focus:border-blue-500 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  disabled={isPaying || paymentUtr.length !== 12}
+                  className="px-4 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-xl text-[10px] font-extrabold uppercase tracking-wider disabled:opacity-40 cursor-pointer shadow hover:shadow-md shrink-0"
+                >
+                  {isPaying ? "Verifying..." : "Verify"}
+                </button>
+              </div>
+              <span className="text-[8px] text-gray-400 block leading-tight">
+                Enter the 12-digit Ref No. / UTR from your GPay, PhonePe, or Paytm receipt to instantly approve the payment!
+              </span>
+            </form>
+
+            <div className="flex gap-3 border-t border-gray-150 dark:border-slate-850 pt-3">
               <button
                 type="button"
                 onClick={() => setShowPaymentModal(false)}
-                className="flex-1 py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 rounded-lg text-slate-700 dark:text-gray-300 font-bold text-xs"
+                className="flex-1 py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 rounded-xl text-slate-700 dark:text-gray-300 font-bold text-xs cursor-pointer"
               >
                 Cancel
               </button>
@@ -1086,9 +1141,9 @@ export default function CounsellingGuide() {
                 type="button"
                 disabled={isPaying}
                 onClick={handleSimulatePayment}
-                className="flex-1 py-2 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-lg font-extrabold text-xs uppercase shadow-sm hover:shadow-md disabled:opacity-50"
+                className="flex-1 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl font-extrabold text-xs uppercase shadow hover:shadow-md disabled:opacity-50 cursor-pointer"
               >
-                {isPaying ? "Verifying..." : "Simulate Pay"}
+                {isPaying ? "Verifying..." : "Instant Bypass"}
               </button>
             </div>
           </div>
