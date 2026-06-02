@@ -27,7 +27,8 @@ export default function CutoffExplorer() {
   const [selectedCategory, setSelectedCategory] = useState("UR");
 
   const categories = ["UR", "BC", "EBC", "SC", "ST", "EWS", "RCG"];
-  const branches = ["CSE", "ECE", "EE", "EEE", "ME", "CE", "IT"];
+  // Dynamically extract all unique branches present in the cutoffs database
+  const uniqueBranches = Array.from(new Set(cutoffs.map((c) => c.branchCode))).sort();
 
   // Filtered List
   const filteredCutoffs = cutoffs.filter((cutoff) => {
@@ -44,7 +45,8 @@ export default function CutoffExplorer() {
   // Let's draw trend line of closing ranks of the selected college/branch over 2023, 2024, and 2025, Round 1 and Round 2
   const getTrendData = () => {
     const college = selectedCollege === "All" ? "MIT-MUZAFFARPUR" : selectedCollege;
-    const branch = selectedBranch === "All" ? "CSE" : selectedBranch;
+    // Default to the college's first offered branch if selectedBranch is "All" to draw realistic trend lines
+    const branch = selectedBranch === "All" ? (colleges.find(c => c.code === college)?.branches[0] || "CSE") : selectedBranch;
     
     // We want 6 points:
     const p1_23 = getCutoff(college, branch, 2023, 1, selectedCategory);
@@ -263,10 +265,10 @@ export default function CutoffExplorer() {
               <select
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-bold border border-gray-200 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-950 dark:text-white"
+                className="w-full px-3 py-2 text-xs font-bold border border-gray-250 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-950 dark:text-white"
               >
                 <option value="All">All Branches</option>
-                {branches.map((b) => (
+                {uniqueBranches.map((b) => (
                   <option key={b} value={b}>
                     {branchNames[b] || b} ({b})
                   </option>
