@@ -294,20 +294,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       const storedUser = localStorage.getItem("bihareduconnect_user");
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser && parsedUser.isAdmin) {
-            localStorage.removeItem("bihareduconnect_user");
-            setUser(null);
-          } else {
-            setUser(parsedUser);
-          }
-        } catch (e) {
-          console.error("Failed to parse stored user session:", e);
-          setUser(null);
-        }
-      }
+      if (storedUser) setUser(JSON.parse(storedUser));
 
       const storedUsers = localStorage.getItem("bihareduconnect_registered_users");
       if (storedUsers) {

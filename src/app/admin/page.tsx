@@ -31,7 +31,8 @@ import {
   Unlock,
   PlusCircle,
   Search,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from "lucide-react";
 
 // Helper function to compress images client-side to prevent localStorage overflow
@@ -189,15 +190,6 @@ export default function AdminDashboard() {
       }
     }
   }, [activeTab]);
-
-  // Automatically logout if the admin leaves the admin panel
-  useEffect(() => {
-    return () => {
-      if (user && user.isAdmin) {
-        logout();
-      }
-    };
-  }, [user, logout]);
 
   // Notifications
   const [successMsg, setSuccessMsg] = useState("");
@@ -702,7 +694,7 @@ export default function AdminDashboard() {
               </p>
             </div>
             
-            <div className="flex gap-4 shrink-0 text-left">
+            <div className="flex flex-wrap items-center gap-4 shrink-0 text-left">
               <div className="bg-slate-950 border border-slate-800 rounded-2xl px-4 py-2.5">
                 <span className="text-[9px] text-gray-500 font-bold block uppercase">Database State</span>
                 <span className="text-xs font-extrabold text-emerald-500 flex items-center gap-1.5 mt-0.5">
@@ -716,6 +708,14 @@ export default function AdminDashboard() {
                   {user?.name || "System Admin"}
                 </span>
               </div>
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="inline-flex items-center gap-1.5 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-bold uppercase tracking-wider shadow hover:shadow-red-500/20 active:scale-95 transition-all cursor-pointer border border-red-500/20"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
             </div>
           </div>
         </div>
