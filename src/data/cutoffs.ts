@@ -71,15 +71,46 @@ const generateAllCutoffs = (): Cutoff[] => {
       let branchMult = 2.0;
       switch (branch) {
         case "CSE": branchMult = 1.0; break;
+        case "CSE(AI)": branchMult = 1.1; break;
+        case "CSE(AI&ML)": branchMult = 1.1; break;
+        case "CSE (AI &ML)": branchMult = 1.1; break;
+        case "ARTIFICIAL INTELLIGENCE & MACHINE LEARN": branchMult = 1.15; break;
+        case "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING": branchMult = 1.15; break;
         case "CSE-IOT": branchMult = 1.15; break;
+        case "CSE (IOT)": branchMult = 1.15; break;
+        case "CSE(IOT)": branchMult = 1.15; break;
+        case "CSE(IOT&CYBER SECURITY INCLUDING BLOCK CHAIN TECHNOLOGY)": branchMult = 1.18; break;
+        case "CSE(CYBER SECURITY)": branchMult = 1.2; break;
+        case "CSE (CYBER SECURITY)": branchMult = 1.2; break;
+        case "CSE(DATA SCIENCE)": branchMult = 1.2; break;
+        case "CSE (DATA SCIENCE)": branchMult = 1.2; break;
+        case "CSE(NETWORKS)": branchMult = 1.22; break;
         case "IT": branchMult = 1.25; break;
+        case "CE(COMPUTER APPLICATION)": branchMult = 1.3; break;
+        case "CE (COMPUTER APPLICATION )": branchMult = 1.3; break;
+        case "CE(COMPUTER APPLICATION )": branchMult = 1.3; break;
+        case "3D ANIMATION & GRAPHICS": branchMult = 1.4; break;
         case "ECE": branchMult = 1.45; break;
+        case "ECE(ACT)": branchMult = 1.5; break;
+        case "ELECTRONICS AND INSTRUMENTATION ENGG.": branchMult = 1.6; break;
+        case "EE(VLSI)": branchMult = 1.75; break;
         case "EE": branchMult = 1.85; break;
         case "EEE": branchMult = 1.95; break;
+        case "ROBOTIC AND AUTOMATION": branchMult = 2.0; break;
+        case "BIOMEDICAL & ROBOTIC ENGG.": branchMult = 2.05; break;
+        case "MECHATRONICS ENGG.": branchMult = 2.1; break;
+        case "FIRE TECHNOLOGY & SAFETY": branchMult = 2.15; break;
+        case "AERONAUTICAL ENGG.": branchMult = 2.2; break;
         case "ME": branchMult = 2.3; break;
+        case "MECHANICAL &SMART MANUFACTURING": branchMult = 2.3; break;
+        case "MINING ENGG.": branchMult = 2.4; break;
         case "CE": branchMult = 2.5; break;
-        case "Chemical Engineering": branchMult = 2.8; break;
+        case "CHEMICAL ENGG.": branchMult = 2.8; break;
+        case "CHEMICAL ENGINEERING": branchMult = 2.8; break;
+        case "FOOD TECHNOLOGY AND MANAGEMENT": branchMult = 2.9; break;
+        case "FPP": branchMult = 3.0; break;
         case "Leather Technology": branchMult = 3.2; break;
+        case "LEATHER TECHNOLOGY": branchMult = 3.2; break;
         default: branchMult = 2.0; break;
       }
 

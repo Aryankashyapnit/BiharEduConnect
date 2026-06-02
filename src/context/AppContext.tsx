@@ -254,7 +254,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedCutoffs) {
         try {
           const parsed = JSON.parse(storedCutoffs);
-          if (parsed.length < 7000) {
+          if (parsed.length < cutoffsData.length) {
             activeCutoffs = cutoffsData;
             localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
           } else {
