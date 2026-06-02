@@ -34,6 +34,54 @@ import {
   ChevronRight
 } from "lucide-react";
 
+// Helper function to compress images client-side to prevent localStorage overflow
+const compressImageFile = (file: File, maxWidth = 800, maxHeight = 800, quality = 0.75): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      if (typeof window === "undefined") {
+        resolve("");
+        return;
+      }
+      const img = new window.Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(event.target?.result as string); // fallback
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
+
 export default function AdminDashboard() {
   const { 
     colleges, 
@@ -314,6 +362,8 @@ export default function AdminDashboard() {
   const [formCampusSize, setFormCampusSize] = useState("35 Acres");
   const [formBranches, setFormBranches] = useState("CSE, ECE, EE, ME, CE");
   const [formImage, setFormImage] = useState("");
+  const [imageInputMode, setImageInputMode] = useState<"upload" | "url">("upload");
+  const [isCompressingImage, setIsCompressingImage] = useState(false);
 
   const handleCreateNew = () => {
     setIsCreating(true);
@@ -333,6 +383,7 @@ export default function AdminDashboard() {
     setFormCampusSize("35 Acres");
     setFormBranches("CSE, ECE, EE, ME, CE");
     setFormImage("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=600");
+    setImageInputMode("upload");
   };
 
   const handleEditClick = (col: College) => {
@@ -355,6 +406,12 @@ export default function AdminDashboard() {
     setFormCampusSize(col.campusSize);
     setFormBranches(col.branches.join(", "));
     setFormImage(col.image || "");
+    
+    if (col.image && col.image.startsWith("data:image/")) {
+      setImageInputMode("upload");
+    } else {
+      setImageInputMode("url");
+    }
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -829,12 +886,154 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block font-extrabold text-gray-450 uppercase mb-1">Image URL Address</label>
-                    <input
-                      type="url" required value={formImage} onChange={(e) => setFormImage(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    />
+                  {/* Premium Dual Mode Image Uploader */}
+                  <div className="space-y-2">
+                    <label className="block font-extrabold text-gray-450 uppercase mb-1">College Banner Photo</label>
+                    
+                    {/* Toggle Selector tabs */}
+                    <div className="flex border border-gray-250 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950 p-1 mb-2">
+                      <button
+                        type="button"
+                        onClick={() => setImageInputMode("upload")}
+                        className={`flex-1 py-1.5 text-[9px] font-extrabold uppercase tracking-wider rounded-lg transition-all ${
+                          imageInputMode === "upload"
+                            ? "bg-amber-500 text-white shadow-sm"
+                            : "text-gray-400 dark:text-gray-500 hover:text-slate-700 dark:hover:text-white"
+                        }`}
+                      >
+                        Direct JPG/PNG Upload
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImageInputMode("url")}
+                        className={`flex-1 py-1.5 text-[9px] font-extrabold uppercase tracking-wider rounded-lg transition-all ${
+                          imageInputMode === "url"
+                            ? "bg-amber-500 text-white shadow-sm"
+                            : "text-gray-400 dark:text-gray-500 hover:text-slate-700 dark:hover:text-white"
+                        }`}
+                      >
+                        Provide Web URL Link
+                      </button>
+                    </div>
+
+                    {/* Mode Panels */}
+                    {imageInputMode === "upload" ? (
+                      <div className="space-y-2">
+                        {/* Hidden File Input */}
+                        <input
+                          type="file"
+                          id="college-photo-file-upload"
+                          accept="image/jpeg,image/png,image/jpg"
+                          className="hidden"
+                          onChange={async (e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              const file = e.target.files[0];
+                              try {
+                                setIsCompressingImage(true);
+                                const base64 = await compressImageFile(file);
+                                setFormImage(base64);
+                              } catch (err) {
+                                console.error("Error compressing image:", err);
+                                alert("Failed to process image file. Please try another photo.");
+                              } finally {
+                                setIsCompressingImage(false);
+                              }
+                            }
+                          }}
+                        />
+
+                        {/* Interactive Drag & Drop Box */}
+                        <div
+                          onClick={() => {
+                            if (!isCompressingImage) {
+                              document.getElementById("college-photo-file-upload")?.click();
+                            }
+                          }}
+                          className={`border-2 border-dashed rounded-2xl py-5 px-3 text-center flex flex-col items-center justify-center space-y-1.5 cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-950/20 active:scale-[0.99] duration-250 ${
+                            formImage && formImage.startsWith("data:image/")
+                              ? "border-emerald-500/50 bg-emerald-500/5 dark:bg-emerald-500/2"
+                              : "border-gray-250 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20 hover:border-amber-500/50"
+                          }`}
+                        >
+                          {isCompressingImage ? (
+                            <>
+                              <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                              <span className="font-extrabold text-slate-750 dark:text-slate-200">Compressing & optimizing...</span>
+                              <p className="text-[8px] text-gray-400 mt-0.5">Resizing image for peak website performance</p>
+                            </>
+                          ) : formImage && formImage.startsWith("data:image/") ? (
+                            <>
+                              <CheckCircle className="w-7 h-7 text-emerald-500 animate-pulse" />
+                              <div>
+                                <span className="font-extrabold text-slate-800 dark:text-gray-200 block text-[10px]">Photo Upload Active!</span>
+                                <p className="text-[8px] text-gray-400 mt-0.5">JPEG Compressed base64 string loaded successfully</p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <UploadCloud className="w-7 h-7 text-amber-500 animate-bounce" />
+                              <div>
+                                <span className="font-extrabold text-slate-800 dark:text-white block text-[10px]">Select College JPG/PNG Photo</span>
+                                <p className="text-[8px] text-gray-400 mt-0.5">Click to browse your computer files</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {/* URL Address Input */}
+                        <input
+                          type="url"
+                          required={imageInputMode === "url"}
+                          value={formImage && formImage.startsWith("data:image/") ? "" : formImage}
+                          onChange={(e) => setFormImage(e.target.value)}
+                          placeholder="e.g. https://images.unsplash.com/photo..."
+                          className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+                    )}
+
+                    {/* Unified Premium Preview Area */}
+                    {formImage && (
+                      <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-950 border border-gray-250 dark:border-slate-850 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-205 dark:border-slate-800 bg-slate-200 shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={formImage}
+                              alt="Form Banner Preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // Clear image if it's a broken URL
+                                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=600";
+                              }}
+                            />
+                          </div>
+                          <div className="text-[9px]">
+                            <span className="font-extrabold text-slate-800 dark:text-gray-250 block truncate max-w-[150px]">
+                              {formImage.startsWith("data:image/") ? "Direct Photo Upload" : "Web Image Link"}
+                            </span>
+                            <span className={`inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 rounded font-extrabold uppercase text-[7px] ${
+                              formImage.startsWith("data:image/") 
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
+                                : "bg-blue-500/10 text-[#2563EB] dark:text-blue-400 border border-blue-500/20"
+                            }`}>
+                              <span className={`h-1 w-1 rounded-full ${formImage.startsWith("data:image/") ? "bg-emerald-500" : "bg-[#2563EB]"}`} />
+                              {formImage.startsWith("data:image/") ? "JPEG Base64" : "External URL"}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setFormImage("")}
+                          className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 border border-red-500/10 rounded-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                          title="Remove Photo"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div>
