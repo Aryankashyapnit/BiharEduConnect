@@ -25,7 +25,7 @@ export default function CollegePredictor() {
   const { colleges, savePrediction, savedPredictions, user } = useApp();
 
   // Form State
-  const [inputType, setInputType] = useState<"percentile" | "rank">("percentile");
+  const [inputType, setInputType] = useState<"percentile" | "ugeac_rank" | "bcece_rank">("percentile");
   const [percentile, setPercentile] = useState<number | "">(user?.percentile || "");
   const [rank, setRank] = useState<number | "">("");
   const [rankType, setRankType] = useState<"ur" | "category">("ur");
@@ -83,10 +83,13 @@ export default function CollegePredictor() {
       default: estCatRank = estUR; catLabel = "UR Rank"; break;
     }
     
+    const equivUgeacUR = inputType === "bcece_rank" ? Math.round(estUR * 1.45) : estUR;
+
     return {
       ur: estUR,
       cat: Math.max(1, estCatRank),
-      label: catLabel
+      label: catLabel,
+      equivUgeac: equivUgeacUR
     };
   };
 
@@ -137,6 +140,10 @@ export default function CollegePredictor() {
         targetRank = Math.round(rankVal * multiplier);
       } else {
         targetRank = rankVal;
+      }
+
+      if (inputType === "bcece_rank") {
+        targetRank = Math.round(targetRank * 1.45);
       }
     }
 
@@ -242,7 +249,7 @@ export default function CollegePredictor() {
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9933]/10 text-[#FF9933] text-xs font-bold uppercase tracking-wider mb-3">
           <Compass className="w-3.5 h-3.5" />
-          UGEAC Merit Predictor
+          {inputType === "bcece_rank" ? "BCECE Merit Predictor" : "UGEAC Merit Predictor"}
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
           Bihar Engineering <span className="bg-gradient-to-r from-[#FF9933] to-[#138808] bg-clip-text text-transparent">College Predictor</span>
@@ -267,24 +274,35 @@ export default function CollegePredictor() {
                 <button
                   type="button"
                   onClick={() => setInputType("percentile")}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 cursor-pointer ${
+                  className={`flex-1 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
                     inputType === "percentile"
                       ? "bg-white dark:bg-slate-850 text-blue-600 dark:text-amber-500 shadow-sm"
                       : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
-                  By JEE Percentile
+                  JEE Percentile
                 </button>
                 <button
                   type="button"
-                  onClick={() => setInputType("rank")}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 cursor-pointer ${
-                    inputType === "rank"
+                  onClick={() => setInputType("ugeac_rank")}
+                  className={`flex-1 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
+                    inputType === "ugeac_rank"
                       ? "bg-white dark:bg-slate-850 text-blue-600 dark:text-amber-500 shadow-sm"
                       : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
-                  By State Rank
+                  UGEAC Rank
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputType("bcece_rank")}
+                  className={`flex-1 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
+                    inputType === "bcece_rank"
+                      ? "bg-white dark:bg-slate-850 text-blue-600 dark:text-amber-500 shadow-sm"
+                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  BCECE Rank
                 </button>
               </div>
 
@@ -310,7 +328,7 @@ export default function CollegePredictor() {
                 <div className="space-y-3.5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5 flex justify-between items-center">
-                      <span>Rank Type Selector</span>
+                      <span>{inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Type</span>
                       {category === "UR" && (
                         <span className="text-[9px] text-[#2563EB] font-bold lowercase tracking-wider bg-[#2563EB]/10 px-1.5 py-0.2 rounded">
                           Category is UR
@@ -349,7 +367,9 @@ export default function CollegePredictor() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
-                      {rankType === "category" && category !== "UR" ? `${category} Category Rank` : "General (UR) State Rank"} <span className="text-red-500">*</span>
+                      {rankType === "category" && category !== "UR" 
+                        ? `${category} Category ${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank` 
+                        : `${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} General (UR) Rank`} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -372,20 +392,26 @@ export default function CollegePredictor() {
                   </span>
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="p-2 bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl">
-                      <span className="text-[9px] text-gray-450 block font-bold uppercase">Estimated UR Rank</span>
+                      <span className="text-[9px] text-gray-455 block font-bold uppercase">
+                        {inputType === "bcece_rank" ? "BCECE UR Rank" : "Estimated UR Rank"}
+                      </span>
                       <strong className="text-sm font-extrabold text-slate-800 dark:text-white mt-0.5 block">
                         ~{uiRanks.ur.toLocaleString("en-IN")}
                       </strong>
                     </div>
                     <div className="p-2 bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-855 rounded-xl">
-                      <span className="text-[9px] text-gray-455 block font-bold uppercase">{uiRanks.label}</span>
+                      <span className="text-[9px] text-gray-455 block font-bold uppercase">
+                        {inputType === "bcece_rank" ? "Equivalent UGEAC UR" : uiRanks.label}
+                      </span>
                       <strong className="text-sm font-extrabold text-slate-800 dark:text-white mt-0.5 block">
-                        ~{uiRanks.cat.toLocaleString("en-IN")}
+                        ~{(inputType === "bcece_rank" ? uiRanks.equivUgeac : uiRanks.cat).toLocaleString("en-IN")}
                       </strong>
                     </div>
                   </div>
                   <p className="text-[9px] text-gray-400 mt-1 leading-normal font-medium">
-                    * Ratios calculated from UGEAC state quotas: BC (~12%), EBC (~18%), SC (~16%), EWS (~10%), ST (~1%), RCG (~3%).
+                    {inputType === "bcece_rank"
+                      ? "* Equivalent UGEAC UR calculated using historical BCECE vacancy and seat conversion ratios."
+                      : "* Ratios calculated from UGEAC state quotas: BC (~12%), EBC (~18%), SC (~16%), EWS (~10%), ST (~1%), RCG (~3%)."}
                   </p>
                 </div>
               )}
