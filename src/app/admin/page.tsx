@@ -1262,16 +1262,50 @@ export default function AdminDashboard() {
                     BCECE Colleges Directory ({colleges.length})
                   </h4>
 
-                  {!(isCreating || isEditing) && (
+                  <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={handleCreateNew}
-                      className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/save-colleges", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ colleges })
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            if (data.warning) {
+                              showNotification("⚠️ Saved to disk, but Git Push failed! Please push src/data/colleges.ts manually.");
+                              alert(data.warning);
+                            } else if (data.pushed) {
+                              showNotification("✓ Success! Saved to disk and automatically pushed to GitHub! Vercel is now deploying.");
+                            } else {
+                              showNotification("✓ Saved to disk! No new changes detected to push.");
+                            }
+                          } else {
+                            alert("Error saving colleges: " + data.error);
+                          }
+                        } catch (err: any) {
+                          alert("Failed to sync to Git: " + err.message);
+                        }
+                      }}
+                      className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-500 to-[#138808] hover:shadow text-white rounded-xl text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 border border-emerald-500/10"
                     >
-                      <Plus className="w-3.5 h-3.5" />
-                      Add College Record
+                      <Save className="w-3.5 h-3.5 animate-pulse" />
+                      Sync colleges.ts to Local Git
                     </button>
-                  )}
+
+                    {!(isCreating || isEditing) && (
+                      <button
+                        type="button"
+                        onClick={handleCreateNew}
+                        className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add College Record
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="overflow-x-auto text-xs">
