@@ -238,35 +238,6 @@ export default function CollegePredictor() {
   // Extract unique branch options for filtering dropdown
   const uniqueBranches = Array.from(new Set(predictions.map((p) => p.branchCode)));
 
-  const handleDownloadCSV = () => {
-    // Generate CSV Content
-    const headers = ["College Name", "College Code", "Location", "Branch Name", "Branch Code", "Round", "Category", "2025 Closing Cutoff", "2024 Closing Cutoff", "Admission Chance", "Probability"];
-    const rows = filteredPredictions.map(pred => [
-      `"${pred.college.name.replace(/"/g, '""')}"`,
-      pred.college.code,
-      pred.college.location,
-      `"${pred.branchName.replace(/"/g, '""')}"`,
-      pred.branchCode,
-      round,
-      category,
-      pred.cutoff2025.closingRank,
-      pred.cutoff2024.closingRank,
-      pred.chance,
-      `${pred.chancePercentage}%`
-    ]);
-
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-      
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `UGEAC_Predictions_Report_${category}_Round_${round}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -659,22 +630,14 @@ export default function CollegePredictor() {
                   </select>
 
                   {/* Export Options */}
-                  <div className="flex gap-2 no-print">
-                    <button
-                      onClick={handleDownloadCSV}
-                      className="px-3 py-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/20 text-gray-500 hover:border-emerald-200 dark:text-gray-400 cursor-pointer transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold"
-                      title="Download Excel CSV Spreadsheet"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>CSV Sheet</span>
-                    </button>
+                  <div className="no-print">
                     <button
                       onClick={handlePrint}
-                      className="px-3 py-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/20 text-gray-500 hover:border-blue-200 dark:text-gray-400 cursor-pointer transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold"
+                      className="px-4 py-2 border border-gray-250 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/20 text-gray-550 hover:border-blue-200 dark:text-gray-400 cursor-pointer transition-all duration-300 flex items-center gap-1.5 text-xs font-extrabold shadow-sm"
                       title="Print or Save PDF Report"
                     >
-                      <Compass className="w-4 h-4" />
-                      <span>Print PDF</span>
+                      <Download className="w-4 h-4" />
+                      <span>Download PDF Report</span>
                     </button>
                   </div>
                 </div>
