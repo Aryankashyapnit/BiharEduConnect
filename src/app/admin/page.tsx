@@ -113,7 +113,8 @@ export default function AdminDashboard() {
     blockedEmails,
     blockStudent,
     unblockStudent,
-    visitorLogs
+    visitorLogs,
+    logout
   } = useApp();
 
   // Route protection alert
@@ -188,6 +189,15 @@ export default function AdminDashboard() {
       }
     }
   }, [activeTab]);
+
+  // Automatically logout if the admin leaves the admin panel
+  useEffect(() => {
+    return () => {
+      if (user && user.isAdmin) {
+        logout();
+      }
+    };
+  }, [user, logout]);
 
   // Notifications
   const [successMsg, setSuccessMsg] = useState("");
