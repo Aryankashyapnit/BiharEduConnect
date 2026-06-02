@@ -238,6 +238,35 @@ export default function CollegePredictor() {
   // Extract unique branch options for filtering dropdown
   const uniqueBranches = Array.from(new Set(predictions.map((p) => p.branchCode)));
 
+  const handleDownloadCSV = () => {
+    // Generate CSV Content
+    const headers = ["College Name", "College Code", "Location", "Branch Name", "Branch Code", "Round", "Category", "2025 Closing Cutoff", "2024 Closing Cutoff", "Admission Chance", "Probability"];
+    const rows = filteredPredictions.map(pred => [
+      `"${pred.college.name.replace(/"/g, '""')}"`,
+      pred.college.code,
+      pred.college.location,
+      `"${pred.branchName.replace(/"/g, '""')}"`,
+      pred.branchCode,
+      round,
+      category,
+      pred.cutoff2025.closingRank,
+      pred.cutoff2024.closingRank,
+      pred.chance,
+      `${pred.chancePercentage}%`
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `UGEAC_Predictions_Report_${category}_Round_${round}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -245,6 +274,90 @@ export default function CollegePredictor() {
   return (
     <AuthGate>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* Print Stylesheet */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media print {
+            /* Hide navbar, footer, form, buttons, header descriptions, filters */
+            nav, footer, .no-print, button, select, input, .inline-flex, .bg-gradient-to-r, .text-center {
+              display: none !important;
+            }
+            
+            body, .max-w-7xl, .lg\\:col-span-8, .grid, .lg\\:col-span-12 {
+              display: block !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              background: white !important;
+              color: black !important;
+              box-shadow: none !important;
+              border: none !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            .lg\\:col-span-4 {
+              display: none !important;
+            }
+
+            /* Optimized list layout for printing cards */
+            .group {
+              page-break-inside: avoid !important;
+              border: 1px solid #cbd5e1 !important;
+              background: white !important;
+              border-radius: 12px !important;
+              margin-bottom: 12px !important;
+              padding: 16px !important;
+              box-shadow: none !important;
+              flex-direction: row !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: space-between !important;
+            }
+
+            .group img {
+              display: none !important;
+            }
+          }
+        `}} />
+
+        {/* Print-only Official Header */}
+        <div className="hidden print:block mb-6 border-b-2 border-slate-800 pb-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">BiharEduConnect</h1>
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">Estimated Engineering Admission & Predictions Report</p>
+            </div>
+            <div className="text-right">
+              <span className="text-[9px] text-gray-400 block font-bold uppercase">Counselling Session</span>
+              <strong className="text-sm font-extrabold text-slate-800 block">UGEAC/BCECE 2026</strong>
+            </div>
+          </div>
+          
+          {/* User Parameters Summary Box */}
+          <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl grid grid-cols-4 gap-4 text-xs">
+            <div>
+              <span className="text-[9px] text-gray-450 block font-bold uppercase">Input Merit Type</span>
+              <strong className="text-slate-800 font-extrabold">
+                {inputType === "percentile" ? "JEE Percentile" : inputType === "ugeac_rank" ? "UGEAC State Rank" : "BCECE State Rank"}
+              </strong>
+            </div>
+            <div>
+              <span className="text-[9px] text-gray-455 block font-bold uppercase">Entered Score/Rank</span>
+              <strong className="text-slate-800 font-extrabold">
+                {inputType === "percentile" ? `${percentile}%` : rank}
+              </strong>
+            </div>
+            <div>
+              <span className="text-[9px] text-gray-455 block font-bold uppercase">Reservation Category</span>
+              <strong className="text-slate-800 font-extrabold">{category}</strong>
+            </div>
+            <div>
+              <span className="text-[9px] text-gray-455 block font-bold uppercase">Estimated UR Rank</span>
+              <strong className="text-slate-800 font-extrabold">
+                {uiRanks ? `~${uiRanks.ur.toLocaleString("en-IN")}` : "N/A"}
+              </strong>
+            </div>
+          </div>
+        </div>
       {/* Page Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9933]/10 text-[#FF9933] text-xs font-bold uppercase tracking-wider mb-3">
@@ -545,14 +658,25 @@ export default function CollegePredictor() {
                     ))}
                   </select>
 
-                  {/* Print Report */}
-                  <button
-                    onClick={handlePrint}
-                    className="p-2 border border-gray-200 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-gray-500 hover:text-slate-850 dark:text-gray-400 dark:hover:text-white cursor-pointer transition-colors duration-200"
-                    title="Export Report"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
+                  {/* Export Options */}
+                  <div className="flex gap-2 no-print">
+                    <button
+                      onClick={handleDownloadCSV}
+                      className="px-3 py-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/20 text-gray-500 hover:border-emerald-200 dark:text-gray-400 cursor-pointer transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold"
+                      title="Download Excel CSV Spreadsheet"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>CSV Sheet</span>
+                    </button>
+                    <button
+                      onClick={handlePrint}
+                      className="px-3 py-1.5 border border-gray-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/20 text-gray-500 hover:border-blue-200 dark:text-gray-400 cursor-pointer transition-all duration-200 flex items-center gap-1.5 text-xs font-semibold"
+                      title="Print or Save PDF Report"
+                    >
+                      <Compass className="w-4 h-4" />
+                      <span>Print PDF</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
