@@ -886,6 +886,38 @@ export default function AdminDashboard() {
                       placeholder="CSE, ECE, EE, ME, CE"
                       className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
+                    
+                    {/* Dynamic Branch Seats Quick-Edit Link List */}
+                    {formBranches.trim() && (
+                      <div className="mt-2 p-2.5 bg-slate-50/60 dark:bg-slate-950/40 rounded-2xl border border-gray-200 dark:border-slate-850 space-y-1.5 text-[9px] text-left">
+                        <span className="font-bold text-gray-400 uppercase block mb-1">Configure Branch Seats Intake:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {formBranches.split(",").map(b => b.trim().toUpperCase()).filter(b => b.length > 0).map((branch) => {
+                            const entry = seatMatrix.find(s => s.collegeCode === formCode && s.branchCode === branch) || {
+                              totalSeats: 60
+                            };
+                            return (
+                              <button
+                                key={branch}
+                                type="button"
+                                onClick={() => {
+                                  if (formCode) {
+                                    handleOpenSeatEditor(formCode, branch);
+                                  } else {
+                                    alert("Please specify a Unique College Code first!");
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold transition-all cursor-pointer"
+                                title={`Edit seats for ${branch}`}
+                              >
+                                <Layers className="w-3 h-3 text-emerald-500" />
+                                {branch}: {entry.totalSeats} Seats (Edit)
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -1242,8 +1274,27 @@ export default function AdminDashboard() {
                           <td className="px-5 py-3.5 text-center text-[#138808]">
                             {c.averagePackage.toFixed(2)} LPA
                           </td>
-                          <td className="px-5 py-3.5 text-center text-[#2563EB]">
-                            {c.branches.length}
+                          <td className="px-5 py-3.5 text-center">
+                            <div className="flex flex-wrap justify-center gap-1 max-w-[150px] mx-auto">
+                              {c.branches.map((b) => {
+                                const entry = seatMatrix.find(s => s.collegeCode === c.code && s.branchCode === b) || { totalSeats: 60 };
+                                return (
+                                  <button
+                                    key={b}
+                                    type="button"
+                                    onClick={() => {
+                                      setIsEditing(false);
+                                      setIsCreating(false);
+                                      handleOpenSeatEditor(c.code, b);
+                                    }}
+                                    className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 text-[8px] font-extrabold cursor-pointer transition-colors"
+                                    title={`Click to edit seats for ${b} (Current: ${entry.totalSeats} seats)`}
+                                  >
+                                    {b} ({entry.totalSeats})
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </td>
                           <td className="px-5 py-3.5 text-right">
                             <div className="flex gap-2 justify-end">
