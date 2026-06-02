@@ -1270,12 +1270,12 @@ export default function AdminDashboard() {
                           const res = await fetch("/api/save-colleges", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ colleges })
+                            body: JSON.stringify({ colleges, seatMatrix })
                           });
                           const data = await res.json();
                           if (data.success) {
                             if (data.warning) {
-                              showNotification("⚠️ Saved to disk, but Git Push failed! Please push src/data/colleges.ts manually.");
+                              showNotification("⚠️ Saved to disk, but Git Push failed! Please push manually.");
                               alert(data.warning);
                             } else if (data.pushed) {
                               showNotification("✓ Success! Saved to disk and automatically pushed to GitHub! Vercel is now deploying.");
@@ -1283,7 +1283,7 @@ export default function AdminDashboard() {
                               showNotification("✓ Saved to disk! No new changes detected to push.");
                             }
                           } else {
-                            alert("Error saving colleges: " + data.error);
+                            alert("Error saving database: " + data.error);
                           }
                         } catch (err: any) {
                           alert("Failed to sync to Git: " + err.message);
