@@ -42,6 +42,12 @@ export default function Homepage() {
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
+  React.useEffect(() => {
+    if (!user) {
+      setShowAuthModal(true);
+    }
+  }, [user, setShowAuthModal]);
+
   const handleGuardClick = (e: React.MouseEvent, path: string) => {
     if (!user) {
       e.preventDefault();
@@ -97,11 +103,12 @@ export default function Homepage() {
   ];
 
   const updates = [
-    { date: "July 1, 2026", title: "UGEAC-2026 Online Registration Commences", status: "Upcoming", badge: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" },
-    { date: "July 20, 2026", title: "Official UGEAC Merit List & State Ranks Release", status: "Upcoming", badge: "bg-blue-500/10 text-blue-500 border border-blue-500/20" },
-    { date: "July 22 - 26, 2026", title: "Online Choice Filling & Choice Locking Window", status: "Action Needed", badge: "bg-[#FF9933]/10 text-[#FF9933] border border-[#FF9933]/20" },
-    { date: "August 1, 2026", title: "Round 1 Seat Allotment Publication", status: "Upcoming", badge: "bg-purple-500/10 text-purple-500 border border-purple-500/20" },
-    { date: "August 2 - 6, 2026", title: "Round 1 Physical Document Verification (DV) & Admission", status: "Mandatory", badge: "bg-red-500/10 text-red-500 border border-red-500/20" }
+    { date: "13.05.2026", title: "Online Registration Starting Date", status: "Active", badge: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" },
+    { date: "05.06.2026 (10.00 p.m.)", title: "Online Registration Closing Date", status: "Upcoming", badge: "bg-blue-500/10 text-blue-500 border border-blue-500/20" },
+    { date: "05.06.2026 (11.59 p.m.)", title: "Last date of payment through Debit/Credit Card/Net Banking/UPI with Final submission", status: "Upcoming", badge: "bg-amber-500/10 text-amber-500 border border-amber-500/20" },
+    { date: "06.06.2026", title: "Online Editing of Application Form", status: "Upcoming", badge: "bg-[#FF9933]/10 text-[#FF9933] border border-[#FF9933]/20" },
+    { date: "08.06.2026", title: "Publication of Merit list of UGEAC-2026", status: "Upcoming", badge: "bg-purple-500/10 text-purple-500 border border-purple-500/20" },
+    { date: "Proposed date", title: "Proposed date of Online Counselling", status: "Upcoming", badge: "bg-slate-500/10 text-slate-500 border border-slate-500/20" }
   ];
 
   const faqs = [

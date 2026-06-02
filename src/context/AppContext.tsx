@@ -127,10 +127,12 @@ const defaultBulkFiles: BulkFile[] = [
 ];
 
 const defaultTimelineEvents: TimelineEvent[] = [
-  { id: 1, event: "Online Registration Start", date: "June 05, 2026", status: "Active" },
-  { id: 2, event: "UGEAC Merit List Publication", date: "June 18, 2026", status: "Upcoming" },
-  { id: 3, event: "Choice Filling & Locking Phase", date: "June 22 - June 26, 2026", status: "Upcoming" },
-  { id: 4, event: "Round 1 Seat Allotment Publication", date: "July 02, 2026", status: "Upcoming" }
+  { id: 1, event: "Online Registration Starting Date", date: "13.05.2026", status: "Active" },
+  { id: 2, event: "Online Registration Closing Date", date: "05.06.2026 (10.00 p.m.)", status: "Upcoming" },
+  { id: 3, event: "Last date of payment through Debit Card/ Credit Card/ Net Banking/ UPI with Final submission of the online Application Form by Registered candidate", date: "05.06.2026 (11.59 p.m.)", status: "Upcoming" },
+  { id: 4, event: "Online Editing of Application Form", date: "06.06.2026", status: "Upcoming" },
+  { id: 5, event: "Publication of Merit list of UGEAC-2026", date: "08.06.2026", status: "Upcoming" },
+  { id: 6, event: "Proposed date of Online Counselling", date: "Proposed date of Online Counselling", status: "Upcoming" }
 ];
 
 const defaultGuideSteps: GuideStep[] = [
@@ -275,14 +277,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         localStorage.setItem("bihareduconnect_bulk_files", JSON.stringify(defaultBulkFiles));
       }
 
-      // Timeline Events Dynamic Loading
+      // Timeline Events Dynamic Loading & Auto-Migration to Official Screenshot Dates
       const storedTimelineEvents = localStorage.getItem("bihareduconnect_timeline_events");
+      let activeTimeline = defaultTimelineEvents;
       if (storedTimelineEvents) {
-        setTimelineEvents(JSON.parse(storedTimelineEvents));
+        try {
+          const parsed = JSON.parse(storedTimelineEvents);
+          // If cached data is the old 4-item list or contains the old mock dates, overwrite with new official ones!
+          if (parsed.length <= 4 || parsed.some((e: any) => e.date.includes("June 05") || e.date.includes("June 18"))) {
+            activeTimeline = defaultTimelineEvents;
+            localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
+          } else {
+            activeTimeline = parsed;
+          }
+        } catch (e) {
+          activeTimeline = defaultTimelineEvents;
+          localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
+        }
       } else {
-        setTimelineEvents(defaultTimelineEvents);
         localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
       }
+      setTimelineEvents(activeTimeline);
 
       // Guide Steps Dynamic Loading
       const storedGuideSteps = localStorage.getItem("bihareduconnect_guide_steps");

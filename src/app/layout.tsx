@@ -6,7 +6,6 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AIChatbot from "../components/AIChatbot";
 import { AuthModal } from "../components/AuthModal";
-import { AuthGate } from "../components/AuthGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,9 +41,7 @@ export default function RootLayout({
         <AppProvider>
           <Navbar />
           <main className="flex-grow">
-            <AuthGate>
-              {children}
-            </AuthGate>
+            {children}
           </main>
           <Footer />
           <AIChatbot />
