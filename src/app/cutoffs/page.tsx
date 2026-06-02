@@ -26,9 +26,27 @@ export default function CutoffExplorer() {
   const [selectedBranch, setSelectedBranch] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("UR");
 
+  // Reset selected branch if it's not offered by the newly selected college
+  React.useEffect(() => {
+    if (selectedCollege !== "All" && selectedBranch !== "All") {
+      const offeredBranches = cutoffs
+        .filter((c) => c.collegeCode === selectedCollege)
+        .map((c) => c.branchCode);
+      if (!offeredBranches.includes(selectedBranch)) {
+        setSelectedBranch("All");
+      }
+    }
+  }, [selectedCollege, selectedBranch, cutoffs]);
+
   const categories = ["UR", "BC", "EBC", "SC", "ST", "EWS", "RCG"];
-  // Dynamically extract all unique branches present in the cutoffs database
-  const uniqueBranches = Array.from(new Set(cutoffs.map((c) => c.branchCode))).sort();
+  // Dynamically extract all unique branches present in the cutoffs database (filtered by selected college if applicable)
+  const uniqueBranches = Array.from(
+    new Set(
+      cutoffs
+        .filter((c) => selectedCollege === "All" || c.collegeCode === selectedCollege)
+        .map((c) => c.branchCode)
+    )
+  ).sort();
 
   // Filtered List
   const filteredCutoffs = cutoffs.filter((cutoff) => {
