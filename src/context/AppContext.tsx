@@ -118,6 +118,8 @@ interface AppContextType {
   blockStudent: (email: string) => void;
   unblockStudent: (email: string) => void;
   visitorLogs: VisitorLog[];
+  whatsappLink: string;
+  updateWhatsappLink: (link: string) => void;
 }
 
 const defaultBulkFiles: BulkFile[] = [
@@ -203,6 +205,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
   const [blockedEmails, setBlockedEmails] = useState<string[]>([]);
   const [visitorLogs, setVisitorLogs] = useState<VisitorLog[]>([]);
+  const [whatsappLink, setWhatsappLink] = useState<string>("https://wa.me/919999999999");
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -347,6 +350,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } else {
           document.documentElement.classList.remove("dark");
         }
+      }
+
+      const storedWhatsappLink = localStorage.getItem("bihareduconnect_whatsapp_link");
+      if (storedWhatsappLink) {
+        setWhatsappLink(storedWhatsappLink);
+      } else {
+        localStorage.setItem("bihareduconnect_whatsapp_link", "https://wa.me/919999999999");
       }
     }
   }, []);
@@ -903,6 +913,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const updateWhatsappLink = (link: string) => {
+    setWhatsappLink(link);
+    saveToLocalStorage("bihareduconnect_whatsapp_link", link);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -955,7 +970,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         blockedEmails,
         blockStudent,
         unblockStudent,
-        visitorLogs
+        visitorLogs,
+        whatsappLink,
+        updateWhatsappLink
       }}
     >
       {children}

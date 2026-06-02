@@ -29,7 +29,7 @@ import { getCutoff } from "../../data/cutoffs";
 import { useApp } from "../../context/AppContext";
 
 export default function CounsellingGuide() {
-  const { user, colleges, bulkFiles, guideSteps } = useApp();
+  const { user, colleges, bulkFiles, guideSteps, whatsappLink } = useApp();
   const [activeStep, setActiveStep] = useState(0);
 
   const [isPremiumUnlocked, setIsPremiumUnlocked] = useState(false);
@@ -325,7 +325,7 @@ export default function CounsellingGuide() {
                   ✓ Premium Unlocked (₹99 Paid)
                 </button>
                 <a
-                  href="https://wa.me/919999999999"
+                  href={whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3.5 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:bg-emerald-500/15 transition-all"

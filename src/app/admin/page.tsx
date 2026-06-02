@@ -115,6 +115,8 @@ export default function AdminDashboard() {
     blockStudent,
     unblockStudent,
     visitorLogs,
+    whatsappLink,
+    updateWhatsappLink,
     logout
   } = useApp();
 
@@ -140,7 +142,7 @@ export default function AdminDashboard() {
   }
 
   // Active navigation tab
-  const [activeTab, setActiveTab] = useState<"colleges" | "bulk" | "cutoffs" | "guides" | "timeline" | "students">("colleges");
+  const [activeTab, setActiveTab] = useState<"colleges" | "bulk" | "cutoffs" | "guides" | "timeline" | "students" | "settings">("colleges");
 
   // Tab 6: Students CRUD & Visit Chat states
   const [studentSearch, setStudentSearch] = useState("");
@@ -671,6 +673,27 @@ export default function AdminDashboard() {
     showNotification("✓ Milestone event state updated.");
   };
 
+  // ==========================================
+  // TAB 7: SITE SETTINGS STATES & HANDLERS
+  // ==========================================
+  const [settingsWhatsappLink, setSettingsWhatsappLink] = useState(whatsappLink);
+
+  useEffect(() => {
+    if (whatsappLink) {
+      setSettingsWhatsappLink(whatsappLink);
+    }
+  }, [whatsappLink]);
+
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!settingsWhatsappLink.trim().startsWith("http://") && !settingsWhatsappLink.trim().startsWith("https://")) {
+      alert("Please enter a valid URL beginning with http:// or https://");
+      return;
+    }
+    updateWhatsappLink(settingsWhatsappLink.trim());
+    showNotification("✓ Site configuration settings updated successfully!");
+  };
+
   return (
     <AuthGate>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -728,7 +751,8 @@ export default function AdminDashboard() {
             { id: "cutoffs", label: "Cutoff Manager", icon: Database },
             { id: "guides", label: "Guide Steps", icon: FileText },
             { id: "timeline", label: "Timeline Scheduler", icon: Calendar },
-            { id: "students", label: "Students & Visits", icon: Users }
+            { id: "students", label: "Students & Visits", icon: Users },
+            { id: "settings", label: "Site Settings", icon: SlidersHorizontal }
           ].map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -2413,6 +2437,102 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+        </div>
+      )}
+
+      {/* ==================================================== */}
+      {/* TAB 7 CONTENT: SITE SETTINGS */}
+      {/* ==================================================== */}
+      {activeTab === "settings" && (
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-sm text-left max-w-4xl mx-auto space-y-8 animate-fadeIn">
+          {/* Header */}
+          <div className="border-b border-gray-150 dark:border-slate-850 pb-4">
+            <h2 className="text-xl font-extrabold text-slate-850 dark:text-white flex items-center gap-2">
+              <SlidersHorizontal className="w-6 h-6 text-amber-500" />
+              Global Site Configurations
+            </h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Customize portal integrations, links, and premium counselling feature variables in real time.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            {/* Link Edit Form (Col-7) */}
+            <form onSubmit={handleSaveSettings} className="md:col-span-7 space-y-5">
+              <div className="bg-slate-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-gray-300 flex items-center gap-1.5">
+                  <span className="p-1 rounded bg-[#25D366]/10 text-[#25D366] flex items-center justify-center">
+                    💬
+                  </span>
+                  WhatsApp Group Settings
+                </h3>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-gray-500 uppercase">
+                    Premium Support Link
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="e.g. https://wa.me/919999999999 or chat invite link"
+                    value={settingsWhatsappLink}
+                    onChange={(e) => setSettingsWhatsappLink(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 dark:text-white font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-200"
+                  />
+                  <p className="text-[10px] text-gray-400 leading-normal">
+                    This link will be bound to the <strong>💬 Join WhatsApp Group</strong> button on the candidate dashboard and premium counselling guide page.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-amber-500 to-[#138808] hover:shadow-lg hover:shadow-amber-500/10 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all duration-300 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                Save Site Configurations
+              </button>
+            </form>
+
+            {/* Interactive Realtime Live Preview (Col-5) */}
+            <div className="md:col-span-5 space-y-4">
+              <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Live Preview (Guide Page view)
+              </h4>
+              <div className="border border-dashed border-gray-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-950/20 text-center relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+                <div className="space-y-3 text-left">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-[#D97706] text-[8px] font-extrabold uppercase tracking-wider">
+                    ⭐ Premium Advantage
+                  </div>
+                  <h5 className="font-extrabold text-slate-850 dark:text-white text-xs leading-snug">
+                    Unlock Expert Bihar Engineering <span className="bg-gradient-to-r from-[#FF9933] to-[#138808] bg-clip-text text-transparent">Counselling Handbook</span>
+                  </h5>
+                  <p className="text-[10px] text-gray-400 leading-relaxed">
+                    Get access to rank-wise choices, placement excel trackers, and direct group help.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-2 text-left">
+                  <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[9px] font-black rounded-lg shrink-0">
+                    ✓ Premium Unlocked
+                  </span>
+                  <a
+                    href={settingsWhatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 bg-emerald-500 text-white hover:bg-emerald-600 shadow shadow-emerald-500/15 text-[9px] font-extrabold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                    title="Simulated Link Button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert(`Mock click: This will open ${settingsWhatsappLink} in a new tab.`);
+                    }}
+                  >
+                    💬 Join Group
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
