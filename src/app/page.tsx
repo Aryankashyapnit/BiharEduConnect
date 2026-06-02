@@ -43,8 +43,12 @@ export default function Homepage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   React.useEffect(() => {
-    if (!user) {
+    const justLoggedOut = sessionStorage.getItem("bihareduconnect_logged_out");
+    if (!user && !justLoggedOut) {
       setShowAuthModal(true);
+    }
+    if (justLoggedOut) {
+      sessionStorage.removeItem("bihareduconnect_logged_out");
     }
   }, [user, setShowAuthModal]);
 

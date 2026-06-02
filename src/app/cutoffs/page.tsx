@@ -41,23 +41,26 @@ export default function CutoffExplorer() {
   });
 
   // Trend Data for the SVG chart
-  // Let's draw trend line of closing ranks of the selected college/branch over 2024 and 2025, Round 1 and Round 2
+  // Let's draw trend line of closing ranks of the selected college/branch over 2023, 2024, and 2025, Round 1 and Round 2
   const getTrendData = () => {
     const college = selectedCollege === "All" ? "MIT-MUZAFFARPUR" : selectedCollege;
     const branch = selectedBranch === "All" ? "CSE" : selectedBranch;
     
-    // We want 4 points:
-    // 1. 2024 R1, 2. 2024 R2, 3. 2025 R1, 4. 2025 R2
-    const p1 = getCutoff(college, branch, 2024, 1, selectedCategory);
-    const p2 = getCutoff(college, branch, 2024, 2, selectedCategory); // fallback estimator will handle
-    const p3 = getCutoff(college, branch, 2025, 1, selectedCategory);
-    const p4 = getCutoff(college, branch, 2025, 2, selectedCategory);
+    // We want 6 points:
+    const p1_23 = getCutoff(college, branch, 2023, 1, selectedCategory);
+    const p2_23 = getCutoff(college, branch, 2023, 2, selectedCategory);
+    const p1_24 = getCutoff(college, branch, 2024, 1, selectedCategory);
+    const p2_24 = getCutoff(college, branch, 2024, 2, selectedCategory);
+    const p1_25 = getCutoff(college, branch, 2025, 1, selectedCategory);
+    const p2_25 = getCutoff(college, branch, 2025, 2, selectedCategory);
 
     return [
-      { label: "2024 R1", value: p1.closingRank },
-      { label: "2024 R2", value: p2.closingRank },
-      { label: "2025 R1", value: p3.closingRank },
-      { label: "2025 R2", value: p4.closingRank }
+      { label: "2023 R1", value: p1_23.closingRank },
+      { label: "2023 R2", value: p2_23.closingRank },
+      { label: "2024 R1", value: p1_24.closingRank },
+      { label: "2024 R2", value: p2_24.closingRank },
+      { label: "2025 R1", value: p1_25.closingRank },
+      { label: "2025 R2", value: p2_25.closingRank }
     ];
   };
 
@@ -185,7 +188,7 @@ export default function CutoffExplorer() {
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Counselling Year</label>
               <div className="flex rounded-lg border border-gray-200 dark:border-slate-800 overflow-hidden font-bold">
-                {[2025, 2024].map((yr) => (
+                {[2025, 2024, 2023].map((yr) => (
                   <button
                     key={yr}
                     onClick={() => setSelectedYear(yr)}

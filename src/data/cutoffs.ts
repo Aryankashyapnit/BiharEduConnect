@@ -60,7 +60,7 @@ const generateAllCutoffs = (): Cutoff[] => {
   };
 
   const categories = ["UR", "BC", "EBC", "SC", "ST", "EWS", "RCG"];
-  const years = [2024, 2025];
+  const years = [2023, 2024, 2025];
   const rounds = [1, 2];
 
   collegesData.forEach((college) => {
@@ -84,8 +84,10 @@ const generateAllCutoffs = (): Cutoff[] => {
       }
 
       years.forEach((year) => {
-        // 2024 ranks were slightly lower due to higher JEE participation numbers in 2025
-        const yearMult = year === 2024 ? 0.94 : 1.0;
+        // Year specific multiplier to represent realistic historical fluctuations
+        let yearMult = 1.0;
+        if (year === 2024) yearMult = 0.94;
+        else if (year === 2023) yearMult = 0.88;
 
         rounds.forEach((round) => {
           // Round 2 closing ranks are always slightly larger (more seats occupied)

@@ -232,7 +232,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedCutoffs) {
         try {
           const parsed = JSON.parse(storedCutoffs);
-          if (parsed.length < 1000) {
+          if (parsed.length < 7000) {
             activeCutoffs = cutoffsData;
             localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
           } else {
@@ -879,6 +879,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUser(null);
     if (typeof window !== "undefined") {
       localStorage.removeItem("bihareduconnect_user");
+      sessionStorage.setItem("bihareduconnect_logged_out", "true");
       window.location.href = "/";
     }
   };
