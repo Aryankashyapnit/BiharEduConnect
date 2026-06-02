@@ -17,6 +17,86 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+interface FuzzyCollege {
+  name: string;
+  code: string;
+  location: string;
+  description: string;
+}
+
+function fuzzyMatchCollege(college: FuzzyCollege, query: string): boolean {
+  const q = query.toLowerCase().trim();
+  if (!q) return true;
+
+  const name = college.name.toLowerCase();
+  const location = college.location.toLowerCase();
+  const code = college.code.toLowerCase();
+  const desc = college.description ? college.description.toLowerCase() : "";
+
+  // 1. Direct substring match on any major field
+  if (name.includes(q) || location.includes(q) || code.includes(q) || desc.includes(q)) {
+    return true;
+  }
+
+  // 2. Space/punctuation-stripped direct match (handles GEC-Buxar as "gecbuxar")
+  const cleanStr = (s: string) => s.replace(/[^a-z0-9]/g, "");
+  const cleanQ = cleanStr(q);
+  if (!cleanQ) return false;
+
+  const cleanName = cleanStr(name);
+  const cleanLoc = cleanStr(location);
+  const cleanCode = cleanStr(code);
+  const cleanDesc = cleanStr(desc);
+
+  if (cleanName.includes(cleanQ) || cleanLoc.includes(cleanQ) || cleanCode.includes(cleanQ) || cleanDesc.includes(cleanQ)) {
+    return true;
+  }
+
+  // 3. Initials Match (e.g. "gec" matches "Government Engineering College", "mit" matches "Muzaffarpur Institute of Technology")
+  const words = name.split(/[^a-z0-9]+/);
+  const initials = words.map(w => w[0]).join("");
+  if (initials.includes(cleanQ)) {
+    return true;
+  }
+  // Also check initials of code (e.g. GEC-BUXAR -> GECB)
+  const codeWords = code.split(/[^a-z0-9]+/);
+  const codeInitials = codeWords.map(w => w[0]).join("");
+  if (codeInitials.includes(cleanQ)) {
+    return true;
+  }
+
+  // 4. Consonant Skeleton Match (handles spelling variations like "buxur" vs "buxar", "muzafarpur" vs "muzaffarpur")
+  // Helper to get consonant skeleton: remove vowels, deduplicate adjacent identical letters
+  const getConsonantSkeleton = (s: string) => {
+    return s
+      .replace(/[aeiouy]/g, "") // remove vowels
+      .replace(/([^a-z0-9])|(\1+)/g, "$1") // deduplicate letters (e.g. ff -> f, pp -> p)
+      .replace(/(.)\1+/g, "$1"); // deduplicate remaining letters
+  };
+
+  const skeletonQ = getConsonantSkeleton(cleanQ);
+  if (skeletonQ.length >= 2) {
+    const skeletonName = getConsonantSkeleton(cleanName);
+    const skeletonLoc = getConsonantSkeleton(cleanLoc);
+    const skeletonCode = getConsonantSkeleton(cleanCode);
+
+    if (skeletonName.includes(skeletonQ) || skeletonLoc.includes(skeletonQ) || skeletonCode.includes(skeletonQ)) {
+      return true;
+    }
+  }
+
+  // 5. Multi-word match: if the user types multiple words (e.g., "gec buxur"), check if each word of the query matches the college in some way
+  const queryWords = q.split(/\s+/).filter(Boolean);
+  if (queryWords.length > 1) {
+    const allWordsMatch = queryWords.every(qw => {
+      return fuzzyMatchCollege(college, qw);
+    });
+    if (allWordsMatch) return true;
+  }
+
+  return false;
+}
+
 export default function CollegesDirectory() {
   const { colleges, favorites, addFavorite, removeFavorite } = useApp();
 
@@ -28,9 +108,7 @@ export default function CollegesDirectory() {
 
   // Filter logic
   const filteredColleges = colleges.filter((c) => {
-    const matchesSearch = 
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = fuzzyMatchCollege(c, searchTerm);
     const matchesPlacement = c.averagePackage >= minPlacement;
     const matchesFee = c.tuitionFee <= maxFee;
 
