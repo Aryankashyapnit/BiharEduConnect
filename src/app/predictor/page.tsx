@@ -28,6 +28,7 @@ export default function CollegePredictor() {
   const [inputType, setInputType] = useState<"percentile" | "rank">("percentile");
   const [percentile, setPercentile] = useState<number | "">(user?.percentile || "");
   const [rank, setRank] = useState<number | "">("");
+  const [rankType, setRankType] = useState<"ur" | "category">("ur");
   const [category, setCategory] = useState("UR");
   const [gender, setGender] = useState("Co-ed");
   const [quota, setQuota] = useState("Home State");
@@ -38,6 +39,58 @@ export default function CollegePredictor() {
   const [hasPredicted, setHasPredicted] = useState(false);
   const [filterChance, setFilterChance] = useState("All");
   const [filterBranch, setFilterBranch] = useState("All");
+
+  // Dynamic Real-time Rank Estimation calculations for the UI
+  const getUIEstimatedRanks = () => {
+    let estUR = 0;
+    if (inputType === "percentile") {
+      const pctVal = Number(percentile);
+      if (pctVal > 0 && pctVal <= 100) {
+        const factor = (100 - pctVal);
+        estUR = Math.round(10 * Math.pow(factor, 1.7) + 1);
+      }
+    } else {
+      const r = Number(rank);
+      if (r > 0) {
+        if (rankType === "category" && category !== "UR") {
+          let multiplier = 1.0;
+          switch (category) {
+            case "BC": multiplier = 3.5; break;
+            case "EBC": multiplier = 2.8; break;
+            case "EWS": multiplier = 5.0; break;
+            case "SC": multiplier = 6.5; break;
+            case "ST": multiplier = 45.0; break;
+            case "RCG": multiplier = 15.0; break;
+          }
+          estUR = Math.round(r * multiplier);
+        } else {
+          estUR = r;
+        }
+      }
+    }
+
+    if (estUR === 0) return null;
+
+    let estCatRank = 0;
+    let catLabel = "";
+    switch (category) {
+      case "BC": estCatRank = Math.round(estUR / 3.5); catLabel = "BC Rank"; break;
+      case "EBC": estCatRank = Math.round(estUR / 2.8); catLabel = "EBC Rank"; break;
+      case "EWS": estCatRank = Math.round(estUR / 5.0); catLabel = "EWS Rank"; break;
+      case "SC": estCatRank = Math.round(estUR / 6.5); catLabel = "SC Rank"; break;
+      case "ST": estCatRank = Math.round(estUR / 45.0); catLabel = "ST Rank"; break;
+      case "RCG": estCatRank = Math.round(estUR / 15.0); catLabel = "RCG Rank"; break;
+      default: estCatRank = estUR; catLabel = "UR Rank"; break;
+    }
+    
+    return {
+      ur: estUR,
+      cat: Math.max(1, estCatRank),
+      label: catLabel
+    };
+  };
+
+  const uiRanks = getUIEstimatedRanks();
 
   const categories = [
     { code: "UR", name: "Unreserved (UR)" },
@@ -71,7 +124,20 @@ export default function CollegePredictor() {
         alert("Please enter a valid rank number");
         return;
       }
-      targetRank = rankVal;
+      if (rankType === "category" && category !== "UR") {
+        let multiplier = 1.0;
+        switch (category) {
+          case "BC": multiplier = 3.5; break;
+          case "EBC": multiplier = 2.8; break;
+          case "EWS": multiplier = 5.0; break;
+          case "SC": multiplier = 6.5; break;
+          case "ST": multiplier = 45.0; break;
+          case "RCG": multiplier = 15.0; break;
+        }
+        targetRank = Math.round(rankVal * multiplier);
+      } else {
+        targetRank = rankVal;
+      }
     }
 
     const results: any[] = [];
@@ -241,19 +307,86 @@ export default function CollegePredictor() {
                   </p>
                 </div>
               ) : (
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
-                    UGEAC State Merit Rank / BCECE Rank <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={rank}
-                    onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder="e.g. 1500"
-                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] font-semibold placeholder-slate-400"
-                  />
+                <div className="space-y-3.5">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5 flex justify-between items-center">
+                      <span>Rank Type Selector</span>
+                      {category === "UR" && (
+                        <span className="text-[9px] text-[#2563EB] font-bold lowercase tracking-wider bg-[#2563EB]/10 px-1.5 py-0.2 rounded">
+                          Category is UR
+                        </span>
+                      )}
+                    </label>
+                    <div className="flex p-0.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800/80 mb-1 w-full">
+                      <button
+                        type="button"
+                        onClick={() => setRankType("ur")}
+                        className={`flex-1 py-1 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer ${
+                          rankType === "ur"
+                            ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-amber-500 shadow-sm"
+                            : "text-gray-400 hover:text-slate-700"
+                        }`}
+                      >
+                        UR (General) Rank
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (category !== "UR") setRankType("category");
+                        }}
+                        className={`flex-1 py-1 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                          rankType === "category" && category !== "UR"
+                            ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-amber-500 shadow-sm"
+                            : "text-gray-400 hover:text-slate-700"
+                        }`}
+                        disabled={category === "UR"}
+                        title={category === "UR" ? "Select a reservation category first to enter Category Rank" : ""}
+                      >
+                        Category Rank
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
+                      {rankType === "category" && category !== "UR" ? `${category} Category Rank` : "General (UR) State Rank"} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      value={rank}
+                      onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
+                      placeholder={rankType === "category" && category !== "UR" ? "e.g. 350" : "e.g. 1500"}
+                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] font-semibold placeholder-slate-400"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 2.5 Real-time dynamic rank estimator preview panel */}
+              {uiRanks && (
+                <div className="p-3.5 bg-gradient-to-br from-blue-500/10 to-[#138808]/10 border border-[#2563EB]/15 dark:border-slate-800 rounded-2xl space-y-2 text-left transition-all duration-300">
+                  <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-extrabold uppercase tracking-widest block">
+                    🎯 Real-time Rank Estimations
+                  </span>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="p-2 bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl">
+                      <span className="text-[9px] text-gray-450 block font-bold uppercase">Estimated UR Rank</span>
+                      <strong className="text-sm font-extrabold text-slate-800 dark:text-white mt-0.5 block">
+                        ~{uiRanks.ur.toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+                    <div className="p-2 bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-855 rounded-xl">
+                      <span className="text-[9px] text-gray-455 block font-bold uppercase">{uiRanks.label}</span>
+                      <strong className="text-sm font-extrabold text-slate-800 dark:text-white mt-0.5 block">
+                        ~{uiRanks.cat.toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-gray-400 mt-1 leading-normal font-medium">
+                    * Ratios calculated from UGEAC state quotas: BC (~12%), EBC (~18%), SC (~16%), EWS (~10%), ST (~1%), RCG (~3%).
+                  </p>
                 </div>
               )}
 
