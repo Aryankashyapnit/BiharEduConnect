@@ -42,6 +42,14 @@ export default function Homepage() {
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
+  // Onboarding Wizard State
+  const [wizardType, setWizardType] = useState<"percentile" | "ugeac_rank" | "bcece_rank">("percentile");
+  const [wizardValue, setWizardValue] = useState("");
+  const [wizardCategory, setWizardCategory] = useState("UR");
+  
+  // Strategy Carousel State
+  const [activeSlide, setActiveSlide] = useState(0);
+
   React.useEffect(() => {
     const justLoggedOut = sessionStorage.getItem("bihareduconnect_logged_out");
     if (!user && !justLoggedOut) {
@@ -156,7 +164,7 @@ export default function Homepage() {
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-[1.1]">
                 Bihar Engineering <br />
-                <span className="bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808] bg-clip-text text-transparent">
+                <span className="gradient-text-premium font-black">
                   Counselling Made Easy
                 </span>
               </h1>
@@ -170,7 +178,7 @@ export default function Homepage() {
                 <Link
                   href="/predictor"
                   onClick={(e) => handleGuardClick(e, "/predictor")}
-                  className="px-6 py-3.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-lg shadow-[#138808]/20 text-white font-bold rounded-xl text-sm flex items-center gap-1.5 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                  className="px-6 py-3.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-lg shadow-[#138808]/20 text-white font-bold rounded-xl text-sm flex items-center gap-1.5 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer btn-premium"
                 >
                   Predict My College
                   <ArrowRight className="w-4.5 h-4.5" />
@@ -178,14 +186,14 @@ export default function Homepage() {
                 <Link
                   href="/cutoffs"
                   onClick={(e) => handleGuardClick(e, "/cutoffs")}
-                  className="px-6 py-3.5 border border-gray-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-850 dark:text-gray-300 font-bold rounded-xl text-sm transition-colors cursor-pointer"
+                  className="px-6 py-3.5 border border-gray-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-855 dark:text-gray-300 font-bold rounded-xl text-sm transition-colors cursor-pointer hover-lift"
                 >
                   Check Cutoffs
                 </Link>
                 <Link
                   href="/guide"
                   onClick={(e) => handleGuardClick(e, "/guide")}
-                  className="px-6 py-3.5 text-[#2563EB] hover:text-[#2563EB]/80 font-bold text-sm hover:underline cursor-pointer"
+                  className="px-6 py-3.5 text-[#2563EB] dark:text-[#FF9933] hover:text-[#2563EB]/80 font-bold text-sm hover:underline cursor-pointer"
                 >
                   Counselling Guide ➔
                 </Link>
@@ -194,7 +202,7 @@ export default function Homepage() {
 
             {/* Hero graphics panel (glowing cards overlay) */}
             <div className="lg:col-span-5 relative flex items-center justify-center lg:justify-end">
-              <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800/80 p-6 shadow-2xl relative">
+              <div className="w-full max-w-sm rounded-3xl glass-card p-6 shadow-2xl relative animate-float">
                 {/* Decorative glowing gradient borders */}
                 <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#FF9933] via-[#2563EB] to-[#138808] opacity-25 blur-sm"></div>
 
@@ -261,7 +269,7 @@ export default function Homepage() {
             {stats.map((st, i) => {
               const Icon = st.icon;
               return (
-                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-900/30">
+                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100/50 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-900/20 glass-card hover-lift">
                   <div className={`p-3 rounded-xl ${st.color} shrink-0`}>
                     <Icon className="w-6 h-6" />
                   </div>
@@ -273,6 +281,228 @@ export default function Homepage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* 2.5 INTERACTIVE ADMISSION WIZARD & COUNSELLING SECRETS BLOCK */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[300px] w-[500px] rounded-full bg-gradient-to-r from-[#FF9933]/5 to-[#138808]/5 blur-3xl opacity-50"></div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* Left panel: Interactive Wizard (7 cols) */}
+          <div className="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-8 border border-gray-150 dark:border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent -z-10"></div>
+            
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-extrabold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5" />
+                Admission Strategy Wizard
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-snug">
+                Prefill Your Admissions Odds!
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl">
+                Enter your test ranks or percentiles below. Our interactive helper will configure the prediction engines instantly to Suggest suggested government colleges in Bihar.
+              </p>
+
+              {/* Form elements */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3.5">
+                {/* 1. Score type tab toggles */}
+                <div className="col-span-1 sm:col-span-2">
+                  <label className="block text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-1.5">Score Merit Type</label>
+                  <div className="flex p-0.5 bg-slate-100/50 dark:bg-slate-950/60 rounded-xl border border-gray-200 dark:border-slate-850 w-full">
+                    {["percentile", "ugeac_rank", "bcece_rank"].map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          setWizardType(t as any);
+                          setWizardValue("");
+                        }}
+                        className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 cursor-pointer ${
+                          wizardType === t
+                            ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
+                            : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                        }`}
+                      >
+                        {t === "percentile" ? "JEE Percentile" : t === "ugeac_rank" ? "UGEAC Rank" : "BCECE Rank"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Caste reservation code */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-1.5">Your reservation Caste</label>
+                  <select
+                    value={wizardCategory}
+                    onChange={(e) => setWizardCategory(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-gray-250 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9933] cursor-pointer"
+                  >
+                    <option value="UR">Unreserved (UR)</option>
+                    <option value="BC">Backward Class (BC)</option>
+                    <option value="EBC">Extremely Backward Class (EBC)</option>
+                    <option value="SC">Scheduled Caste (SC)</option>
+                    <option value="ST">Scheduled Tribe (ST)</option>
+                    <option value="EWS">Economically Weaker Section (EWS)</option>
+                    <option value="RCG">Reserved Category Girls (RCG)</option>
+                  </select>
+                </div>
+
+                {/* 3. Score input value */}
+                <div>
+                  <label className="block text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-1.5">
+                    {wizardType === "percentile" ? "JEE Percentile Score" : `${wizardType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Value`}
+                  </label>
+                  <input
+                    type="text"
+                    value={wizardValue}
+                    onChange={(e) => setWizardValue(e.target.value)}
+                    placeholder={wizardType === "percentile" ? "e.g. 91.50" : "e.g. 1450"}
+                    className="w-full px-3.5 py-2.5 border border-gray-250 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <button
+                onClick={(e) => {
+                  if (!wizardValue.trim()) {
+                    alert("Please enter a valid rank or percentile score first.");
+                    return;
+                  }
+                  const numVal = Number(wizardValue);
+                  if (isNaN(numVal) || numVal <= 0) {
+                    alert("Please enter a valid positive number.");
+                    return;
+                  }
+                  if (wizardType === "percentile" && numVal > 100) {
+                    alert("Percentile cannot exceed 100.");
+                    return;
+                  }
+
+                  const guardCheck = (path: string) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setPendingRedirect(path);
+                      setShowAuthModal(true);
+                    } else {
+                      window.location.href = path;
+                    }
+                  };
+
+                  const queryPath = wizardType === "percentile"
+                    ? `/predictor?percentile=${wizardValue}&category=${wizardCategory}&type=percentile`
+                    : `/predictor?rank=${wizardValue}&category=${wizardCategory}&type=${wizardType}`;
+
+                  guardCheck(queryPath);
+                }}
+                className="w-full py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-xl font-bold hover:shadow-lg shadow-[#138808]/15 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer btn-premium"
+              >
+                Calculate My Admissions Odds
+                <ArrowRight className="w-4.5 h-4.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Right panel: Strategy Advice Carousel (5 cols) */}
+          <div className="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 border border-gray-150 dark:border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FF9933]/5 via-transparent to-transparent -z-10"></div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#138808]/10 text-[#138808] text-[10px] font-extrabold uppercase tracking-wider">
+                  <Award className="w-3.5 h-3.5" />
+                  Counselling Expert Advice
+                </div>
+                <div className="flex gap-1">
+                  {[0, 1, 2, 3].map((idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSlide(idx)}
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                        activeSlide === idx ? "w-4.5 bg-[#FF9933]" : "w-1.5 bg-gray-250 dark:bg-slate-800"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Slider Content Wrapper */}
+              <div className="relative min-h-[160px] flex items-center">
+                {activeSlide === 0 && (
+                  <div className="space-y-2 animate-fade-in">
+                    <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[9px] font-extrabold uppercase tracking-wide">
+                      Choice Filling Strategy
+                    </span>
+                    <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
+                      The Golden Rule of Preference Sheets
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                      Always place your dream colleges (like MIT Muzaffarpur or BCE Bhagalpur CSE) at the top of your choice sheet, even if your JEE rank is lower. UGEAC has zero penalties for aspirational listing, and this secures high preference allocations!
+                    </p>
+                  </div>
+                )}
+
+                {activeSlide === 1 && (
+                  <div className="space-y-2 animate-fade-in">
+                    <span className="px-2 py-0.5 rounded bg-pink-500/10 text-pink-500 text-[9px] font-extrabold uppercase tracking-wide">
+                      Caste Quota Secrets
+                    </span>
+                    <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
+                      Double Seat Claim Pools for Girls
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                      Reserved Category Girls (RCG) in Bihar have access to two allocation pools: the standard Co-ed category pool (like BC or EBC) and the exclusive 3% RCG quota pool. This dual-claim model dramatically boosts allocation odds!
+                    </p>
+                  </div>
+                )}
+
+                {activeSlide === 2 && (
+                  <div className="space-y-2 animate-fade-in">
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-extrabold uppercase tracking-wide">
+                      Residency Guidelines
+                    </span>
+                    <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
+                      Bihar Home Domicile Advantage
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                      Under strict BCECE Board bulletins, 100% of seats across Bihar's 38 government engineering colleges are reserved exclusively for candidates holding valid residential residency certificates of Bihar. Domicile certificates are crucial!
+                    </p>
+                  </div>
+                )}
+
+                {activeSlide === 3 && (
+                  <div className="space-y-2 animate-fade-in">
+                    <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 text-[9px] font-extrabold uppercase tracking-wide">
+                      Upgradation Strategy
+                    </span>
+                    <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
+                      How Allotment Upgrades Work
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-medium">
+                      Allocated a lower preference in Round 1? Select 'Upgrade: Yes' during Document Verification (DV). You secure your R1 seat reservation while competing risk-free for higher-priority options in Round 2.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center border-t border-gray-100 dark:border-slate-850 pt-4 mt-2">
+              <span className="text-[10px] text-gray-400 font-extrabold uppercase">Expert Tips (UGEAC 2026)</span>
+              <button
+                onClick={() => {
+                  setActiveSlide((prev) => (prev + 1) % 4);
+                }}
+                className="text-xs text-[#2563EB] dark:text-[#FF9933] font-bold hover:underline cursor-pointer"
+              >
+                Next Secret Tip ➔
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -293,7 +523,7 @@ export default function Homepage() {
             return (
               <div
                 key={i}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-205 dark:border-slate-800/80 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group"
+                className="glass-card rounded-2xl p-6 shadow-sm hover-lift flex flex-col justify-between group"
               >
                 <div>
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-5 shrink-0`}>
@@ -325,19 +555,18 @@ export default function Homepage() {
       <section className="bg-slate-50 dark:bg-slate-900/30 border-t border-b border-gray-200 dark:border-slate-900 py-16 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
-            {/* Updates Notice Board */}
-            <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm">
+                       {/* Updates Notice Board */}
+            <div className="lg:col-span-7 glass-card rounded-2xl p-6 shadow-sm">
               <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-6 pb-3 border-b border-gray-100 dark:border-slate-850">
                 <Calendar className="w-5 h-5 text-[#FF9933]" />
                 Latest Admission Notification Board
               </h2>
-
+ 
               <div className="space-y-4">
                 {updates.map((upd, idx) => (
                   <div
                     key={idx}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100/50 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors"
                   >
                     <div>
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
@@ -355,10 +584,10 @@ export default function Homepage() {
                 ))}
               </div>
             </div>
-
+ 
             {/* Quick document reminder and interactive timeline */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 shadow-sm">
+              <div className="glass-card rounded-2xl p-6 shadow-sm">
                 <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4 border-b border-gray-100 dark:border-slate-850 pb-2">
                   <FileText className="w-5 h-5 text-[#138808]" />
                   Verification Documents Reminder
@@ -410,6 +639,9 @@ export default function Homepage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {updates.slice(0, 3).map((upd, i) => { // fall back to standard testimonials
+            return null;
+          })}
           {[
             {
               quote: "The College Predictor is remarkably precise. I secured CSE at MIT Muzaffarpur exactly as suggested based on my UGEAC merit rank. The cutoff trend lines helped me order my choices perfectly.",
@@ -432,7 +664,7 @@ export default function Homepage() {
           ].map((test, i) => (
             <div
               key={i}
-              className={`p-6 border rounded-2xl flex flex-col justify-between relative shadow-sm ${test.color}`}
+              className={`p-6 border rounded-2xl flex flex-col justify-between relative shadow-sm glass-card hover-lift ${test.color}`}
             >
               <p className="text-xs text-slate-650 dark:text-gray-300 leading-relaxed italic mb-6">
                 "{test.quote}"
@@ -532,7 +764,7 @@ export default function Homepage() {
 
             {/* Right side graphics panel */}
             <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-              <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800/80 p-6 shadow-xl relative">
+              <div className="w-full max-w-sm rounded-3xl glass-card p-6 shadow-xl relative animate-float">
                 <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#FF9933] via-[#2563EB] to-[#138808] opacity-20 blur-sm"></div>
                 
                 <div className="space-y-6 text-left">

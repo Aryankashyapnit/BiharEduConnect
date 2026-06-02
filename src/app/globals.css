@@ -13,26 +13,34 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #f8fafc;
   --foreground: #0f172a;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-border: rgba(226, 232, 240, 0.8);
 }
 
 .dark {
-  --background: #0b1329;
+  --background: #090e1a;
   --foreground: #f8fafc;
+  --card-bg: rgba(15, 23, 42, 0.65);
+  --card-border: rgba(51, 65, 85, 0.5);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1), color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Outfit', 'Inter', var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 400ms cubic-bezier(0.4, 0, 0.2, 1), color 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(255, 153, 51, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(19, 136, 8, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
-/* Custom Scrollbar Styles for premium feel */
+/* Premium Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -40,19 +48,122 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.3);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 8px;
+  transition: background 300ms ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(148, 163, 184, 0.6);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: rgba(51, 65, 85, 0.4);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: rgba(71, 85, 105, 0.7);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
+/* Glassmorphism Styles */
+.glass-card {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02) !important;
+}
+
+.dark .glass-card {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.glass-navbar {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+}
+
+.dark .glass-navbar {
+  background: rgba(9, 14, 26, 0.75) !important;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.5) !important;
+}
+
+/* Micro-animations */
+.hover-lift {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 300ms ease, border-color 300ms ease !important;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark .hover-lift:hover {
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 30%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.13);
+  transform: rotate(35deg);
+  transition: all 500ms ease;
+  pointer-events: none;
+}
+
+.btn-premium:hover::after {
+  left: 130%;
+}
+
+/* Soft Premium Gradients */
+.gradient-orange-green {
+  background: linear-gradient(135deg, #FF9933 0%, #138808 100%);
+}
+
+.gradient-blue-emerald {
+  background: linear-gradient(135deg, #2563EB 0%, #059669 100%);
+}
+
+/* Float Animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Shine text */
+.gradient-text-premium {
+  background: linear-gradient(135deg, #FF9933 10%, #2563EB 50%, #138808 90%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shineText 8s linear infinite;
+}
+
+@keyframes shineText {
+  to { background-position: 200% center; }
+}
