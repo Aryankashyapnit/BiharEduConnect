@@ -217,16 +217,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedPredictions) setSavedPredictions(JSON.parse(storedPredictions));
 
       const storedColleges = localStorage.getItem("bihareduconnect_colleges");
+      let collegesUpdated = false;
       if (storedColleges) {
-        const parsed = JSON.parse(storedColleges);
-        if (parsed.length < collegesData.length) {
+        try {
+          const parsed = JSON.parse(storedColleges);
+          const needsUpdate = parsed.length < collegesData.length || collegesData.some(c => {
+            const cached = parsed.find((p: any) => p.id === c.id);
+            if (!cached) return true;
+            if (c.image && c.image.startsWith("data:image") && (!cached.image || !cached.image.startsWith("data:image"))) {
+              return true;
+            }
+            return false;
+          });
+
+          if (needsUpdate) {
+            setColleges(collegesData);
+            localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
+            collegesUpdated = true;
+          } else {
+            setColleges(parsed);
+          }
+        } catch (e) {
           setColleges(collegesData);
           localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
-        } else {
-          setColleges(parsed);
+          collegesUpdated = true;
         }
       } else {
         setColleges(collegesData);
+        localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
+        collegesUpdated = true;
       }
 
       // Cutoffs Dynamic Loading & Migration
@@ -253,7 +272,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Seat Matrix Dynamic Loading & Migration
       const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
       let activeSeatMatrix = seatMatrixData;
-      if (storedSeatMatrix) {
+      if (storedSeatMatrix && !collegesUpdated) {
         try {
           const parsed = JSON.parse(storedSeatMatrix);
           if (parsed.length < 50) {
