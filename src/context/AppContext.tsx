@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
+import { db } from "../lib/firebase";
+import { collection, doc, setDoc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 
 export interface SavedPrediction {
   id: string;
@@ -383,84 +385,58 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  const recordVisit = (currentUser: User | null) => {
-    if (typeof window === "undefined") return;
-    
-    const stored = localStorage.getItem("bihareduconnect_visitor_logs");
-    let logs: VisitorLog[] = [];
-    if (stored) {
-      try {
-        logs = JSON.parse(stored);
-      } catch (e) {
-        logs = [];
-      }
-    }
-    
-    if (logs.length === 0) {
-      logs = [
-        { id: "vis-1", name: "Rohan Kumar", email: "rohan.kumar@gmail.com", percentile: 91.5, visitCount: 5, lastVisitTime: "01 Jun 2026, 07:15 PM", role: "Standard" },
-        { id: "vis-2", name: "Aman Raj", email: "amanraj.demo@bihareduconnect.in", percentile: 88.5, visitCount: 12, lastVisitTime: "01 Jun 2026, 07:32 PM", role: "Guest" },
-        { id: "vis-3", name: "Priya Sharma", email: "priyasharma.demo@bihareduconnect.in", percentile: 94.2, visitCount: 8, lastVisitTime: "01 Jun 2026, 07:44 PM", role: "Guest" },
-        { id: "vis-4", name: "Anonymous Guest #301", email: "anonymous.guest301@bihareduconnect.in", visitCount: 3, lastVisitTime: "01 Jun 2026, 04:12 PM", role: "Anonymous" }
-      ];
-      localStorage.setItem("bihareduconnect_visitor_logs", JSON.stringify(logs));
-    }
-    
-    const timeStr = new Date().toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    });
-    
-    if (currentUser) {
-      if (currentUser.isAdmin) {
-        setVisitorLogs(logs);
-        return;
-      }
+  const recordVisit = async (currentUser: User | null) => {
+    try {
+      const timeStr = new Date().toLocaleString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric",
+        hour: "2-digit", minute: "2-digit", hour12: true
+      });
       
-      const emailClean = currentUser.email ? currentUser.email.toLowerCase().trim() : `${currentUser.name.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
-      const existingIdx = logs.findIndex(l => l.email.toLowerCase().trim() === emailClean);
-      
-      if (existingIdx !== -1) {
-        logs[existingIdx].visitCount += 1;
-        logs[existingIdx].lastVisitTime = timeStr;
-        logs[existingIdx].name = currentUser.name;
-        logs[existingIdx].percentile = currentUser.percentile;
-        logs[existingIdx].role = currentUser.email ? "Standard" : "Guest";
-      } else {
-        logs.unshift({
-          id: `vis-${Date.now()}`,
+      let visitorData: any = {};
+      let docId = "";
+
+      if (currentUser) {
+        if (currentUser.isAdmin) return;
+        
+        const emailClean = currentUser.email ? currentUser.email.toLowerCase().trim() : `${currentUser.name.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
+        docId = emailClean.replace(/[^a-zA-Z0-9]/g, "_");
+        
+        visitorData = {
+          id: docId,
           name: currentUser.name,
           email: emailClean,
-          percentile: currentUser.percentile,
-          visitCount: 1,
+          percentile: currentUser.percentile || 0,
           lastVisitTime: timeStr,
-          role: currentUser.email ? "Standard" : "Guest"
-        });
-      }
-    } else {
-      const anonEmail = "anonymous.guest301@bihareduconnect.in";
-      const existingIdx = logs.findIndex(l => l.email === anonEmail);
-      if (existingIdx !== -1) {
-        logs[existingIdx].visitCount += 1;
-        logs[existingIdx].lastVisitTime = timeStr;
+          role: currentUser.email && !currentUser.email.includes(".demo@") ? "Standard" : "Guest"
+        };
       } else {
-        logs.unshift({
-          id: `vis-${Date.now()}`,
+        docId = "anonymous_guest_301";
+        visitorData = {
+          id: docId,
           name: "Anonymous Guest #301",
-          email: anonEmail,
-          visitCount: 1,
+          email: "anonymous.guest301@bihareduconnect.in",
           lastVisitTime: timeStr,
           role: "Anonymous"
+        };
+      }
+
+      const docRef = doc(db, "visitor_logs", docId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        await updateDoc(docRef, {
+          ...visitorData,
+          visitCount: docSnap.data().visitCount + 1
+        });
+      } else {
+        await setDoc(docRef, {
+          ...visitorData,
+          visitCount: 1
         });
       }
+    } catch (e) {
+      console.error("Firebase logging error: ", e);
     }
-    
-    setVisitorLogs(logs);
-    localStorage.setItem("bihareduconnect_visitor_logs", JSON.stringify(logs));
   };
 
   useEffect(() => {
@@ -469,25 +445,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!sessionVisitedLog) {
         sessionStorage.setItem("bihareduconnect_session_visited_log", "true");
         recordVisit(user);
-      } else {
-        const stored = localStorage.getItem("bihareduconnect_visitor_logs");
-        if (stored) {
-          try {
-            setVisitorLogs(JSON.parse(stored));
-          } catch (e) {
-            setVisitorLogs([]);
-          }
-        } else {
-          const defaultLogs: VisitorLog[] = [
-            { id: "vis-1", name: "Rohan Kumar", email: "rohan.kumar@gmail.com", percentile: 91.5, visitCount: 5, lastVisitTime: "01 Jun 2026, 07:15 PM", role: "Standard" },
-            { id: "vis-2", name: "Aman Raj", email: "amanraj.demo@bihareduconnect.in", percentile: 88.5, visitCount: 12, lastVisitTime: "01 Jun 2026, 07:32 PM", role: "Guest" },
-            { id: "vis-3", name: "Priya Sharma", email: "priyasharma.demo@bihareduconnect.in", percentile: 94.2, visitCount: 8, lastVisitTime: "01 Jun 2026, 07:44 PM", role: "Guest" },
-            { id: "vis-4", name: "Anonymous Guest #301", email: "anonymous.guest301@bihareduconnect.in", visitCount: 3, lastVisitTime: "01 Jun 2026, 04:12 PM", role: "Anonymous" }
-          ];
-          setVisitorLogs(defaultLogs);
-          localStorage.setItem("bihareduconnect_visitor_logs", JSON.stringify(defaultLogs));
-        }
       }
+      
+      // Setup Firebase real-time listener for visitor logs
+      const unsubscribe = onSnapshot(collection(db, "visitor_logs"), (snapshot) => {
+        const logs: VisitorLog[] = [];
+        snapshot.forEach((doc) => {
+          logs.push(doc.data() as VisitorLog);
+        });
+        // Sort by lastVisitTime descending (roughly)
+        logs.sort((a, b) => new Date(b.lastVisitTime).getTime() - new Date(a.lastVisitTime).getTime());
+        setVisitorLogs(logs);
+      }, (error) => {
+        console.error("Firebase snapshot error: ", error);
+        // Fallback to local storage if firebase fails
+        const stored = localStorage.getItem("bihareduconnect_visitor_logs");
+        if (stored) setVisitorLogs(JSON.parse(stored));
+      });
+      
+      return () => unsubscribe();
     }
   }, [user]);
 
