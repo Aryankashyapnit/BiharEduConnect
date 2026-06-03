@@ -742,6 +742,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRegisteredUsers(updatedUsers);
       saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
       syncUserToFirebase(newDemoReg);
+    } else {
+      const existingUser = registeredUsers.find(u => u.email.toLowerCase().trim() === dummyEmail);
+      if (existingUser) syncUserToFirebase(existingUser);
     }
     
     const demoUser: User = {
@@ -918,6 +921,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return { success: false, error: "Your account has been suspended by the administrator." };
       }
       
+      syncUserToFirebase(matchedUser);
+      
       const userSession: User = {
         name: matchedUser.name,
         email: matchedUser.email,
@@ -952,6 +957,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setRegisteredUsers(updatedUsers);
         saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
         syncUserToFirebase(newDemoReg);
+      } else {
+        const existingUser = registeredUsers.find(u => u.email.toLowerCase().trim() === dummyEmail);
+        if (existingUser) syncUserToFirebase(existingUser);
       }
       
       const demoUser: User = {
