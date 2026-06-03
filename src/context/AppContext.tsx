@@ -25,6 +25,7 @@ export interface User {
   email?: string;
   isAdmin: boolean;
   avatarSeed?: string;
+  isPremium?: boolean;
 }
 
 export interface RegisteredUser {
@@ -32,6 +33,7 @@ export interface RegisteredUser {
   email: string;
   percentile: number;
   password?: string;
+  isPremium?: boolean;
 }
 
 export interface BulkFile {
@@ -118,6 +120,7 @@ interface AppContextType {
   registerUser: (name: string, email: string, percentile: number, pass: string) => { success: boolean; error?: string };
   updateRegisteredUser: (oldEmail: string, updatedUser: RegisteredUser) => { success: boolean; error?: string };
   deleteRegisteredUser: (email: string) => void;
+  togglePremiumAccess: (email: string, hasPremium: boolean) => void;
   loginUser: (emailOrName: string, passOrPercentile: string) => { success: boolean; error?: string };
   blockedEmails: string[];
   blockStudent: (email: string) => void;
@@ -895,6 +898,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const togglePremiumAccess = (email: string, hasPremium: boolean) => {
+    const emailClean = email.toLowerCase().trim();
+    const targetUser = registeredUsers.find(u => u.email.toLowerCase().trim() === emailClean);
+    if (!targetUser) return;
+    
+    const updatedUser = { ...targetUser, isPremium: hasPremium };
+    const updatedList = registeredUsers.map(u => u.email.toLowerCase().trim() === emailClean ? updatedUser : u);
+    
+    setRegisteredUsers(updatedList);
+    saveToLocalStorage("bihareduconnect_registered_users", updatedList);
+    syncUserToFirebase(updatedUser);
+    
+    // Update active session if it's the current user
+    if (user && user.email?.toLowerCase().trim() === emailClean) {
+      const updatedSession = { ...user, isPremium: hasPremium };
+      setUser(updatedSession);
+      saveToLocalStorage("bihareduconnect_user", updatedSession);
+    }
+  };
+
   const loginUser = (emailOrName: string, passOrPercentile: string): { success: boolean; error?: string } => {
     const inputClean = emailOrName.trim();
     const passClean = passOrPercentile.trim();
@@ -927,6 +950,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         name: matchedUser.name,
         email: matchedUser.email,
         percentile: matchedUser.percentile,
+        isPremium: matchedUser.isPremium,
         isAdmin: false
       };
       setUser(userSession);
@@ -1063,6 +1087,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         registerUser,
         updateRegisteredUser,
         deleteRegisteredUser,
+        togglePremiumAccess,
         loginUser,
         blockedEmails,
         blockStudent,

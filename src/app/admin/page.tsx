@@ -32,7 +32,8 @@ import {
   PlusCircle,
   Search,
   ChevronRight,
-  LogOut
+  LogOut,
+  Crown
 } from "lucide-react";
 
 // Helper function to compress images client-side to prevent localStorage overflow
@@ -94,6 +95,7 @@ export default function AdminDashboard() {
     registerUser,
     updateRegisteredUser,
     deleteRegisteredUser,
+    togglePremiumAccess,
     totalVisits,
     bulkFiles,
     addBulkFile,
@@ -2201,8 +2203,13 @@ export default function AdminDashboard() {
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2">
                                   <h4 className="font-extrabold text-xs text-slate-800 dark:text-gray-150 leading-tight truncate">{stud.name}</h4>
+                                  {stud.isPremium && (
+                                    <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[8px] font-extrabold uppercase tracking-wider flex items-center gap-1">
+                                      <Crown className="w-2.5 h-2.5" /> Premium 99
+                                    </span>
+                                  )}
                                   {isBlocked && (
-                                    <span className="px-1.5 py-0.2 rounded bg-red-500/10 text-red-500 text-[8px] font-bold uppercase tracking-wider">
+                                    <span className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 text-[8px] font-bold uppercase tracking-wider">
                                       Suspended
                                     </span>
                                   )}
@@ -2235,6 +2242,27 @@ export default function AdminDashboard() {
                                 {isBlocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                               </button>
                               
+                              <button
+                                onClick={() => {
+                                  if (stud.isPremium) {
+                                    if (confirm(`Revoke Premium 99 access for ${stud.name}?`)) {
+                                      togglePremiumAccess(stud.email, false);
+                                    }
+                                  } else {
+                                    if (confirm(`Grant Premium 99 access to ${stud.name}?`)) {
+                                      togglePremiumAccess(stud.email, true);
+                                    }
+                                  }
+                                }}
+                                className={`p-1.5 rounded cursor-pointer transition-colors ${
+                                  stud.isPremium 
+                                    ? "text-amber-500 bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100 dark:hover:bg-amber-900/30" 
+                                    : "text-gray-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-500"
+                                }`}
+                                title={stud.isPremium ? "Revoke Premium 99 Access" : "Grant Premium 99 Access"}
+                              >
+                                <Crown className="w-4 h-4" />
+                              </button>
                               <button
                                 onClick={() => handleStartEditStudent(stud)}
                                 className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded cursor-pointer transition-colors"
