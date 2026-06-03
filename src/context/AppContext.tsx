@@ -5,7 +5,7 @@ import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
 import { db } from "../lib/firebase";
-import { collection, doc, setDoc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, onSnapshot, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 export interface SavedPrediction {
   id: string;
@@ -478,8 +478,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const stored = localStorage.getItem("bihareduconnect_visitor_logs");
         if (stored) setVisitorLogs(JSON.parse(stored));
       });
+      // Setup Firebase real-time listener for registered users
+      const unsubscribeUsers = onSnapshot(collection(db, "registered_users"), (snapshot) => {
+        const users: RegisteredUser[] = [];
+        snapshot.forEach((doc) => {
+          users.push(doc.data() as RegisteredUser);
+        });
+        setRegisteredUsers(users);
+      }, (error) => {
+        console.error("Firebase users snapshot error: ", error);
+        const stored = localStorage.getItem("bihareduconnect_registered_users");
+        if (stored) setRegisteredUsers(JSON.parse(stored));
+      });
       
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+        unsubscribeUsers();
+      };
     }
   }, [user]);
 
@@ -487,6 +502,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const saveToLocalStorage = (key: string, data: any) => {
     if (typeof window !== "undefined") {
       localStorage.setItem(key, JSON.stringify(data));
+    }
+  };
+
+  const syncUserToFirebase = async (userData: RegisteredUser) => {
+    try {
+      const docId = userData.email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+      await setDoc(doc(db, "registered_users", docId), userData);
+    } catch (e) {
+      console.error("Failed to sync user to Firebase:", e);
+    }
+  };
+
+  const deleteUserFromFirebase = async (email: string) => {
+    try {
+      const docId = email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+      await deleteDoc(doc(db, "registered_users", docId));
+    } catch (e) {
+      console.error("Failed to delete user from Firebase:", e);
     }
   };
 
@@ -708,6 +741,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const updatedUsers = [...registeredUsers, newDemoReg];
       setRegisteredUsers(updatedUsers);
       saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+      syncUserToFirebase(newDemoReg);
     }
     
     const demoUser: User = {
@@ -782,6 +816,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedUsers = [...registeredUsers, newUser];
     setRegisteredUsers(updatedUsers);
     saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+    syncUserToFirebase(newUser);
     
     const userSession: User = {
       name: newUser.name,
@@ -820,6 +855,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRegisteredUsers(updatedList);
     saveToLocalStorage("bihareduconnect_registered_users", updatedList);
     
+    if (oldEmailClean !== newEmailClean) {
+      deleteUserFromFirebase(oldEmailClean);
+    }
+    const newlyUpdatedUser = updatedList.find(u => u.email.toLowerCase().trim() === newEmailClean);
+    if (newlyUpdatedUser) {
+      syncUserToFirebase(newlyUpdatedUser);
+    }
+    
     if (user && user.email?.toLowerCase().trim() === oldEmailClean) {
       const updatedSession: User = {
         name: updatedUser.name,
@@ -839,6 +882,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedList = registeredUsers.filter(u => u.email.toLowerCase().trim() !== emailClean);
     setRegisteredUsers(updatedList);
     saveToLocalStorage("bihareduconnect_registered_users", updatedList);
+    deleteUserFromFirebase(emailClean);
     
     if (user && user.email?.toLowerCase().trim() === emailClean) {
       setUser(null);
@@ -907,6 +951,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const updatedUsers = [...registeredUsers, newDemoReg];
         setRegisteredUsers(updatedUsers);
         saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+        syncUserToFirebase(newDemoReg);
       }
       
       const demoUser: User = {
