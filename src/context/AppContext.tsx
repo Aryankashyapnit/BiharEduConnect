@@ -718,6 +718,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setUser(demoUser);
     saveToLocalStorage("bihareduconnect_user", demoUser);
+    recordVisit(demoUser);
     return { success: true };
   };
 
@@ -881,6 +882,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
       setUser(userSession);
       saveToLocalStorage("bihareduconnect_user", userSession);
+      recordVisit(userSession);
       return { success: true };
     }
     
@@ -915,6 +917,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
       setUser(demoUser);
       saveToLocalStorage("bihareduconnect_user", demoUser);
+      recordVisit(demoUser);
       return { success: true };
     }
     
