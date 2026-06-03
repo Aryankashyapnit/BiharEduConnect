@@ -315,38 +315,39 @@ export default function Homepage() {
                 BCECE UGEAC Counselling 2026
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-[1.1] animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-forwards">
                 Bihar Engineering <br />
-                <span className="gradient-text-premium font-black">
+                <span className="gradient-text-premium font-black drop-shadow-sm">
                   Counselling Made Easy
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed mx-auto lg:mx-0">
+              <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed mx-auto lg:mx-0 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150 fill-mode-forwards">
                 Predict government engineering colleges based on rank, compare placements, analyze category-specific cutoffs, check seat matrices, and track admission schedules in one place.
               </p>
 
               {/* Action buttons */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300 fill-mode-forwards">
                 <Link
                   href="/predictor"
                   onClick={(e) => handleGuardClick(e, "/predictor")}
-                  className="px-6 py-3.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow-lg shadow-[#138808]/20 text-white font-bold rounded-xl text-sm flex items-center gap-1.5 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer btn-premium"
+                  className="px-6 py-3.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-extrabold rounded-xl text-sm flex items-center gap-1.5 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(255,153,51,0.5)] active:scale-95 cursor-pointer btn-premium group relative overflow-hidden"
                 >
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                   Predict My College
-                  <ArrowRight className="w-4.5 h-4.5" />
+                  <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/cutoffs"
                   onClick={(e) => handleGuardClick(e, "/cutoffs")}
-                  className="px-6 py-3.5 border border-gray-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-855 dark:text-gray-300 font-bold rounded-xl text-sm transition-colors cursor-pointer hover-lift"
+                  className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-slate-800 dark:text-gray-200 font-extrabold rounded-xl text-sm transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1"
                 >
                   Check Cutoffs
                 </Link>
                 <Link
                   href="/guide"
                   onClick={(e) => handleGuardClick(e, "/guide")}
-                  className="px-6 py-3.5 text-[#2563EB] dark:text-[#FF9933] hover:text-[#2563EB]/80 font-bold text-sm hover:underline cursor-pointer"
+                  className="px-6 py-3.5 text-[#2563EB] dark:text-[#FF9933] hover:text-[#1d4ed8] dark:hover:text-[#ff8800] font-bold text-sm hover:underline cursor-pointer transition-colors"
                 >
                   Counselling Guide ➔
                 </Link>
@@ -791,16 +792,19 @@ export default function Homepage() {
             return (
               <div
                 key={i}
-                className="glass-card rounded-2xl p-6 shadow-sm hover-lift flex flex-col justify-between group"
+                className="glass-card rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/10 border border-gray-150 dark:border-slate-800 flex flex-col justify-between group transition-all duration-500 transform hover:-translate-y-2 relative overflow-hidden"
               >
+                {/* Decorative hover gradient block */}
+                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feat.color} rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-2xl`} />
+
                 <div>
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-5 shrink-0`}>
-                    <Icon className={`w-6 h-6 ${feat.iconColor}`} />
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-6 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500`}>
+                    <Icon className={`w-7 h-7 ${feat.iconColor}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white group-hover:text-[#2563EB] transition-colors mb-2">
+                  <h3 className="text-xl font-extrabold text-slate-850 dark:text-white group-hover:text-[#2563EB] dark:group-hover:text-[#FF9933] transition-colors mb-3">
                     {feat.title}
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8">
                     {feat.description}
                   </p>
                 </div>
@@ -808,10 +812,10 @@ export default function Homepage() {
                 <Link
                   href={feat.href}
                   onClick={(e) => handleGuardClick(e, feat.href)}
-                  className="flex items-center gap-1.5 text-xs text-[#2563EB] dark:text-[#FF9933] font-bold hover:underline"
+                  className={`inline-flex w-max items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${feat.iconColor} bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 hover:shadow-sm`}
                 >
                   {feat.actionText}
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
                 </Link>
               </div>
             );

@@ -141,14 +141,14 @@ export default function CollegesDirectory() {
       <div className="absolute bottom-10 left-10 -z-10 h-[250px] w-[250px] rounded-full bg-gradient-to-br from-[#2563EB]/10 to-[#138808]/10 blur-3xl opacity-60"></div>
 
       {/* Page Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#138808]/10 border border-[#138808]/20 text-[#138808] text-xs font-bold uppercase tracking-wider mb-3">
+      <div className="text-center max-w-3xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#138808]/10 border border-[#138808]/20 text-[#138808] text-xs font-bold uppercase tracking-wider mb-3 shadow-sm">
           <Building className="w-3.5 h-3.5" />
           Technical Institutions Directory
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">
           Bihar Engineering <br />
-          <span className="gradient-text-premium font-black">
+          <span className="gradient-text-premium font-black drop-shadow-sm">
             Colleges Database
           </span>
         </h1>
@@ -267,22 +267,25 @@ export default function CollegesDirectory() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
               {sortedColleges.map((college) => {
                 return (
                   <div
                     key={college.id}
-                    className="glass-card rounded-2xl overflow-hidden shadow-sm hover-lift flex flex-col group"
+                    className="glass-card rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#FF9933]/15 flex flex-col group transition-all duration-500 transform hover:-translate-y-2 relative"
                   >
+                    {/* Decorative hover gradient glow */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FF9933]/20 to-[#2563EB]/20 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-2xl pointer-events-none" />
+
                     {/* Visual Card Image Cover */}
                     <div className="h-48 bg-slate-200 dark:bg-slate-850 relative overflow-hidden shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={college.image}
                         alt={college.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-95"
+                        className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-transform duration-700 ease-out opacity-95"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
 
                       {/* Location Badge */}
                       <span className="absolute bottom-3.5 left-4 px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-lg text-[10px] font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm">
@@ -350,8 +353,9 @@ export default function CollegesDirectory() {
                       {/* Action Button */}
                       <Link
                         href={`/colleges/${college.id}`}
-                        className="w-full py-2.5 bg-slate-50 dark:bg-slate-850/50 hover:bg-gradient-to-r hover:from-[#FF9933] hover:to-[#138808] hover:text-white dark:hover:from-[#FF9933] dark:hover:to-[#138808] text-slate-800 dark:text-gray-300 font-bold text-center text-xs rounded-xl border border-gray-200/80 dark:border-slate-850 hover:border-transparent transition-all duration-300 flex items-center justify-center gap-1.5 group/btn shadow-sm hover:shadow-md cursor-pointer btn-premium"
+                        className="w-full py-3 bg-slate-50 dark:bg-slate-850/50 hover:bg-gradient-to-r hover:from-[#FF9933] hover:to-[#138808] hover:text-white dark:hover:from-[#FF9933] dark:hover:to-[#138808] text-slate-800 dark:text-gray-300 font-extrabold text-center text-xs rounded-xl border border-gray-200/80 dark:border-slate-850 hover:border-transparent transition-all duration-300 flex items-center justify-center gap-1.5 group/btn shadow-sm hover:shadow-[0_0_15px_rgba(255,153,51,0.4)] cursor-pointer overflow-hidden relative"
                       >
+                        <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                         View Full College Profile
                         <Compass className="w-4 h-4 group-hover/btn:rotate-45 transition-transform duration-300" />
                       </Link>

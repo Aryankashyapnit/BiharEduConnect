@@ -36,6 +36,30 @@ export default function CounsellingGuide() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [paymentUtr, setPaymentUtr] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<number | null>(null);
+  const [checkedDocs, setCheckedDocs] = useState<number[]>([]);
+  
+  const currentPrice = appliedDiscount ? Math.round(99 - (99 * (appliedDiscount / 100))) : 99;
+  
+  // Teaser state for engagement
+  const [teaserRank, setTeaserRank] = useState("");
+  const [teaserResult, setTeaserResult] = useState<number | null>(null);
+
+  const handleTeaserSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!teaserRank) return;
+    const rank = parseInt(teaserRank);
+    if (isNaN(rank) || rank <= 0) return;
+    
+    // Quick gamified calculation to hype them up
+    const possibleColleges = Math.max(3, 38 - Math.floor(rank / 150));
+    setTeaserResult(Math.min(38, possibleColleges));
+  };
+
+  const toggleDoc = (i: number) => {
+    setCheckedDocs(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  };
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -310,65 +334,108 @@ export default function CounsellingGuide() {
           <h2 className="text-xl md:text-2xl font-extrabold text-slate-805 dark:text-white leading-tight">
             Unlock Expert Bihar Engineering <span className="bg-gradient-to-r from-[#FF9933] to-[#138808] bg-clip-text text-transparent">Counselling Handbook</span>
           </h2>
-          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Get access to the premium rank-wise college choice priority list, PDF counselling guides, placement statistics excel trackers, and direct WhatsApp group expert help.
-          </p>
+          <div className="space-y-2.5 text-xs md:text-sm text-gray-600 dark:text-gray-300">
+            <p className="font-bold text-slate-800 dark:text-white leading-relaxed">
+              Get full end-to-end support to secure your dream engineering college based on your specific JEE Main rank & percentile:
+            </p>
+            <ul className="space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="text-[#138808] dark:text-[#FF9933] font-black">✓</span>
+                <span><strong className="text-slate-800 dark:text-gray-200">Personalized Choice Priority List:</strong> Get the exact order to fill your college choices based on your rank.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#138808] dark:text-[#FF9933] font-black">✓</span>
+                <span><strong className="text-slate-800 dark:text-gray-200">Direct Expert Support:</strong> Access our exclusive WhatsApp group for 1-on-1 guidance anytime.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#138808] dark:text-[#FF9933] font-black">✓</span>
+                <span><strong className="text-slate-800 dark:text-gray-200">Complete PDF Guides & Trackers:</strong> Download cutoff trends and placement statistics.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#138808] dark:text-[#FF9933] font-black">✓</span>
+                <span><strong className="text-slate-800 dark:text-gray-200">Unlimited Mock Simulator:</strong> Test Round 1 & Round 2 seat allotments without restrictions.</span>
+              </li>
+            </ul>
+          </div>
           
-          {isPremiumUnlocked ? (
-            <div className="flex flex-col gap-3 pt-2 w-full text-left">
-              <div className="flex flex-wrap gap-2.5">
-                <button
-                  onClick={() => setShowPaymentModal(true)}
-                  className="px-3 py-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-emerald-500/25 transition-all cursor-pointer"
-                  title="Click to view Payment details / QR Scanner again"
-                >
-                  ✓ Premium Unlocked (₹99 Paid)
-                </button>
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:bg-emerald-500/15 transition-all"
-                >
-                  💬 Join WhatsApp Group
-                </a>
-              </div>
-              
-              {bulkFiles && bulkFiles.length > 0 && (
-                <div className="mt-4 space-y-2 border-t border-dashed border-slate-200 dark:border-slate-800 pt-4 w-full">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-300 mb-2">Available Handbooks & Circular Downloads:</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {bulkFiles.map((file, idx) => (
-                      <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-2xl flex items-center justify-between shadow-sm">
-                        <div className="min-w-0">
-                          <p className="font-extrabold text-xs text-slate-850 dark:text-gray-250 truncate pr-2" title={file.name}>
-                            {file.name}
-                          </p>
-                          <span className="text-[9px] text-gray-400 font-bold block uppercase tracking-wide mt-0.5">
-                            {file.type} | Size: {file.size}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => alert(`Success: ${file.name} downloaded successfully!`)}
-                          className="px-3 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow text-white text-[9px] font-extrabold uppercase tracking-widest rounded-xl shrink-0 cursor-pointer"
-                        >
-                          Download
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+          <div className="flex flex-col gap-3 pt-2 w-full text-left">
+            <div className="flex flex-wrap gap-2.5 items-center">
+              {isPremiumUnlocked ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowPaymentModal(true)}
+                    className="px-3 py-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-emerald-500/25 transition-all cursor-pointer"
+                    title="Click to view Payment details / QR Scanner again"
+                  >
+                    ✓ Premium Unlocked (₹99 Paid)
+                  </button>
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem("bihareduconnect_premium_guide");
+                      setIsPremiumUnlocked(false);
+                    }}
+                    className="text-[10px] text-red-500 hover:underline cursor-pointer font-bold"
+                    title="Reset payment state for testing"
+                  >
+                    (Reset)
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 mr-2">
+                  <span className="text-2xl font-extrabold text-[#138808] dark:text-[#FF9933]">₹99</span>
+                  <span className="text-xs text-gray-400 line-through">₹499</span>
+                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-bold uppercase tracking-wider">
+                    80% OFF
+                  </span>
                 </div>
               )}
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (isPremiumUnlocked) {
+                    if (whatsappLink) {
+                      window.open(whatsappLink, '_blank', 'noopener,noreferrer');
+                    } else {
+                      alert('WhatsApp link will be available shortly.');
+                    }
+                  } else {
+                    setShowPaymentModal(true);
+                  }
+                }}
+                className="px-3.5 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider rounded-xl hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                💬 Join WhatsApp Group
+                {!isPremiumUnlocked && <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
+              </button>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 pt-2">
-              <span className="text-2xl font-extrabold text-[#138808] dark:text-[#FF9933]">₹99</span>
-              <span className="text-xs text-gray-400 line-through">₹499</span>
-              <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-bold uppercase tracking-wider">
-                80% OFF
-              </span>
-            </div>
-          )}
+
+            {isPremiumUnlocked && bulkFiles && bulkFiles.length > 0 && (
+              <div className="mt-4 space-y-2 border-t border-dashed border-slate-200 dark:border-slate-800 pt-4 w-full">
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-gray-300 mb-2">Available Handbooks & Circular Downloads:</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {bulkFiles.map((file, idx) => (
+                    <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-950 border border-gray-150 dark:border-slate-850 rounded-2xl flex items-center justify-between shadow-sm">
+                      <div className="min-w-0">
+                        <p className="font-extrabold text-xs text-slate-850 dark:text-gray-250 truncate pr-2" title={file.name}>
+                          {file.name}
+                        </p>
+                        <span className="text-[9px] text-gray-400 font-bold block uppercase tracking-wide mt-0.5">
+                          {file.type} | Size: {file.size}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => alert(`Success: ${file.name} downloaded successfully!`)}
+                        className="px-3 py-1.5 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:shadow text-white text-[9px] font-extrabold uppercase tracking-widest rounded-xl shrink-0 cursor-pointer"
+                      >
+                        Download
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {!isPremiumUnlocked && (
@@ -386,47 +453,61 @@ export default function CounsellingGuide() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
         
         {/* Left Side: Steps Navigation Timeline List (Col-5) */}
-        <div className="lg:col-span-5 space-y-3">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Counselling Stages</h3>
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isActive = activeStep === index;
-            return (
-              <button
-                key={index}
-                onClick={() => setActiveStep(index)}
-                className={`w-full text-left p-4 border rounded-2xl transition-all flex items-center justify-between gap-3 cursor-pointer group ${
-                  isActive
-                    ? "bg-slate-50 dark:bg-slate-900 border-[#2563EB]/40 shadow-sm"
-                    : "bg-white dark:bg-slate-950 border-gray-150 dark:border-slate-850 hover:bg-slate-50/50"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 shadow-sm font-bold text-sm ${step.color}`}>
-                    <Icon className="w-5 h-5" />
+        <div className="lg:col-span-5 relative">
+          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Milestone className="w-4 h-4 text-[#FF9933]" />
+            Counselling Journey
+          </h3>
+          
+          {/* Vertical Connecting Line */}
+          <div className="absolute left-[35px] top-[45px] bottom-10 w-0.5 bg-gradient-to-b from-gray-200 via-gray-200 to-transparent dark:from-slate-800 dark:via-slate-800 hidden sm:block" />
+          
+          <div className="space-y-4">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = activeStep === index;
+              return (
+                <button
+                  key={index}
+                  onClick={() => setActiveStep(index)}
+                  className={`w-full text-left p-4 border rounded-2xl transition-all duration-300 flex items-center justify-between gap-3 cursor-pointer group relative z-10 hover:translate-x-1 ${
+                    isActive
+                      ? "bg-white dark:bg-slate-900 border-[#2563EB]/40 shadow-[0_4px_12px_rgba(37,99,235,0.08)] ring-1 ring-[#2563EB]/20"
+                      : "bg-white/60 dark:bg-slate-950/60 border-gray-150 dark:border-slate-850 hover:bg-white dark:hover:bg-slate-900 shadow-sm"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 shadow-sm font-bold text-sm transition-all duration-300 ${
+                      isActive ? `${step.color} scale-110 shadow-md` : "bg-gray-50 dark:bg-slate-800 text-gray-400 border-gray-200 dark:border-slate-700 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                    }`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className={`text-xs font-extrabold transition-colors ${isActive ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-gray-400 group-hover:text-slate-800 dark:group-hover:text-gray-200"}`}>{step.title}</h4>
+                      <span className="text-[10px] text-gray-400 font-semibold">{step.subtitle}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-slate-800 dark:text-gray-150">{step.title}</h4>
-                    <span className="text-[10px] text-gray-400 font-semibold">{step.subtitle}</span>
-                  </div>
-                </div>
-                <CheckCircle2 className={`w-5 h-5 shrink-0 ${isActive ? "text-[#2563EB]" : "text-gray-250 group-hover:text-gray-350"}`} />
-              </button>
-            );
-          })}
+                  <CheckCircle2 className={`w-5 h-5 shrink-0 transition-all ${isActive ? "text-[#2563EB] scale-110" : "text-gray-200 dark:text-slate-800 group-hover:text-gray-300"}`} />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Right Side: Step Details View (Col-7) */}
         <div className="lg:col-span-7">
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm min-h-[350px] flex flex-col justify-between">
-            <div className="space-y-4">
-              <span className="px-2.5 py-1 bg-[#2563EB]/10 border border-[#2563EB]/25 text-[#2563EB] rounded-lg text-[10px] font-extrabold uppercase tracking-wide">
+          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-sm min-h-[350px] flex flex-col justify-between relative overflow-hidden group">
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/5 rounded-bl-full -z-10" />
+
+            <div key={activeStep} className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-forwards">
+              <span className="inline-flex px-2.5 py-1 bg-[#2563EB]/10 border border-[#2563EB]/25 text-[#2563EB] rounded-lg text-[10px] font-extrabold uppercase tracking-wide shadow-sm">
                 Stage {activeStep + 1} Detailed Protocol
               </span>
-              <h2 className="text-2xl font-extrabold text-slate-850 dark:text-white">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-850 dark:text-white leading-tight">
                 {steps[activeStep].title}
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-gray-100 dark:border-slate-850">
                 {steps[activeStep].description}
               </p>
             </div>
@@ -446,29 +527,63 @@ export default function CounsellingGuide() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Verification Checklist */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2 mb-4 border-b border-gray-100 dark:border-slate-850 pb-2">
-            <FileText className="w-5.5 h-5.5 text-[#138808]" />
-            Official BCECE DV Checklist
-          </h2>
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#138808]/5 rounded-bl-full -z-10" />
+          
+          <div className="flex items-center justify-between mb-4 border-b border-gray-100 dark:border-slate-850 pb-3">
+            <h2 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
+              <FileText className="w-5.5 h-5.5 text-[#138808]" />
+              DV Checklist
+            </h2>
+            <span className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">
+              {checkedDocs.length} / 6 Ready
+            </span>
+          </div>
 
-          <div className="space-y-3.5">
+          {/* Progress bar */}
+          <div className="w-full h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full mb-5 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-[#138808] to-emerald-400 transition-all duration-500 ease-out"
+              style={{ width: `${(checkedDocs.length / 6) * 100}%` }}
+            />
+          </div>
+
+          <div className="space-y-2">
             {[
-              { doc: "JEE Main Admit Card 2025", desc: "Original printout, same as carried in JEE Main examination center." },
-              { doc: "UGEAC Rank Card 2026", desc: "Downloaded merit card containing your State Merit Rank." },
-              { doc: "Online Application Form (Part-A & Part-B)", desc: "Downloaded during registration. Must have candidate photograph & signature." },
-              { doc: "Passing Certificate & Marksheets", desc: "Class 10th & 12th original marksheets and school leaving certificate." },
-              { doc: "Bihar State Residence Certificate", desc: "Duly signed by Circle Officer (CO) or Sub-Divisional Officer (SDO) of Bihar." },
-              { doc: "Category Certificate", desc: "EWS / BC / EBC / SC / ST / DQ caste certificate issued by competent authority in Bihar." }
-            ].map((item, i) => (
-              <div key={i} className="flex gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#138808] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-gray-200">{item.doc}</h4>
-                  <p className="text-[10px] text-gray-400 leading-normal">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+              { doc: "JEE Main Admit Card 2025", desc: "Original printout, same as carried in examination." },
+              { doc: "UGEAC Rank Card 2026", desc: "Downloaded merit card containing State Rank." },
+              { doc: "Online Application Form (A & B)", desc: "Must have candidate photograph & signature." },
+              { doc: "Passing Certificate & Marksheets", desc: "10th & 12th original marksheets and school leaving cert." },
+              { doc: "Bihar State Residence Certificate", desc: "Signed by CO or SDO of Bihar." },
+              { doc: "Category Certificate", desc: "EWS / BC / EBC / SC / ST / DQ caste certificate if applicable." }
+            ].map((item, i) => {
+              const isChecked = checkedDocs.includes(i);
+              return (
+                <button 
+                  key={i} 
+                  onClick={() => toggleDoc(i)}
+                  className={`w-full text-left flex gap-3 p-3 rounded-2xl transition-all duration-300 border cursor-pointer group hover:scale-[1.01] ${
+                    isChecked 
+                      ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-800/30 shadow-sm" 
+                      : "bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-gray-100 dark:hover:border-slate-800"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors duration-300 ${
+                    isChecked ? "bg-[#138808] border-[#138808] text-white" : "border-gray-300 dark:border-gray-600 text-transparent"
+                  }`}>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className={`text-xs font-bold transition-all duration-300 ${isChecked ? "text-[#138808] dark:text-emerald-400 line-through opacity-80" : "text-slate-800 dark:text-gray-200"}`}>
+                      {item.doc}
+                    </h4>
+                    <p className={`text-[10px] leading-normal transition-all duration-300 ${isChecked ? "text-gray-400 line-through opacity-60" : "text-gray-500"}`}>
+                      {item.desc}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -488,8 +603,36 @@ export default function CounsellingGuide() {
                   🔒 Counselling Simulator Locked
                 </h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm leading-relaxed mx-auto">
-                  The Premium UGEAC 2026 Choice Allotment Simulator is locked. Unlock now for only <strong>₹99</strong> to simulate Round 1 & Round 2 allotments, compare cutoffs, and lock preferences!
+                  The Premium UGEAC 2026 Choice Allotment Simulator is locked. Unlock now for only <strong>₹99</strong> to simulate Round 1 & Round 2 allotments!
                 </p>
+              </div>
+
+              {/* QUICK ENGAGEMENT TEASER */}
+              <div className="w-full max-w-xs bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 my-2">
+                <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-2">⚡ Quick Eligibility Check</h4>
+                {!teaserResult ? (
+                  <form onSubmit={handleTeaserSubmit} className="flex gap-2">
+                    <input 
+                      type="number" 
+                      placeholder="Enter UGEAC Rank..." 
+                      value={teaserRank}
+                      onChange={(e) => setTeaserRank(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-[#FF9933]/50 outline-none"
+                    />
+                    <button type="submit" className="px-3 py-2 bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-xs font-bold rounded-xl hover:scale-105 transition-transform">
+                      Check
+                    </button>
+                  </form>
+                ) : (
+                  <div className="animate-in fade-in zoom-in duration-300">
+                    <p className="text-xs text-slate-800 dark:text-gray-200 font-semibold leading-relaxed">
+                      🔥 Great! You have strong chances in <strong className="text-[#138808]">{teaserResult}+ Engineering Colleges</strong>.
+                    </p>
+                    <p className="text-[10px] text-[#FF9933] font-bold mt-1 animate-pulse">
+                      Unlock simulator below to see exactly which ones! 👇
+                    </p>
+                  </div>
+                )}
               </div>
               
               <ul className="text-left text-[11px] text-gray-550 dark:text-gray-400 space-y-1.5 list-disc pl-5 max-w-xs font-medium mx-auto">
@@ -501,8 +644,9 @@ export default function CounsellingGuide() {
               
               <button
                 onClick={() => setShowPaymentModal(true)}
-                className="w-full max-w-xs py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:from-[#ff8800] hover:to-[#0f7c05] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider shadow-md hover:shadow-lg transition-all duration-300 transform active:scale-95 cursor-pointer mt-2"
+                className="w-full max-w-xs py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider shadow-[0_0_15px_rgba(255,153,51,0.4)] hover:shadow-[0_0_25px_rgba(19,136,8,0.6)] transition-all duration-300 transform active:scale-95 cursor-pointer mt-2 group relative overflow-hidden"
               >
+                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                 Unlock Premium Simulator (₹99)
               </button>
             </div>
@@ -1047,15 +1191,49 @@ export default function CounsellingGuide() {
             </h3>
             
             <p className="text-xs text-gray-400 leading-relaxed">
-              Pay ₹99 safely to unlock the premium Bihar UGEAC 2026 PDF Handbook & expert counsel sheets.
+              Pay {appliedDiscount ? <><span className="line-through text-gray-300">₹99</span> <span className="text-[#138808] font-black">₹{currentPrice}</span></> : `₹${currentPrice}`} safely to unlock the premium Bihar UGEAC 2026 PDF Handbook & expert counsel sheets.
             </p>
+
+            {/* Coupon Code Input */}
+            {!appliedDiscount ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Have a reward code?"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  className="flex-1 px-3 py-1.5 border border-dashed border-[#FF9933]/50 bg-[#FF9933]/5 text-[#FF9933] text-xs rounded-xl font-bold focus:outline-none focus:border-[#FF9933] placeholder-[#FF9933]/50"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const match = couponCode.match(/^UGEAC-PRO-(\d+)$/);
+                    if (match) {
+                      const disc = parseInt(match[1]);
+                      if ([1, 2, 5, 10, 20].includes(disc)) {
+                        setAppliedDiscount(disc);
+                        return;
+                      }
+                    }
+                    alert("Invalid or Expired Code");
+                  }}
+                  className="px-3 py-1.5 bg-[#FF9933] text-white rounded-xl text-[10px] font-extrabold uppercase tracking-wider shadow-sm hover:bg-orange-500 transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
+            ) : (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest py-1.5 px-3 rounded-xl flex items-center justify-center gap-1.5 animate-in zoom-in">
+                <CheckCircle2 className="w-4 h-4" /> Coupon {couponCode} Applied! ({appliedDiscount}% Off)
+              </div>
+            )}
 
             {/* Real scannable UPI QR Code */}
             <div className="mx-auto w-44 h-44 border border-gray-100 dark:border-slate-850 bg-white rounded-2xl flex flex-col items-center justify-center p-3.5 relative group shadow-sm">
               {/* Outer corner design */}
               <div className="absolute inset-2 border-2 border-dashed border-[#FF9933]/30 rounded-xl pointer-events-none" />
               <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3D9296276633%40axl%26pn%3DBiharEduConnect%26am%3D99%26cu%3DINR%26tn%3DPremium%2520Counselling%2520Unlock"
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3D9296276633%40axl%26pn%3DBiharEduConnect%26am%3D${currentPrice}%26cu%3DINR%26tn%3DPremium%2520Counselling%2520Unlock`}
                 alt="BCECE UGEAC UPI QR Code"
                 className="w-32 h-32 relative z-10 rounded-lg shadow-sm"
               />
@@ -1078,7 +1256,7 @@ export default function CounsellingGuide() {
                 ].map((app) => (
                   <a
                     key={app.name}
-                    href="upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=99&cu=INR&tn=Premium%20Counselling%20Unlock"
+                    href={`upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=${currentPrice}&cu=INR&tn=Premium%20Counselling%20Unlock`}
                     className={`py-2 border rounded-xl flex flex-col items-center justify-center text-[10px] font-black tracking-tighter uppercase transition-all ${app.color}`}
                   >
                     {app.name}
@@ -1086,7 +1264,7 @@ export default function CounsellingGuide() {
                 ))}
               </div>
               <a
-                href="upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=99&cu=INR&tn=Premium%20Counselling%20Unlock"
+                href={`upi://pay?pa=9296276633@axl&pn=BiharEduConnect&am=${currentPrice}&cu=INR&tn=Premium%20Counselling%20Unlock`}
                 className="flex items-center justify-center gap-2 w-full py-2 bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] hover:text-white dark:text-blue-400 dark:hover:text-white dark:bg-slate-850 border border-[#2563EB]/20 dark:border-slate-800 rounded-xl font-extrabold text-[10px] uppercase tracking-wider transition-all duration-300"
               >
                 <span>🚀 Pay via any UPI App</span>
@@ -1122,21 +1300,13 @@ export default function CounsellingGuide() {
               </span>
             </form>
 
-            <div className="flex gap-3 border-t border-gray-150 dark:border-slate-850 pt-3">
+            <div className="border-t border-gray-150 dark:border-slate-850 pt-3 mt-4">
               <button
                 type="button"
                 onClick={() => setShowPaymentModal(false)}
-                className="flex-1 py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 rounded-xl text-slate-700 dark:text-gray-300 font-bold text-xs cursor-pointer"
+                className="w-full py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 rounded-xl text-slate-700 dark:text-gray-300 font-bold text-xs cursor-pointer transition-colors"
               >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isPaying}
-                onClick={handleSimulatePayment}
-                className="flex-1 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white rounded-xl font-extrabold text-xs uppercase shadow hover:shadow-md disabled:opacity-50 cursor-pointer"
-              >
-                {isPaying ? "Verifying..." : "Instant Bypass"}
+                Close Window
               </button>
             </div>
           </div>

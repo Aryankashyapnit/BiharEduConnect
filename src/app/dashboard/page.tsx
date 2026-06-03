@@ -178,7 +178,25 @@ export default function StudentDashboard() {
     "Medical Certificates must be signed by a registered Govt. Medical Officer.",
   ];
   const [dailyTrivia, setDailyTrivia] = useState("");
+  
+  // Mystery Box Game State
+  const [mysteryOpened, setMysteryOpened] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [rewardCode, setRewardCode] = useState("");
+  const [rewardDiscount, setRewardDiscount] = useState(20);
 
+  const handleOpenMysteryBox = () => {
+    if (mysteryOpened) return;
+    setIsShaking(true);
+    setTimeout(() => {
+      setIsShaking(false);
+      const discounts = [1, 2, 5, 10, 20];
+      const randomDiscount = discounts[Math.floor(Math.random() * discounts.length)];
+      setRewardDiscount(randomDiscount);
+      setRewardCode(`UGEAC-PRO-${randomDiscount}`);
+      setMysteryOpened(true);
+    }, 1200);
+  };
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedDocs = localStorage.getItem("bihareduconnect_docs");
@@ -218,15 +236,17 @@ export default function StudentDashboard() {
         <div className="absolute bottom-10 left-1/4 w-72 h-72 bg-[#2563EB]/4 rounded-full blur-3xl pointer-events-none animate-float" style={{ animationDelay: "-6s" }} />
 
         {/* Page Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-12 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2563EB]/10 dark:bg-[#2563EB]/20 text-[#2563EB] dark:text-[#60a5fa] text-xs font-bold uppercase tracking-wider mb-4 border border-[#2563EB]/20 shadow-sm animate-pulse">
             <ShieldCheck className="w-3.5 h-3.5" />
             Candidate Dashboard
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-none">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-none drop-shadow-sm">
             Your Personal <span className="gradient-text-premium">Counselling Hub</span>
           </h1>
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 font-semibold">
             Track UGEAC admissions stages and retrieve your saved rank predictions.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
@@ -452,15 +472,16 @@ export default function StudentDashboard() {
           <div className="lg:col-span-8 space-y-8">
 
             {/* Overall Counselling Readiness Score */}
-            <div className="glass-card hover-lift rounded-2xl p-6 sm:p-8 relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-950/50">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-[#138808]/10 rounded-bl-full pointer-events-none" />
+            <div className="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-950/50 shadow-sm hover:shadow-2xl hover:shadow-[#138808]/15 transition-all duration-500 transform hover:-translate-y-1 group">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-[#138808]/10 rounded-bl-full pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
               <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
                 <div className="shrink-0 relative">
-                  <div className="w-24 h-24 rounded-full border-8 border-gray-100 dark:border-slate-800 flex items-center justify-center relative shadow-inner">
-                    <svg className="absolute inset-0 w-full h-full -rotate-90">
-                      <circle cx="50%" cy="50%" r="42%" className="stroke-[#138808] transition-all duration-1000 ease-out" strokeWidth="8" fill="transparent" strokeDasharray={`${readinessScore * 2.64} 264`} strokeLinecap="round" />
+                  {/* Glowing Gauge */}
+                  <div className="w-28 h-28 rounded-full border-[10px] border-slate-100 dark:border-slate-800 flex items-center justify-center relative shadow-inner bg-white dark:bg-slate-950">
+                    <svg className="absolute inset-0 w-full h-full -rotate-90 drop-shadow-[0_0_8px_rgba(19,136,8,0.5)]">
+                      <circle cx="50%" cy="50%" r="41%" className="stroke-[#138808] transition-all duration-1000 ease-out" strokeWidth="8" fill="transparent" strokeDasharray={`${readinessScore * 2.57} 257`} strokeLinecap="round" />
                     </svg>
-                    <span className="text-2xl font-black text-slate-800 dark:text-white">{readinessScore}%</span>
+                    <span className="text-3xl font-black text-slate-800 dark:text-white">{readinessScore}%</span>
                   </div>
                   {readinessScore === 100 && (
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center animate-bounce shadow-lg border-2 border-white dark:border-slate-900">
@@ -522,19 +543,58 @@ export default function StudentDashboard() {
               </div>
 
               <div className="space-y-8">
-                {/* Daily Trivia */}
-                <div className="glass-card rounded-2xl p-5 border border-[#FF9933]/20 bg-[#FF9933]/5 shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-2 right-2 text-[#FF9933]/10">
-                    <Sparkles className="w-16 h-16 group-hover:rotate-12 transition-transform duration-500" />
+                {/* Daily Mystery Box Game */}
+                <div className="glass-card rounded-3xl p-1 shadow-sm relative overflow-hidden group border-0 bg-gradient-to-br from-[#FF9933]/20 via-transparent to-[#2563EB]/20">
+                  <div className="bg-white/90 dark:bg-slate-900/90 rounded-[22px] p-6 h-full flex flex-col items-center justify-center text-center relative z-10 backdrop-blur-md">
+                    {!mysteryOpened ? (
+                      <div className="space-y-4 w-full">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9933]/10 text-[#FF9933] text-[10px] font-black uppercase tracking-widest border border-[#FF9933]/20">
+                          <Crown className="w-3.5 h-3.5" />
+                          Daily Challenge
+                        </div>
+                        <h3 className="text-xl font-black text-slate-800 dark:text-white">
+                          Unlock Your Mystery Box
+                        </h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-2">
+                          Tap the box to reveal today's UGEAC insider tip and a special reward code!
+                        </p>
+                        <button
+                          onClick={handleOpenMysteryBox}
+                          disabled={isShaking}
+                          className={`text-6xl cursor-pointer hover:scale-110 transition-transform ${isShaking ? "animate-bounce" : "animate-pulse"}`}
+                          style={isShaking ? { animationDuration: "0.2s" } : {}}
+                        >
+                          🎁
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 w-full animate-in zoom-in duration-500">
+                        <div className="text-4xl animate-bounce">🎉</div>
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Mystery Unlocked!
+                        </div>
+                        
+                        <div className="bg-slate-50 dark:bg-slate-950 rounded-xl p-4 border border-dashed border-gray-200 dark:border-slate-800">
+                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Today's Insider Tip</h4>
+                          <p className="text-xs text-slate-700 dark:text-slate-300 font-bold leading-relaxed">
+                            {dailyTrivia}
+                          </p>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-[#FF9933]/10 to-[#138808]/10 rounded-xl p-3 border border-[#138808]/20 flex items-center justify-between">
+                          <div className="text-left">
+                            <h4 className="text-[10px] font-black text-[#138808] uppercase tracking-widest mb-0.5">Bonus Reward Code</h4>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold">Get {rewardDiscount}% off Premium Simulator</p>
+                          </div>
+                          <span className="px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg text-sm font-black text-slate-800 dark:text-white font-mono tracking-widest shadow-sm">
+                            {rewardCode}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <h3 className="text-[11px] font-black text-[#FF9933] uppercase tracking-wider flex items-center gap-1.5 mb-2 relative z-10">
-                    <AlertCircle className="w-4 h-4" /> UGEAC Daily Insider
-                  </h3>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 font-bold leading-relaxed relative z-10">
-                    {dailyTrivia}
-                  </p>
                 </div>
-              </div>
               </div>
             </div>
             
@@ -569,15 +629,18 @@ export default function StudentDashboard() {
                   {savedPredictions.map((pred) => (
                     <div
                       key={pred.id}
-                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border border-gray-200/50 dark:border-slate-850/70 rounded-2xl hover:shadow-md transition-all duration-300 hover:scale-[1.005] bg-white/20 dark:bg-slate-950/20 hover:bg-white/45 dark:hover:bg-slate-950/40 shadow-sm relative overflow-hidden ${
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 border border-gray-200/50 dark:border-slate-850/70 rounded-2xl hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 bg-white/20 dark:bg-slate-950/20 hover:bg-white/60 dark:hover:bg-slate-950/60 shadow-sm relative overflow-hidden group/pred ${
                         pred.chance === "High"
-                          ? "border-l-4 border-l-emerald-500/80"
+                          ? "border-l-[5px] border-l-emerald-500 hover:shadow-emerald-500/10"
                           : pred.chance === "Moderate"
-                          ? "border-l-4 border-l-amber-500/80"
-                          : "border-l-4 border-l-slate-400/80"
+                          ? "border-l-[5px] border-l-amber-500 hover:shadow-amber-500/10"
+                          : "border-l-[5px] border-l-slate-400 hover:shadow-slate-400/10"
                       }`}
                     >
-                      <div>
+                      {/* Decorative hover sweep */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 dark:via-white/5 to-white/0 translate-x-[-100%] group-hover/pred:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
+                      
+                      <div className="relative z-10">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-[9px] text-[#2563EB] dark:text-[#60a5fa] font-black uppercase tracking-widest bg-[#2563EB]/10 dark:bg-[#2563EB]/20 px-2 py-0.5 rounded-md border border-[#2563EB]/25">
                             Rank: {pred.rank}
@@ -615,8 +678,67 @@ export default function StudentDashboard() {
                 </div>
               )}
             </div>
+
+            {/* Refer and Earn Premium Counselling Block */}
+            <div className="glass-card hover-lift rounded-2xl p-6 sm:p-8 relative overflow-hidden bg-gradient-to-br from-[#2563EB]/10 via-white to-[#FF9933]/10 dark:from-[#2563EB]/20 dark:via-slate-900 dark:to-[#FF9933]/20 border border-[#2563EB]/20 shadow-md">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#FF9933]/20 to-[#2563EB]/20 rounded-full blur-3xl opacity-50 pointer-events-none" />
+              
+              <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                {/* Graphics Side */}
+                <div className="shrink-0 flex items-center justify-center relative w-24 h-24 sm:w-32 sm:h-32">
+                  <div className="absolute inset-0 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-gray-100 dark:border-slate-700 flex items-center justify-center animate-bounce" style={{ animationDuration: "3s" }}>
+                    <div className="text-4xl sm:text-5xl">🎁</div>
+                  </div>
+                  <Sparkles className="w-8 h-8 text-[#FF9933] absolute -top-2 -right-2 animate-pulse" />
+                  <Trophy className="w-8 h-8 text-[#2563EB] absolute -bottom-2 -left-2" />
+                </div>
+                
+                {/* Content Side */}
+                <div className="flex-1 text-center md:text-left">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#FF9933] to-[#2563EB] text-white text-[10px] font-black uppercase tracking-widest shadow-sm mb-3">
+                    <Crown className="w-3.5 h-3.5" /> Refer & Earn
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight mb-2">
+                    Unlock Premium Counselling <br className="hidden sm:block" /> <span className="text-[#2563EB]">For FREE!</span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-semibold mb-4">
+                    Invite 5 friends to register on BiharEduConnect. Once they sign up, you'll instantly get a 100% discount code to unlock the full Premium Simulator & Handbook!
+                  </p>
+                  
+                  {/* Progress Tracker */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Your Progress</span>
+                      <span className="text-xs font-black text-[#FF9933]">0 / 5 Friends</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-full overflow-hidden shadow-inner">
+                      <div className="h-full bg-gradient-to-r from-[#FF9933] to-[#2563EB] transition-all duration-1000 ease-out" style={{ width: "5%" }} />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <button 
+                      onClick={() => alert("Referral link copied to clipboard: bihareduconnect.com/?ref=UGEAC" + user?.name?.slice(0,4).toUpperCase())}
+                      className="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    >
+                      Copy Invite Link
+                    </button>
+                    <a 
+                      href={`https://wa.me/?text=Check out BiharEduConnect to predict your UGEAC engineering college! Register here: bihareduconnect.com/?ref=UGEAC${user?.name?.slice(0,4).toUpperCase()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto px-6 py-2.5 bg-[#138808] hover:bg-[#0f6b06] text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      Share on WhatsApp
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+      </div>
     </AuthGate>
   );
 }
