@@ -29,7 +29,12 @@ import {
   X,
   SlidersHorizontal,
   Building,
-  CheckCircle
+  CheckCircle,
+  Laptop,
+  Cpu,
+  Cog,
+  Zap,
+  UserCheck
 } from "lucide-react";
 
 export default function Homepage() {
@@ -49,6 +54,117 @@ export default function Homepage() {
   
   // Strategy Carousel State
   const [activeSlide, setActiveSlide] = useState(0);
+
+  // Gamified Score Simulator State
+  const [simPercentile, setSimPercentile] = useState(85);
+
+  // B.Tech Branch Pathfinder State
+  const [pathfinderTraits, setPathfinderTraits] = useState({
+    coding: false,
+    hardware: false,
+    construction: false,
+    govJobs: false,
+    mathLogic: false,
+  });
+  const [activePathfinderTab, setActivePathfinderTab] = useState<"CSE" | "ECE" | "CE" | "ME" | "EE">("CSE");
+
+  const getCompatibilityScores = () => {
+    let cse = 20; let ece = 20; let ce = 20; let me = 20; let ee = 20;
+    if (pathfinderTraits.coding) { cse += 60; ece += 20; }
+    if (pathfinderTraits.hardware) { ece += 50; ee += 30; cse += 10; }
+    if (pathfinderTraits.construction) { ce += 60; me += 20; }
+    if (pathfinderTraits.govJobs) { ce += 40; me += 30; ee += 30; }
+    if (pathfinderTraits.mathLogic) { cse += 20; ece += 30; ee += 20; me += 20; }
+    return {
+      CSE: Math.min(cse, 100),
+      ECE: Math.min(ece, 100),
+      CE: Math.min(ce, 100),
+      ME: Math.min(me, 100),
+      EE: Math.min(ee, 100)
+    };
+  };
+
+  const pathfinderScores = getCompatibilityScores();
+  
+  // dynamic matching simulation data
+  const getSimulatedOdds = (percentile: number) => {
+    if (percentile >= 95) {
+      return {
+        level: "Top-Tier Government Engineering Colleges",
+        prob: 96,
+        badge: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+        text: "Exceptional score! You are in the top bracket for CSE / ECE at MIT Muzaffarpur and BCE Bhagalpur.",
+        colleges: [
+          { name: "MIT Muzaffarpur", branch: "Computer Science & Engg", package: "12.5 LPA" },
+          { name: "BCE Bhagalpur", branch: "Computer Science & Engg", package: "10.2 LPA" },
+          { name: "NCE Chandi", branch: "Information Technology", package: "7.8 LPA" }
+        ]
+      };
+    } else if (percentile >= 85) {
+      return {
+        level: "Mid-to-High Tier State Universities",
+        prob: 88,
+        badge: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+        text: "Very strong score! High probability of securing CSE/ECE in top-middle government colleges.",
+        colleges: [
+          { name: "NCE Chandi", branch: "Computer Science & Engg", package: "7.8 LPA" },
+          { name: "DCE Darbhanga", branch: "Computer Science & Engg", package: "6.5 LPA" },
+          { name: "GCE Gaya", branch: "Electronics & Communication", package: "6.2 LPA" }
+        ]
+      };
+    } else if (percentile >= 75) {
+      return {
+        level: "Established District Colleges",
+        prob: 74,
+        badge: "bg-amber-500/10 text-amber-500 border border-amber-550/20",
+        text: "Good score! Steady chances for core branches (EE/ECE/ME) at highly active district colleges.",
+        colleges: [
+          { name: "GCE Gaya", branch: "Electrical & Electronics Engg", package: "6.2 LPA" },
+          { name: "MCET Motihari", branch: "Computer Science & Engg", package: "5.8 LPA" },
+          { name: "LNJPIT Chapra", branch: "Mechanical Engineering", package: "5.5 LPA" }
+        ]
+      };
+    } else {
+      return {
+        level: "Affiliated State Technical Nodes",
+        prob: 62,
+        badge: "bg-slate-500/10 text-slate-500 border border-slate-500/20",
+        text: "Chances are moderate. Listing core civil and mechanical preferences in your choice sheets is highly advised.",
+        colleges: [
+          { name: "KEC Katihar", branch: "Civil Engineering", package: "4.8 LPA" },
+          { name: "SEC Saharsa", branch: "Electrical Engineering", package: "4.5 LPA" },
+          { name: "BPMCET Madhepura", branch: "Mechanical Engineering", package: "4.2 LPA" }
+        ]
+      };
+    }
+  };
+
+  const simResult = getSimulatedOdds(simPercentile);
+
+  // Chatbot State
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "bot"; text: string }>>([
+    { sender: "bot", text: "Hello Aspirant! 🎓 Welcome to BiharEduConnect. I am your BCECE UGEAC Counselling Assistant. How can I help you today?" }
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const chatbotQuestions = [
+    { q: "What certificates do I need for verification?", a: "For BCECE UGEAC verification, you need: 1. UGEAC 2026 Rank Card, 2. Part-A & Part-B printed forms, 3. JEE Main score card, 4. Bihar residential domicile certificate (Mandatory), 5. Caste certificate (EBC/BC/SC/ST/EWS) if applicable, and 6. Class 10/12 marksheets with 6 passport size photographs." },
+    { q: "What is the best preference strategy?", a: "The golden rule of preference sheets: Always place your dream colleges (like MIT Muzaffarpur, BCE Bhagalpur) at the very top of your choice list. There is no penalty for listing aspirational choices, and UGEAC processes from top down!" },
+    { q: "How does Round 2 seat upgrade work?", a: "If allocated a lower preference in Round 1, select 'Upgrade: Yes' during physical verification. You secure your current seat while competing risk-free for higher-priority options in Round 2!" },
+    { q: "Can I get CSE with a low JEE rank?", a: "Yes! Newer government engineering colleges in Bihar (like GEC Banka, GEC Madhubani, GEC Jamui) offer B.Tech CSE with more relaxed cutoffs. Make sure to check the Seat Matrix Dashboard for full details!" }
+  ];
+
+  const handleAskQuestion = (questionText: string, answerText: string) => {
+    if (isTyping) return;
+    setChatMessages(prev => [...prev, { sender: "user", text: questionText }]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setIsTyping(false);
+      setChatMessages(prev => [...prev, { sender: "bot", text: answerText }]);
+    }, 700);
+  };
 
   React.useEffect(() => {
     const justLoggedOut = sessionStorage.getItem("bihareduconnect_logged_out");
@@ -148,6 +264,43 @@ export default function Homepage() {
 
   return (
     <div className="w-full">
+      {/* Inline styles for keyframe marquee */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+          animation: marquee 35s linear infinite;
+        }
+      `}} />
+
+      {/* Live Announcement Marquee Ticker */}
+      <div className="bg-slate-900 dark:bg-slate-950 text-white text-[10px] font-black uppercase py-3 overflow-hidden border-b border-white/5 relative z-40 backdrop-blur-md shadow-sm">
+        <div className="flex w-full relative">
+          <div className="inline-flex whitespace-nowrap animate-marquee gap-10 pr-10">
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🔥 UGEAC 2026 Choice Filling Starts Next Week!</span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-[#2563EB] animate-pulse" /> ⚡ MIT Muzaffarpur Placement Packages hit new record of 12.5 LPA!</span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#138808] animate-pulse" /> 📢 Category-wise Seat matrix updated for Round 2 engineering allocations</span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🎓 Dual-claim RCG quota model activated for Girls!</span>
+            <span className="text-gray-600">|</span>
+          </div>
+          <div className="inline-flex whitespace-nowrap animate-marquee gap-10 pr-10">
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🔥 UGEAC 2026 Choice Filling Starts Next Week!</span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-[#2563EB] animate-pulse" /> ⚡ MIT Muzaffarpur Placement Packages hit new record of 12.5 LPA!</span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#138808] animate-pulse" /> 📢 Category-wise Seat matrix updated for Round 2 engineering allocations</span>
+            <span className="text-gray-600">|</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🎓 Dual-claim RCG quota model activated for Girls!</span>
+            <span className="text-gray-600">|</span>
+          </div>
+        </div>
+      </div>
+
       {/* 1. HERO SECTION WITH GRADIENT BACKGROUND */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#2563EB]/5 via-white to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 py-16 sm:py-24 transition-colors">
         <div className="absolute top-0 right-0 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-tr from-[#FF9933]/10 to-[#138808]/10 blur-3xl opacity-60"></div>
@@ -280,6 +433,121 @@ export default function Homepage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Gamified Admissions Odds Simulator Slider Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
+        <div className="glass-card hover-lift rounded-3xl p-6 sm:p-8 border border-gray-150 dark:border-slate-800 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#2563EB]/5 rounded-full blur-2xl pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left side: Interactive slider controls */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#138808]/10 text-[#138808] text-[10px] font-black uppercase tracking-wider border border-[#138808]/20 animate-pulse">
+                <Sparkles className="w-3.5 h-3.5" />
+                Gamified Rank Simulator
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-850 dark:text-white leading-tight">
+                Simulate Your <span className="gradient-text-premium font-black">College Probability</span>
+              </h2>
+              <p className="text-xs text-gray-550 dark:text-gray-400 font-bold leading-relaxed">
+                Drag the score slider to simulate your JEE Percentile score in real-time. Witness your calculated admissions probabilities and recommended institutions update instantly!
+              </p>
+
+              {/* Slider Controller */}
+              <div className="space-y-4 pt-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-extrabold text-slate-800 dark:text-gray-200 uppercase tracking-wider text-[10px]">JEE Percentile Score</span>
+                  <span className="px-3 py-1 rounded-lg bg-[#2563EB]/15 text-[#2563EB] dark:text-[#60a5fa] font-black text-sm">
+                    {simPercentile}%
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="55"
+                  max="99"
+                  step="1"
+                  value={simPercentile}
+                  onChange={(e) => setSimPercentile(Number(e.target.value))}
+                  className="w-full h-2.5 bg-slate-205 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2563EB] focus:outline-none transition-all"
+                />
+                <div className="flex justify-between text-[9px] text-gray-400 font-extrabold uppercase">
+                  <span>55% Percentile</span>
+                  <span>75% Good</span>
+                  <span>90% Very Strong</span>
+                  <span>99% Outstanding</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Live updating gauge results */}
+            <div className="lg:col-span-6 p-6 bg-white/40 dark:bg-slate-950/40 border border-gray-200/50 dark:border-slate-850/60 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 relative shadow-inner">
+              <div className="space-y-4 text-center sm:text-left">
+                <div>
+                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${simResult.badge}`}>
+                    {simResult.level}
+                  </span>
+                  <p className="text-xs text-gray-555 dark:text-gray-400 leading-relaxed font-semibold mt-2.5">
+                    {simResult.text}
+                  </p>
+                </div>
+
+                {/* Top 3 live match list */}
+                <div className="space-y-2 text-left">
+                  <span className="text-[9px] text-gray-450 dark:text-gray-550 font-black uppercase tracking-wider block">Suggested Top-3 Allocations</span>
+                  {simResult.colleges.map((col, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-gray-200/20 dark:border-slate-800 shadow-sm hover:border-[#2563EB]/30 transition-colors">
+                      <span className="font-extrabold text-slate-805 dark:text-gray-200">{col.name}</span>
+                      <div className="text-right flex items-center gap-2">
+                        <span className="text-[10px] text-[#FF9933] font-black">{col.branch}</span>
+                        <span className="px-1.5 py-0.2 bg-[#138808]/10 text-[#138808] dark:text-[#22c55e] rounded text-[8px] font-black">{col.package}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Glowing Probability Gauge Dial */}
+              <div className="relative shrink-0 flex flex-col items-center justify-center w-36 h-36 rounded-full bg-slate-100 dark:bg-slate-950 border border-gray-200 dark:border-slate-850 shadow-inner group">
+                <div className="absolute inset-2 rounded-full bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 shadow flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black text-slate-850 dark:text-white leading-none">
+                    {simResult.prob}%
+                  </span>
+                  <span className="text-[8px] text-[#138808] dark:text-[#22c55e] font-black uppercase tracking-wider mt-1">Odds</span>
+                </div>
+                {/* Dynamic SVG Gauge */}
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="72"
+                    cy="72"
+                    r="64"
+                    stroke="rgba(226, 232, 240, 0.5)"
+                    strokeWidth="8"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="72"
+                    cy="72"
+                    r="64"
+                    stroke="url(#gradientDial)"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray="402"
+                    strokeDashoffset={402 - (402 * simResult.prob) / 100}
+                    className="transition-all duration-500 ease-out"
+                  />
+                  <defs>
+                    <linearGradient id="gradientDial" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FF9933" />
+                      <stop offset="50%" stopColor="#2563EB" />
+                      <stop offset="100%" stopColor="#138808" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -720,6 +988,316 @@ export default function Homepage() {
         </div>
       </section>
 
+      {/* 6.3 B.TECH BRANCH PATHFINDER & COMPATIBILITY ANALYZER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-l from-[#2563EB]/10 to-transparent blur-3xl opacity-50"></div>
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#138808]/10 text-[#138808] text-xs font-bold uppercase tracking-wider mb-3">
+            <Compass className="w-3.5 h-3.5" />
+            Branch Selection Helper
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
+            B.Tech Branch <span className="bg-gradient-to-r from-[#2563EB] to-[#138808] bg-clip-text text-transparent">Pathfinder</span>
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
+            Confused about which engineering branch fits you best? Select your interests below and let our real-time engine calculate your ideal career compatibility across core streams.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Panel: Traits Checklist & Live Compatibility */}
+          <div className="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-150 dark:border-slate-800 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF9933]/10 rounded-bl-full pointer-events-none" />
+            <h3 className="text-lg font-black text-slate-800 dark:text-white mb-5 flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-[#FF9933]" /> Your Core Interests
+            </h3>
+            <div className="space-y-3 mb-8">
+              {[
+                { id: "coding", label: "I love coding & logical puzzle solving", icon: Laptop, color: "blue" },
+                { id: "hardware", label: "I am fascinated by hardware & gadgets", icon: Cpu, color: "orange" },
+                { id: "construction", label: "I am interested in heavy construction & infra", icon: Building, color: "amber" },
+                { id: "govJobs", label: "I primarily want a Government/PSU Job", icon: Award, color: "emerald" },
+                { id: "mathLogic", label: "I am very strong at complex Mathematics", icon: Cog, color: "indigo" },
+              ].map((trait) => (
+                <label key={trait.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-800 hover:border-[#2563EB]/40 bg-white/50 dark:bg-slate-900/40 cursor-pointer transition-colors group">
+                  <input
+                    type="checkbox"
+                    checked={(pathfinderTraits as any)[trait.id]}
+                    onChange={(e) => setPathfinderTraits({ ...pathfinderTraits, [trait.id]: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-300 text-[#2563EB] focus:ring-[#2563EB]"
+                  />
+                  <trait.icon className={`w-4 h-4 text-gray-400 group-hover:text-${trait.color}-500 transition-colors`} />
+                  <span className="text-xs font-bold text-slate-700 dark:text-gray-300 select-none">{trait.label}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="border-t border-gray-200 dark:border-slate-800 pt-6">
+              <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Live Compatibility Match</h4>
+              <div className="space-y-4">
+                {[
+                  { key: "CSE", label: "Computer Science", score: pathfinderScores.CSE, color: "bg-[#2563EB]" },
+                  { key: "ECE", label: "Electronics & Comm", score: pathfinderScores.ECE, color: "bg-[#FF9933]" },
+                  { key: "CE", label: "Civil Engineering", score: pathfinderScores.CE, color: "bg-[#138808]" },
+                  { key: "ME", label: "Mechanical Engg", score: pathfinderScores.ME, color: "bg-purple-500" },
+                  { key: "EE", label: "Electrical Engg", score: pathfinderScores.EE, color: "bg-red-500" },
+                ].sort((a, b) => b.score - a.score).map((branch) => (
+                  <div key={branch.key}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-bold text-slate-800 dark:text-white">{branch.label}</span>
+                      <span className="text-[10px] font-black text-gray-500">{branch.score}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full ${branch.color} transition-all duration-700 ease-out`} style={{ width: `${branch.score}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Panel: Career Roadmap Tabs */}
+          <div className="lg:col-span-7 glass-card rounded-3xl shadow-xl border border-gray-150 dark:border-slate-800 p-6 sm:p-8 flex flex-col h-full">
+            {/* Tabs */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {[
+                { id: "CSE", label: "CSE", icon: Laptop },
+                { id: "ECE", label: "ECE", icon: Cpu },
+                { id: "EE", label: "EE", icon: Zap },
+                { id: "ME", label: "ME", icon: Cog },
+                { id: "CE", label: "CE", icon: Building },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActivePathfinderTab(tab.id as any)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activePathfinderTab === tab.id 
+                      ? "bg-slate-800 text-white dark:bg-white dark:text-slate-900 shadow-md" 
+                      : "bg-gray-100 dark:bg-slate-800/50 text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  <tab.icon className="w-3.5 h-3.5" /> {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Dynamic Content Area */}
+            <div className="flex-1 animate-fade-in relative bg-white/40 dark:bg-slate-950/40 rounded-2xl p-5 border border-gray-200/50 dark:border-slate-850/60">
+              {activePathfinderTab === "CSE" && (
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-[#2563EB]">Computer Science & Engineering</h3>
+                      <p className="text-xs text-gray-500 font-semibold mt-1">Focuses on software dev, AI/ML, logic, and networking.</p>
+                    </div>
+                    <span className="px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] font-black text-xs shrink-0 text-center">
+                      Top Package<br/><span className="text-lg">~12.5L</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Top Job Roles</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">SDE, Data Scientist, Cloud Architect</p>
+                    </div>
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Difficulty Level</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">High (Math & Logic intensive)</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">4-Year Curriculum Roadmap</h4>
+                    <div className="space-y-3 relative before:absolute before:inset-y-0 before:left-3 before:w-px before:bg-gray-200 dark:before:bg-slate-800">
+                      {[
+                        { yr: "Y1", title: "C Programming & Engg Basics", desc: "Foundations of logic and computation." },
+                        { yr: "Y2", title: "DSA, OOP & Web Dev", desc: "Core algorithms and system design." },
+                        { yr: "Y3", title: "Databases, OS & Networks", desc: "Advanced system architectures." },
+                        { yr: "Y4", title: "AI/ML, Projects & Placements", desc: "Specialization and campus hiring." },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          <div className="w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activePathfinderTab === "ECE" && (
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-[#FF9933]">Electronics & Communication</h3>
+                      <p className="text-xs text-gray-500 font-semibold mt-1">Bridging hardware circuits with software programming.</p>
+                    </div>
+                    <span className="px-3 py-1 rounded-lg bg-[#FF9933]/10 text-[#FF9933] font-black text-xs shrink-0 text-center">
+                      Top Package<br/><span className="text-lg">~9.5L</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Top Job Roles</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">Embedded Engineer, Network Analyst</p>
+                    </div>
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Difficulty Level</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">Very High (Math, Physics & Coding)</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">4-Year Curriculum Roadmap</h4>
+                    <div className="space-y-3 relative before:absolute before:inset-y-0 before:left-3 before:w-px before:bg-gray-200 dark:before:bg-slate-800">
+                      {[
+                        { yr: "Y1", title: "Basic Electronics & C", desc: "Circuit fundamentals and programming." },
+                        { yr: "Y2", title: "Digital Logic & Analog Circuits", desc: "Core hardware architecture." },
+                        { yr: "Y3", title: "Microprocessors & Signals", desc: "Communication systems and IoT." },
+                        { yr: "Y4", title: "VLSI, Projects & Placements", desc: "Chip design and specialized hardware." },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          <div className="w-6 h-6 rounded-full bg-[#FF9933] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activePathfinderTab === "CE" && (
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-[#138808]">Civil Engineering</h3>
+                      <p className="text-xs text-gray-500 font-semibold mt-1">Infrastructure, construction, and urban planning.</p>
+                    </div>
+                    <span className="px-3 py-1 rounded-lg bg-[#138808]/10 text-[#138808] font-black text-xs shrink-0 text-center">
+                      Govt Scope<br/><span className="text-lg">Very High</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Top Job Roles</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">Site Engineer, Structural Analyst</p>
+                    </div>
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Govt. Job Prospects</span>
+                      <p className="text-xs font-bold text-[#138808] dark:text-[#22c55e]">Exceptional (PWD, BPSC, CPWD)</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">4-Year Curriculum Roadmap</h4>
+                    <div className="space-y-3 relative before:absolute before:inset-y-0 before:left-3 before:w-px before:bg-gray-200 dark:before:bg-slate-800">
+                      {[
+                        { yr: "Y1", title: "Mechanics & Graphics", desc: "Physics and engineering drawing." },
+                        { yr: "Y2", title: "Surveying & Materials", desc: "Fluid mechanics and concrete tech." },
+                        { yr: "Y3", title: "Structures & Geotech", desc: "Soil mechanics and design theory." },
+                        { yr: "Y4", title: "Transport & Environment", desc: "Highway engineering and project execution." },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          <div className="w-6 h-6 rounded-full bg-[#138808] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activePathfinderTab === "ME" && (
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-purple-600">Mechanical Engineering</h3>
+                      <p className="text-xs text-gray-500 font-semibold mt-1">Machines, thermodynamics, and manufacturing.</p>
+                    </div>
+                    <span className="px-3 py-1 rounded-lg bg-purple-500/10 text-purple-600 font-black text-xs shrink-0 text-center">
+                      Govt Scope<br/><span className="text-lg">High</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Top Job Roles</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">Design Engg, Auto/Manufacturing</p>
+                    </div>
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Core Recruiters</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">Tata Motors, L&T, NTPC, IOCL</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">4-Year Curriculum Roadmap</h4>
+                    <div className="space-y-3 relative before:absolute before:inset-y-0 before:left-3 before:w-px before:bg-gray-200 dark:before:bg-slate-800">
+                      {[
+                        { yr: "Y1", title: "Thermodynamics & Workshop", desc: "Energy fundamentals and tooling." },
+                        { yr: "Y2", title: "Fluid Mech & Kinematics", desc: "Machine theory and fluid dynamics." },
+                        { yr: "Y3", title: "Machine Design & Heat Transfer", desc: "Core mechanical system design." },
+                        { yr: "Y4", title: "CAD/CAM & Automobile Engg", desc: "Computer aided manufacturing." },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          <div className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activePathfinderTab === "EE" && (
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-black text-red-500">Electrical Engineering</h3>
+                      <p className="text-xs text-gray-500 font-semibold mt-1">Power systems, motors, and electrical grids.</p>
+                    </div>
+                    <span className="px-3 py-1 rounded-lg bg-red-500/10 text-red-500 font-black text-xs shrink-0 text-center">
+                      Govt Scope<br/><span className="text-lg">Very High</span>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Top Job Roles</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">Power Engineer, Grid Manager</p>
+                    </div>
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
+                      <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Core Recruiters</span>
+                      <p className="text-xs font-bold text-slate-700 dark:text-gray-300">BSPHCL, PowerGrid, NTPC, BHEL</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase mb-3">4-Year Curriculum Roadmap</h4>
+                    <div className="space-y-3 relative before:absolute before:inset-y-0 before:left-3 before:w-px before:bg-gray-200 dark:before:bg-slate-800">
+                      {[
+                        { yr: "Y1", title: "Basic Electrical & Magnetism", desc: "Circuit theorems and physics." },
+                        { yr: "Y2", title: "Transformers & Machines", desc: "DC/AC machines and induction." },
+                        { yr: "Y3", title: "Power Systems & Control", desc: "Grid management and stability." },
+                        { yr: "Y4", title: "Power Electronics & Drives", desc: "High voltage engineering." },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          <div className="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
+                            <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 6.5 ABOUT US SECTION */}
       <section id="about-us" className="bg-slate-50 dark:bg-slate-900/10 border-t border-b border-gray-200 dark:border-slate-900 py-16 transition-colors scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -896,6 +1474,93 @@ export default function Homepage() {
 
         </div>
       </section>
+
+      {/* Fixed Interactive Expandable Counseling AI Assistant Chatbot */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        {/* Chat Drawer Window */}
+        {chatOpen && (
+          <div className="w-80 sm:w-96 h-[450px] rounded-3xl glass-card border border-gray-250 dark:border-slate-850 shadow-2xl flex flex-col overflow-hidden mb-3 animate-fade-in relative backdrop-blur-xl">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808]" />
+            {/* Header */}
+            <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-b border-gray-200/50 dark:border-slate-800/60 flex items-center justify-between backdrop-blur-md">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] flex items-center justify-center text-white text-xs font-black shadow-inner">
+                  <Sparkles className="w-4.5 h-4.5 text-white animate-pulse" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-850 dark:text-gray-150">Counselling Assistant</h4>
+                  <span className="text-[9px] text-emerald-500 font-extrabold flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    Active Help Node
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setChatOpen(false)}
+                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-905 rounded-lg text-gray-405 hover:text-slate-800 dark:hover:text-white cursor-pointer transition-colors"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            </div>
+
+            {/* Chat Body messages area */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/20 dark:bg-slate-950/10">
+              {chatMessages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div className={`max-w-[85%] p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${
+                    msg.sender === "user"
+                      ? "bg-[#2563EB] text-white rounded-tr-none"
+                      : "bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-gray-200 rounded-tl-none border border-gray-150 dark:border-slate-850"
+                  }`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="p-3 rounded-2xl rounded-tl-none bg-slate-50 dark:bg-slate-900 text-gray-400 border border-gray-150 dark:border-slate-850 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
+                    <span className="animate-bounce">●</span>
+                    <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>●</span>
+                    <span className="animate-bounce" style={{ animationDelay: "0.4s" }}>●</span>
+                    <span className="text-[10px] text-gray-400 font-bold ml-1 uppercase tracking-wider">Thinking...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Chat Footer preset questions drawer */}
+            <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-t border-gray-200/50 dark:border-slate-800/60 space-y-2 backdrop-blur-md">
+              <span className="text-[9px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-wider block">Ask preset counseling questions</span>
+              <div className="flex flex-wrap gap-1.5">
+                {chatbotQuestions.map((q, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleAskQuestion(q.q, q.a)}
+                    disabled={isTyping}
+                    className="px-2.5 py-1.5 rounded-lg bg-white/80 dark:bg-slate-900/80 text-[10px] text-slate-750 dark:text-gray-300 font-extrabold border border-gray-200 dark:border-slate-800 hover:border-[#2563EB] hover:text-[#2563EB] dark:hover:text-[#60a5fa] disabled:opacity-50 transition-all duration-300 cursor-pointer shadow-sm"
+                  >
+                    {q.q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Toggle Expand Bubble Button */}
+        <button
+          onClick={() => setChatOpen(!chatOpen)}
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] hover:shadow-2xl text-white shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer relative group btn-premium border border-white/10"
+        >
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] animate-ping opacity-25 group-hover:opacity-40" />
+          <MessageSquare className="w-6 h-6 text-white group-hover:rotate-6 transition-transform relative z-10" />
+          <Sparkles className="w-3.5 h-3.5 absolute top-2 right-2 text-white animate-pulse relative z-10" />
+        </button>
+      </div>
+
     </div>
   );
 }

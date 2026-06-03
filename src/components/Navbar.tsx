@@ -105,22 +105,6 @@ export const Navbar: React.FC = () => {
                 {/* Greeting text removed fully from top navbar per user instruction */}
                 {/* Saved Predictions Count removed per user instruction */}
 
-                {/* Favorite Colleges Count */}
-                {!user.isAdmin && !isAdminRoute && (
-                  <Link
-                    href="/dashboard"
-                    className="relative p-2 text-gray-500 hover:text-[#138808] dark:text-gray-400 dark:hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200"
-                    title="Favorite Colleges"
-                  >
-                    <Bookmark className="w-5 h-5" />
-                    {favorites.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#138808] text-[10px] font-bold text-white shadow-sm">
-                        {favorites.length}
-                      </span>
-                    )}
-                  </Link>
-                )}
-
                 {/* Dark Mode Toggle */}
                 <button
                   onClick={toggleDarkMode}
@@ -234,17 +218,6 @@ export const Navbar: React.FC = () => {
                 </>
               )}
               <div className="border-t border-gray-100 dark:border-slate-800 my-2 pt-2 flex flex-col gap-2.5 px-3">
-                {!user.isAdmin && !isAdminRoute && (
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-[#2563EB]"
-                  >
-                    <Bookmark className="w-5 h-5" />
-                    Favorites ({favorites.length})
-                  </Link>
-                )}
-                
                 {user.isAdmin && (
                   <Link
                     href="/admin"

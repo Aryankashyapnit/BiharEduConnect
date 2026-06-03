@@ -27,7 +27,7 @@ interface CollegeDetailsProps {
 export default function CollegeDetails({ params }: CollegeDetailsProps) {
   // Unwrap parameters according to Next.js 15 client-side standards
   const { id } = use(params);
-  const { colleges, favorites, addFavorite, removeFavorite, cutoffs } = useApp();
+  const { colleges, cutoffs } = useApp();
 
   const college = colleges.find((c) => c.id === id);
 
@@ -50,15 +50,7 @@ export default function CollegeDetails({ params }: CollegeDetailsProps) {
     );
   }
 
-  const isFav = favorites.includes(college.id);
 
-  const toggleFavorite = () => {
-    if (isFav) {
-      removeFavorite(college.id);
-    } else {
-      addFavorite(college.id);
-    }
-  };
 
   // Fetch college specific cutoffs (showing 2025 Round 1 cutoffs for UR category as reference)
   const collegeCutoffs = cutoffs.filter(
@@ -102,17 +94,6 @@ export default function CollegeDetails({ params }: CollegeDetailsProps) {
           </div>
 
           <div className="flex gap-2">
-            <button
-              onClick={toggleFavorite}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5 cursor-pointer ${
-                isFav
-                  ? "bg-amber-500 text-white border-amber-500"
-                  : "bg-white/10 text-white border-white/20 hover:bg-white/25"
-              }`}
-            >
-              <Star className={`w-4 h-4 ${isFav ? "fill-white" : ""}`} />
-              {isFav ? "Favorited College" : "Bookmark Profile"}
-            </button>
             <a
               href={college.website}
               target="_blank"

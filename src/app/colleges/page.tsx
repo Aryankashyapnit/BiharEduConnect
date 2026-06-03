@@ -13,7 +13,9 @@ import {
   Compass,
   ArrowUpDown,
   Filter,
-  Building
+  Building,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import Link from "next/link";
 
@@ -98,13 +100,21 @@ function fuzzyMatchCollege(college: FuzzyCollege, query: string): boolean {
 }
 
 export default function CollegesDirectory() {
-  const { colleges, favorites, addFavorite, removeFavorite } = useApp();
+  const { colleges } = useApp();
 
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [minPlacement, setMinPlacement] = useState(3.5);
   const [maxFee, setMaxFee] = useState(15000);
   const [sortBy, setSortBy] = useState("established"); // established, averagePackage, highestPackage, name
+  const [mobileFiltersExpanded, setMobileFiltersExpanded] = useState(false);
+
+  // Active filter count
+  const activeFilterCount = 
+    (searchTerm ? 1 : 0) + 
+    (minPlacement > 3.5 ? 1 : 0) + 
+    (maxFee < 15000 ? 1 : 0) + 
+    (sortBy !== "established" ? 1 : 0);
 
   // Filter logic
   const filteredColleges = colleges.filter((c) => {
@@ -123,14 +133,6 @@ export default function CollegesDirectory() {
     if (sortBy === "name") return a.name.localeCompare(b.name); // A-Z
     return 0;
   });
-
-  const toggleFavorite = (collegeId: string) => {
-    if (favorites.includes(collegeId)) {
-      removeFavorite(collegeId);
-    } else {
-      addFavorite(collegeId);
-    }
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
@@ -159,12 +161,31 @@ export default function CollegesDirectory() {
         {/* Left Side: Directory Filters Panel */}
         <div className="lg:col-span-1 space-y-6">
           <div className="glass-card rounded-2xl p-5 shadow-lg lg:sticky lg:top-24 transition-all duration-300">
-            <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4 pb-2 border-b border-gray-100 dark:border-slate-850">
-              <Filter className="w-4.5 h-4.5 text-[#FF9933]" />
-              Database Filters
-            </h2>
+            <div className={`flex items-center justify-between w-full pb-2 ${mobileFiltersExpanded ? "border-b border-gray-100 dark:border-slate-850 mb-4" : "lg:border-b lg:border-gray-100 lg:dark:border-slate-850 lg:mb-4"}`}>
+              <button
+                onClick={() => setMobileFiltersExpanded(!mobileFiltersExpanded)}
+                className="w-full flex items-center justify-between text-left focus:outline-none lg:cursor-default"
+              >
+                <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <Filter className="w-4.5 h-4.5 text-[#FF9933]" />
+                  Database Filters
+                  {activeFilterCount > 0 && (
+                    <span className="px-2 py-0.5 text-[9px] font-extrabold bg-[#FF9933]/15 text-[#FF9933] rounded-full">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </h2>
+                <div className="lg:hidden p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                  {mobileFiltersExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                  )}
+                </div>
+              </button>
+            </div>
 
-            <div className="space-y-5">
+            <div className={`space-y-5 lg:block ${mobileFiltersExpanded ? "block animate-fade-in" : "hidden"}`}>
               {/* Search input */}
               <div>
                 <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">Fuzzy Search</label>
@@ -248,7 +269,6 @@ export default function CollegesDirectory() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
               {sortedColleges.map((college) => {
-                const fav = favorites.includes(college.id);
                 return (
                   <div
                     key={college.id}
@@ -269,18 +289,6 @@ export default function CollegesDirectory() {
                         <MapPin className="w-3.5 h-3.5 text-[#FF9933]" />
                         {college.location}, Bihar
                       </span>
-
-                      {/* Favorite Button */}
-                      <button
-                        onClick={() => toggleFavorite(college.id)}
-                        className={`absolute top-3.5 right-4 p-2 rounded-xl backdrop-blur-md border cursor-pointer transition-all duration-300 ${
-                          fav
-                            ? "bg-amber-500 text-white border-amber-400/30 shadow-md shadow-amber-500/20"
-                            : "bg-black/35 text-white/80 border-white/10 hover:bg-black/50 hover:text-white"
-                        }`}
-                      >
-                        <Star className={`w-4 h-4 transition-transform duration-300 ${fav ? "fill-white scale-110" : "group-hover:scale-110"}`} />
-                      </button>
                     </div>
 
                     {/* Card Body */}
