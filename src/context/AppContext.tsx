@@ -354,15 +354,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const storedBlocked = localStorage.getItem("bihareduconnect_blocked_emails");
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
-      const storedVisits = localStorage.getItem("bihareduconnect_total_visits");
-      const initialVisits = storedVisits ? parseInt(storedVisits, 10) : 124;
-      setTotalVisits(initialVisits);
-      
+      // totalVisits is now completely driven by Firebase in the onSnapshot listener below.
+      // We still mark session visited to avoid spamming the database with a visit on every page reload
       const sessionVisited = sessionStorage.getItem("bihareduconnect_session_visited");
       if (!sessionVisited) {
-        const incremented = initialVisits + 1;
-        setTotalVisits(incremented);
-        localStorage.setItem("bihareduconnect_total_visits", incremented.toString());
         sessionStorage.setItem("bihareduconnect_session_visited", "true");
       }
 
@@ -462,12 +457,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Setup Firebase real-time listener for visitor logs
       const unsubscribe = onSnapshot(collection(db, "visitor_logs"), (snapshot) => {
         const logs: VisitorLog[] = [];
+        let globalVisits = 0;
+        
         snapshot.forEach((doc) => {
-          logs.push(doc.data() as VisitorLog);
+          const data = doc.data() as VisitorLog;
+          logs.push(data);
+          globalVisits += data.visitCount || 1;
         });
+        
         // Sort by lastVisitTime descending (roughly)
         logs.sort((a, b) => new Date(b.lastVisitTime).getTime() - new Date(a.lastVisitTime).getTime());
         setVisitorLogs(logs);
+        
+        // Update totalVisits globally based on live Firebase data
+        // We add a baseline of 124 (the original hardcoded mock data baseline)
+        setTotalVisits(124 + globalVisits);
       }, (error) => {
         console.error("Firebase snapshot error: ", error);
         // Fallback to local storage if firebase fails
