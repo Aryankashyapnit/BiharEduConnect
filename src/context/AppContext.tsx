@@ -410,11 +410,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           role: currentUser.email && !currentUser.email.includes(".demo@") ? "Standard" : "Guest"
         };
       } else {
-        docId = "anonymous_guest_301";
+        // Unique anonymous tracking
+        let anonId = "";
+        if (typeof window !== "undefined") {
+          anonId = localStorage.getItem("bihareduconnect_anon_id") || "";
+          if (!anonId) {
+            anonId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            localStorage.setItem("bihareduconnect_anon_id", anonId);
+          }
+        } else {
+          anonId = "SERVER";
+        }
+        
+        docId = `anonymous_guest_${anonId}`;
         visitorData = {
           id: docId,
-          name: "Anonymous Guest #301",
-          email: "anonymous.guest301@bihareduconnect.in",
+          name: `Anonymous Guest #${anonId}`,
+          email: `anonymous.${anonId}@bihareduconnect.in`,
           lastVisitTime: timeStr,
           role: "Anonymous"
         };
