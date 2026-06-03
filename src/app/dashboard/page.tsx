@@ -70,6 +70,9 @@ export default function StudentDashboard() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNameValue, setEditNameValue] = useState("");
 
+  const isDemoUser = user?.email?.includes('.demo@') || !user?.email;
+  const hasRealEmail = user?.email && !user?.email.includes('.demo@');
+
   const handleRandomizeAvatar = () => {
     const randomSeed = Math.random().toString(36).substring(2, 10);
     updateUserAvatar(randomSeed);
@@ -358,13 +361,13 @@ export default function StudentDashboard() {
                           <span className="px-2.5 py-1 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
                             🛡️ Administrator
                           </span>
-                        ) : user.email ? (
+                        ) : hasRealEmail ? (
                           <span className="px-2.5 py-1 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
                             ⚡ Standard Account
                           </span>
                         ) : (
                           <span className="px-2.5 py-1 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
-                            <Sparkles className="w-3 h-3 text-amber-500" /> Guest
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Demo Account
                           </span>
                         )}
                       </div>
@@ -382,7 +385,7 @@ export default function StudentDashboard() {
                       </span>
                     </div>
                     
-                    {user.email && (
+                    {hasRealEmail && (
                       <>
                         <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50 dark:bg-slate-900/30 border border-gray-150/40 dark:border-slate-800/40 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors">
                           <span className="font-extrabold uppercase tracking-widest text-[10px] text-gray-500 flex items-center gap-1.5">
@@ -413,7 +416,7 @@ export default function StudentDashboard() {
                   </div>
 
                   {/* Upgrade Profile CTA Form for guest/demo users */}
-                  {!user.email && !user.isAdmin && (
+                  {(isDemoUser && !user.isAdmin) && (
                     <div className="p-4 bg-amber-500/5 dark:bg-amber-950/15 border border-amber-550/20 rounded-2xl space-y-3.5 backdrop-blur-md">
                       <div className="space-y-1">
                         <h4 className="text-[11px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-wide flex items-center gap-1">
