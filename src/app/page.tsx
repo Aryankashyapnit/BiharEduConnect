@@ -1385,14 +1385,14 @@ export default function Homepage() {
             <div className="text-center max-w-2xl mx-auto mb-10">
               <h3 className="text-2xl font-extrabold text-slate-800 dark:text-white flex items-center justify-center gap-1.5">
                 <Users className="w-6 h-6 text-[#2563EB]" />
-                Meet Our Founder
+                Meet Our Founders
               </h3>
               <p className="text-xs text-gray-450 dark:text-gray-400 mt-1.5">
                 The visionary minds from premier technical institutions driving transparent admissions in Bihar.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 max-w-md mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
               {[
                 {
                   name: "ARYAN SINGH KASHYAP",
@@ -1400,6 +1400,13 @@ export default function Homepage() {
                   college: "National Institute of Technology, Agartala (NIT Agartala)",
                   color: "border-[#FF9933]/30 bg-gradient-to-br from-[#FF9933]/5 to-transparent",
                   badgeColor: "bg-[#FF9933]/10 text-[#FF9933]"
+                },
+                {
+                  name: "KUMAR PANDAV",
+                  role: "Co-founder",
+                  college: "Government Engineering College, Banka (GEC Banka)",
+                  color: "border-[#2563EB]/30 bg-gradient-to-br from-[#2563EB]/5 to-transparent",
+                  badgeColor: "bg-[#2563EB]/10 text-[#2563EB]"
                 }
               ].map((f, i) => (
                 <div
