@@ -27,7 +27,11 @@ import {
   Trophy,
   Crown,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCcw,
+  Edit2,
+  Check,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,7 +45,9 @@ export default function StudentDashboard() {
     user,
     logout,
     registerUser,
-    timelineEvents
+    timelineEvents,
+    updateUserAvatar,
+    updateUserName
   } = useApp();
 
   const router = useRouter();
@@ -59,6 +65,27 @@ export default function StudentDashboard() {
   const [upgradeError, setUpgradeError] = useState("");
   const [upgradeSuccess, setUpgradeSuccess] = useState("");
   const [isUpgrading, setIsUpgrading] = useState(false);
+  
+  // Name Edit State
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState("");
+
+  const handleRandomizeAvatar = () => {
+    const randomSeed = Math.random().toString(36).substring(2, 10);
+    updateUserAvatar(randomSeed);
+  };
+
+  const handleSaveName = () => {
+    if (editNameValue.trim().length > 2) {
+      updateUserName(editNameValue.trim());
+      setIsEditingName(false);
+    }
+  };
+
+  const handleCancelEditName = () => {
+    setIsEditingName(false);
+    setEditNameValue(user?.name || "");
+  };
 
   if (user && user.isAdmin) {
     return (
@@ -267,31 +294,77 @@ export default function StudentDashboard() {
               {user && (
                 <div className="space-y-4">
                   {/* User initials avatar block */}
-                  <div className="flex items-center gap-3.5">
-                    <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] text-white font-black text-xl shadow-md">
-                      {user.name.charAt(0).toUpperCase()}
-                      <span className="absolute bottom-0.5 right-0.5 flex h-3.5 w-3.5">
+                  <div className="flex flex-col sm:flex-row items-center gap-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-gray-150/60 dark:border-slate-800/60 shadow-inner">
+                    <div className="relative shrink-0 group">
+                      <img 
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatarSeed || user.name || 'User'}&backgroundColor=c0aede`} 
+                        alt="Avatar" 
+                        className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 shadow-md group-hover:scale-105 transition-transform duration-300 bg-gradient-to-tr from-[#FF9933]/20 to-[#2563EB]/20"
+                      />
+                      
+                      {/* Avatar Edit Button overlay */}
+                      <button 
+                        onClick={handleRandomizeAvatar}
+                        className="absolute inset-0 bg-black/40 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                        title="Change Profile Photo"
+                      >
+                        <RefreshCcw className="w-5 h-5 text-white mb-0.5" />
+                        <span className="text-[8px] font-bold text-white uppercase tracking-widest">Change</span>
+                      </button>
+
+                      <span className="absolute bottom-1 right-1 flex h-4 w-4 pointer-events-none">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white dark:border-slate-800 shadow-sm"></span>
                       </span>
                     </div>
-                    <div>
-                      <h3 className="font-black text-base text-slate-850 dark:text-gray-100 leading-snug">
-                        {user.name}
-                      </h3>
-                      <div className="flex items-center gap-1.5 mt-1">
+                    <div className="text-center sm:text-left flex-1">
+                      {isEditingName ? (
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <input 
+                            type="text" 
+                            value={editNameValue}
+                            onChange={(e) => setEditNameValue(e.target.value)}
+                            className="w-full sm:w-auto px-2.5 py-1 text-sm font-bold bg-white dark:bg-slate-950 border border-[#2563EB]/40 rounded outline-none focus:ring-2 focus:ring-[#2563EB]/20 text-slate-800 dark:text-white"
+                            autoFocus
+                            onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                          />
+                          <button onClick={handleSaveName} className="p-1.5 bg-emerald-100 text-emerald-600 rounded hover:bg-emerald-200 transition-colors cursor-pointer" title="Save Name">
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={handleCancelEditName} className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors cursor-pointer" title="Cancel">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 group/name">
+                          <h3 className="font-black text-xl text-slate-850 dark:text-gray-100 leading-tight">
+                            {user.name}
+                          </h3>
+                          <button 
+                            onClick={() => {
+                              setEditNameValue(user.name);
+                              setIsEditingName(true);
+                            }}
+                            className="opacity-0 group-hover/name:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-md cursor-pointer text-gray-500 hover:text-[#2563EB]"
+                            title="Edit Name"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                      
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mt-1.5">
                         {user.isAdmin ? (
-                          <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[9px] font-black uppercase tracking-widest">
+                          <span className="px-2.5 py-1 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
                             🛡️ Administrator
                           </span>
                         ) : user.email ? (
-                          <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[9px] font-black uppercase tracking-widest">
+                          <span className="px-2.5 py-1 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
                             ⚡ Standard Account
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[9px] font-black uppercase tracking-widest flex items-center gap-0.5">
-                            <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-                            Guest Account
+                          <span className="px-2.5 py-1 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Guest
                           </span>
                         )}
                       </div>
@@ -299,33 +372,43 @@ export default function StudentDashboard() {
                   </div>
 
                   {/* Candidate credentials / info list */}
-                  <div className="space-y-3 text-xs border-t border-b border-gray-150/40 dark:border-slate-800/50 py-4 my-2">
-                    <div className="flex justify-between items-center text-gray-500 dark:text-gray-400 font-semibold">
-                      <span className="font-black uppercase tracking-widest text-[9px] text-gray-450 dark:text-gray-500">JEE Percentile</span>
-                      <span className="font-black text-slate-850 dark:text-gray-150 bg-slate-100 dark:bg-slate-950 px-2 py-0.5 rounded">
+                  <div className="grid grid-cols-1 gap-2 pt-2">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50 dark:bg-slate-900/30 border border-gray-150/40 dark:border-slate-800/40 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors">
+                      <span className="font-extrabold uppercase tracking-widest text-[10px] text-gray-500 flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" /> JEE Percentile
+                      </span>
+                      <span className="font-black text-slate-800 dark:text-gray-100 bg-white dark:bg-slate-950 px-2.5 py-1 rounded-md border border-gray-200 dark:border-slate-800 shadow-sm text-xs">
                         {user.percentile !== undefined ? `${user.percentile.toFixed(2)}%` : "N/A"}
                       </span>
                     </div>
+                    
                     {user.email && (
-                      <div className="flex justify-between items-center text-gray-500 dark:text-gray-400 font-semibold">
-                        <span className="font-black uppercase tracking-widest text-[9px] text-gray-450 dark:text-gray-500">Email Address</span>
-                        <span className="font-bold text-slate-850 dark:text-gray-150 truncate max-w-[170px]" title={user.email}>
-                          {user.email}
-                        </span>
-                      </div>
-                    )}
-                    {/* Mock phone/password details for standard profile */}
-                    {user.email && (
-                      <div className="flex justify-between items-center text-gray-500 dark:text-gray-455 font-semibold">
-                        <span className="font-black uppercase tracking-widest text-[9px] text-gray-450 dark:text-gray-500">Phone Number</span>
-                        <span className="font-bold text-slate-850 dark:text-gray-150">+91 9*******89</span>
-                      </div>
-                    )}
-                    {user.email && (
-                      <div className="flex justify-between items-center text-gray-500 dark:text-gray-455 font-semibold">
-                        <span className="font-black uppercase tracking-widest text-[9px] text-gray-450 dark:text-gray-500">Password Security</span>
-                        <span className="font-bold text-slate-400 dark:text-slate-600 tracking-widest text-[9px]">••••••••</span>
-                      </div>
+                      <>
+                        <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50 dark:bg-slate-900/30 border border-gray-150/40 dark:border-slate-800/40 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors">
+                          <span className="font-extrabold uppercase tracking-widest text-[10px] text-gray-500 flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-gray-400" /> Email
+                          </span>
+                          <span className="font-bold text-slate-700 dark:text-gray-300 text-xs truncate max-w-[170px]" title={user.email}>
+                            {user.email}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50 dark:bg-slate-900/30 border border-gray-150/40 dark:border-slate-800/40 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors">
+                          <span className="font-extrabold uppercase tracking-widest text-[10px] text-gray-500 flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-gray-400" /> Phone
+                          </span>
+                          <span className="font-bold text-slate-700 dark:text-gray-300 text-xs tracking-wide">
+                            +91 9*******89
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50 dark:bg-slate-900/30 border border-gray-150/40 dark:border-slate-800/40 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors">
+                          <span className="font-extrabold uppercase tracking-widest text-[10px] text-gray-500 flex items-center gap-1.5">
+                            <Key className="w-3.5 h-3.5 text-gray-400" /> Password
+                          </span>
+                          <span className="font-black text-slate-400 dark:text-slate-500 text-xs tracking-[0.3em]">
+                            ••••••••
+                          </span>
+                        </div>
+                      </>
                     )}
                   </div>
 

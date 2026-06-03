@@ -136,7 +136,7 @@ export const Navbar: React.FC = () => {
                   title={user.isAdmin ? "Admin Panel" : "My Profile / Dashboard"}
                 >
                   <img 
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || 'User'}&backgroundColor=c0aede`} 
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatarSeed || user.name || 'User'}&backgroundColor=c0aede`} 
                     alt="Avatar" 
                     className="w-5 h-5 rounded-full border border-white/40 shadow-sm group-hover:scale-110 transition-transform"
                   />
@@ -244,7 +244,7 @@ export const Navbar: React.FC = () => {
                     className="flex items-center gap-2 text-xs text-[#2563EB] dark:text-[#FF9933] font-bold border border-[#2563EB]/20 px-2.5 py-1.5 rounded-md"
                   >
                     <img 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || 'User'}&backgroundColor=c0aede`} 
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.avatarSeed || user?.name || 'User'}&backgroundColor=c0aede`} 
                       alt="Avatar" 
                       className="w-5 h-5 rounded-full border border-[#2563EB]/30 shadow-sm"
                     />

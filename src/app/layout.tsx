@@ -36,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}>
-      <body className="min-h-full flex flex-col bg-white dark:bg-slate-950 text-slate-800 dark:text-gray-100 transition-colors duration-300">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth overflow-x-hidden`}>
+      <body className="min-h-full flex flex-col bg-white dark:bg-slate-950 text-slate-800 dark:text-gray-100 transition-colors duration-300 overflow-x-hidden">
         <AppProvider>
           <Navbar />
           <main className="flex-grow">

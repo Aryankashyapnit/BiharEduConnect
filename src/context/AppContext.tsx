@@ -22,6 +22,7 @@ export interface User {
   percentile?: number;
   email?: string;
   isAdmin: boolean;
+  avatarSeed?: string;
 }
 
 export interface RegisteredUser {
@@ -109,6 +110,8 @@ interface AppContextType {
   loginDemo: (name: string, percentile: number) => { success: boolean; error?: string };
   loginAdmin: (email: string, pass: string) => boolean;
   logout: () => void;
+  updateUserAvatar: (seed: string) => void;
+  updateUserName: (name: string) => void;
   registeredUsers: RegisteredUser[];
   registerUser: (name: string, email: string, percentile: number, pass: string) => { success: boolean; error?: string };
   updateRegisteredUser: (oldEmail: string, updatedUser: RegisteredUser) => { success: boolean; error?: string };
@@ -740,6 +743,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return false;
   };
 
+  const updateUserAvatar = (seed: string) => {
+    if (user) {
+      const updatedUser = { ...user, avatarSeed: seed };
+      setUser(updatedUser);
+      saveToLocalStorage("bihareduconnect_user", updatedUser);
+    }
+  };
+
+  const updateUserName = (newName: string) => {
+    if (user) {
+      const updatedUser = { ...user, name: newName };
+      setUser(updatedUser);
+      saveToLocalStorage("bihareduconnect_user", updatedUser);
+      
+      // Update the name in registered users if they exist
+      if (user.email) {
+        const updatedRegList = registeredUsers.map(u => 
+          u.email.toLowerCase() === user.email?.toLowerCase() ? { ...u, name: newName } : u
+        );
+        setRegisteredUsers(updatedRegList);
+        saveToLocalStorage("bihareduconnect_registered_users", updatedRegList);
+      }
+    }
+  };
+
   const registerUser = (name: string, email: string, percentile: number, pass: string): { success: boolean; error?: string } => {
     const emailLower = email.toLowerCase().trim();
     if (emailLower === "admin@bihareduconnect.in") {
@@ -981,6 +1009,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginDemo,
         loginAdmin,
         logout,
+        updateUserAvatar,
+        updateUserName,
         registeredUsers,
         registerUser,
         updateRegisteredUser,
