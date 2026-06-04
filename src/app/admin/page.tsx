@@ -2448,6 +2448,7 @@ export default function AdminDashboard() {
                       <th className="p-3.5">Visitor Identity</th>
                       <th className="p-3.5">Email Address</th>
                       <th className="p-3.5">JEE Main Pct</th>
+                      <th className="p-3.5 text-center">Time Spent</th>
                       <th className="p-3.5 text-center">Platform Visits</th>
                       <th className="p-3.5 text-right">Last Visit Timestamp</th>
                     </tr>
@@ -2479,6 +2480,11 @@ export default function AdminDashboard() {
                             {log.percentile !== undefined ? `${log.percentile.toFixed(2)}%` : "N/A"}
                           </td>
                           <td className="p-3.5 text-center">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 font-black text-[10px]">
+                              {log.totalSessionTime ? (log.totalSessionTime < 60 ? `${log.totalSessionTime}s` : log.totalSessionTime < 3600 ? `${Math.floor(log.totalSessionTime / 60)}m ${log.totalSessionTime % 60}s` : `${Math.floor(log.totalSessionTime / 3600)}h ${Math.floor((log.totalSessionTime % 3600) / 60)}m`) : "0s"}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center">
                             <span className="px-2 py-0.5 rounded-full bg-blue-500/15 text-[#2563EB] font-black text-[10px]">
                               {log.visitCount} visits
                             </span>
@@ -2490,7 +2496,7 @@ export default function AdminDashboard() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="p-6 text-center text-gray-400">
+                        <td colSpan={6} className="p-6 text-center text-gray-400">
                           No visitor logs captured yet.
                         </td>
                       </tr>

@@ -5,7 +5,7 @@ import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
 import { db } from "../lib/firebase";
-import { collection, doc, setDoc, onSnapshot, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, onSnapshot, getDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
 
 export interface SavedPrediction {
   id: string;
@@ -67,6 +67,7 @@ export interface VisitorLog {
   visitCount: number;
   lastVisitTime: string;
   role: "Standard" | "Guest" | "Anonymous";
+  totalSessionTime?: number;
 }
 
 interface AppContextType {
@@ -499,6 +500,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         unsubscribeUsers();
       };
     }
+  }, [user]);
+
+  // Session Time Tracker
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const interval = setInterval(async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          let docId = "";
+          if (user && !user.isAdmin) {
+            const emailClean = user.email ? user.email.toLowerCase().trim() : `${user.name.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
+            docId = emailClean.replace(/[^a-zA-Z0-9]/g, "_");
+          } else if (!user) {
+            const anonId = localStorage.getItem("bihareduconnect_anon_id");
+            if (anonId) {
+              docId = `anonymous_guest_${anonId}`;
+            }
+          }
+          
+          if (docId) {
+            const docRef = doc(db, "visitor_logs", docId);
+            await setDoc(docRef, {
+              totalSessionTime: increment(10)
+            }, { merge: true });
+          }
+        } catch (e) {
+          // Ignore if document not found or error
+        }
+      }
+    }, 10000); // Every 10 seconds
+
+    return () => clearInterval(interval);
   }, [user]);
 
   // Sync state helpers
