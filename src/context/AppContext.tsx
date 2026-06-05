@@ -5,7 +5,7 @@ import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
 import { db } from "../lib/firebase";
-import { collection, doc, setDoc, addDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment, query, limit } from "firebase/firestore";
+import { collection, doc, setDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment, query, limit } from "firebase/firestore";
 
 
 export interface SavedPrediction {
@@ -201,8 +201,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [colleges, setColleges] = useState<College[]>(collegesData);
-  const [cutoffs, setCutoffs] = useState<Cutoff[]>([]);
-  const [seatMatrix, setSeatMatrix] = useState<SeatMatrixEntry[]>([]);
+  const [cutoffs, setCutoffs] = useState<Cutoff[]>(cutoffsData);
+  const [seatMatrix, setSeatMatrix] = useState<SeatMatrixEntry[]>(seatMatrixData);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [savedPredictions, setSavedPredictions] = useState<SavedPrediction[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -377,11 +377,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     const unsubCutoffs = onSnapshot(collection(db, "cutoffs"), (snap) => {
-      const list: Cutoff[] = [];
-      snap.forEach((d) => list.push(d.data() as Cutoff));
+      const firestoreList: Cutoff[] = [];
+      snap.forEach((d) => {
+        const data = d.data() as Cutoff;
+        if (!data.id) data.id = d.id;
+        firestoreList.push(data);
+      });
       
+      // Merge: start with defaults, then overlay any Firestore overrides
       const merged = [...cutoffsData];
-      list.forEach((firestoreCutoff) => {
+      firestoreList.forEach((firestoreCutoff) => {
         const index = merged.findIndex(c => 
           c.collegeCode === firestoreCutoff.collegeCode &&
           c.branchCode === firestoreCutoff.branchCode &&
@@ -397,27 +402,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       
       setCutoffs(merged);
-      localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged));
+      try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged)); } catch(e) {}
     }, (error) => {
       console.warn("Cutoffs listener failed:", error.message);
-      const stored = localStorage.getItem("bihareduconnect_cutoffs");
-      if (stored) {
-        try {
-          setCutoffs(JSON.parse(stored));
-        } catch (e) {
-          setCutoffs(cutoffsData);
+      // On error, keep current state (already initialized with cutoffsData or localStorage)
+      // Try to load from localStorage as a better fallback
+      try {
+        const stored = localStorage.getItem("bihareduconnect_cutoffs");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCutoffs(parsed);
+          }
         }
-      } else {
-        setCutoffs(cutoffsData);
+      } catch (e) {
+        // Keep the default cutoffsData that was set during initialization
       }
     });
 
     const unsubSeatMatrix = onSnapshot(collection(db, "seat_matrix"), (snap) => {
-      const list: SeatMatrixEntry[] = [];
-      snap.forEach((d) => list.push(d.data() as SeatMatrixEntry));
+      const firestoreList: SeatMatrixEntry[] = [];
+      snap.forEach((d) => firestoreList.push(d.data() as SeatMatrixEntry));
       
+      // Merge: start with defaults, then overlay any Firestore overrides
       const merged = [...seatMatrixData];
-      list.forEach((entry) => {
+      firestoreList.forEach((entry) => {
         const index = merged.findIndex(s => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode);
         if (index !== -1) {
           merged[index] = entry;
@@ -427,18 +436,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       
       setSeatMatrix(merged);
-      localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged));
+      try { localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged)); } catch(e) {}
     }, (error) => {
       console.warn("Seat matrix listener failed:", error.message);
-      const stored = localStorage.getItem("bihareduconnect_seat_matrix");
-      if (stored) {
-        try {
-          setSeatMatrix(JSON.parse(stored));
-        } catch (e) {
-          setSeatMatrix(seatMatrixData);
+      // On error, keep current state (already initialized with seatMatrixData or localStorage)
+      try {
+        const stored = localStorage.getItem("bihareduconnect_seat_matrix");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSeatMatrix(parsed);
+          }
         }
-      } else {
-        setSeatMatrix(seatMatrixData);
+      } catch (e) {
+        // Keep the default seatMatrixData that was set during initialization
       }
     });
 
@@ -804,9 +815,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Dynamic Datastore Handlers
   const addBulkFile = async (file: BulkFile) => {
     try {
-      // Use addDoc to generate a unique ID, avoiding collisions with existing seeded files.
-      const colRef = collection(db, "bulk_files");
-      await addDoc(colRef, file);
+      // Use file name as consistent doc ID so deleteBulkFile can find it
+      const docId = file.name.replace(/[^a-zA-Z0-9]/g, "_");
+      await setDoc(doc(db, "bulk_files", docId), file);
     } catch (e) {
       console.error("Error adding bulk file:", e);
     }
@@ -858,28 +869,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const injectCutoffs = async (newCutoffs: Cutoff[]) => {
-    try {
-      for (const cutoff of newCutoffs) {
-        let id = cutoff.id;
-        if (!id) {
-          id = `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Immediately update local state and localStorage (don't wait for Firestore snapshot)
+    const cutoffsWithIds = newCutoffs.map(cutoff => ({
+      ...cutoff,
+      id: cutoff.id || `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    }));
+
+    // Merge into current cutoffs state immediately
+    setCutoffs(prev => {
+      const merged = [...prev];
+      cutoffsWithIds.forEach(newCutoff => {
+        const index = merged.findIndex(c =>
+          c.collegeCode === newCutoff.collegeCode &&
+          c.branchCode === newCutoff.branchCode &&
+          c.year === newCutoff.year &&
+          c.round === newCutoff.round &&
+          c.category === newCutoff.category
+        );
+        if (index !== -1) {
+          merged[index] = newCutoff;
+        } else {
+          merged.push(newCutoff);
         }
-        await setDoc(doc(db, "cutoffs", id), { ...cutoff, id });
+      });
+      // Save to localStorage immediately
+      try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged)); } catch(e) {}
+      return merged;
+    });
+
+    // Then persist to Firestore in background
+    try {
+      for (const cutoff of cutoffsWithIds) {
+        await setDoc(doc(db, "cutoffs", cutoff.id), cutoff);
       }
     } catch (e) {
-      console.error("Error injecting cutoffs:", e);
+      console.error("Error injecting cutoffs to Firestore:", e);
+      // Data is already saved locally, so user won't lose it
     }
   };
 
   const deleteCutoff = async (id: string) => {
+    // Immediately remove from local state
+    setCutoffs(prev => {
+      const updated = prev.filter(c => c.id !== id);
+      try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(updated)); } catch(e) {}
+      return updated;
+    });
+
     try {
       await deleteDoc(doc(db, "cutoffs", id));
     } catch (e) {
-      console.error("Error deleting cutoff:", e);
+      console.error("Error deleting cutoff from Firestore:", e);
     }
   };
 
   const resetCutoffs = async () => {
+    // Immediately reset local state to defaults
+    setCutoffs(cutoffsData);
+    try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData)); } catch(e) {}
+
     try {
       const colRef = collection(db, "cutoffs");
       const snap = await getDocs(colRef);
@@ -890,20 +938,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await setDoc(doc(db, "cutoffs", c.id), c);
       }
     } catch (e) {
-      console.error("Error resetting cutoffs:", e);
+      console.error("Error resetting cutoffs in Firestore:", e);
     }
   };
 
   const updateSeatMatrixEntry = async (entry: SeatMatrixEntry) => {
+    // Immediately update local state and localStorage
+    setSeatMatrix(prev => {
+      const merged = [...prev];
+      const index = merged.findIndex(s => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode);
+      if (index !== -1) {
+        merged[index] = entry;
+      } else {
+        merged.push(entry);
+      }
+      try { localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged)); } catch(e) {}
+      return merged;
+    });
+
+    // Then persist to Firestore
     try {
       const id = `${entry.collegeCode}_${entry.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`;
       await setDoc(doc(db, "seat_matrix", id), entry);
     } catch (e) {
-      console.error("Error updating seat matrix entry:", e);
+      console.error("Error updating seat matrix entry in Firestore:", e);
     }
   };
 
   const resetSeatMatrix = async () => {
+    // Immediately reset local state
+    setSeatMatrix(seatMatrixData);
+    try { localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData)); } catch(e) {}
+
     try {
       const colRef = collection(db, "seat_matrix");
       const snap = await getDocs(colRef);
@@ -915,7 +981,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await setDoc(doc(db, "seat_matrix", id), entry);
       }
     } catch (e) {
-      console.error("Error resetting seat matrix:", e);
+      console.error("Error resetting seat matrix in Firestore:", e);
     }
   };
  
