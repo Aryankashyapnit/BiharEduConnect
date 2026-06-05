@@ -262,12 +262,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const colRef = collection(db, collectionName);
       const snap = await getDocs(colRef);
-      if (snap.empty) {
-        console.log(`Seeding Firestore collection: ${collectionName}`);
+      if (snap.size < defaultData.length) {
+        console.log(`Seeding/Updating Firestore collection: ${collectionName} (${snap.size} currently, seeding ${defaultData.length})`);
         let idx = 0;
         for (const item of defaultData) {
           const id = getId(item, idx);
-          await setDoc(doc(db, collectionName, id), item as any);
+          try {
+            await setDoc(doc(db, collectionName, id), item as any);
+          } catch (itemErr) {
+            console.error(`Error seeding document ${id} in ${collectionName}:`, itemErr);
+          }
           idx++;
         }
       }
@@ -293,7 +297,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (typeof window === "undefined") return;
 
     const performSeedingAndSetup = async () => {
-      await seedCollectionIfEmpty("colleges", collegesData, (c) => c.id);
+      // Clean up base64 images from colleges default data during seed to prevent Firestore document size limit issues (1MB)
+      const dataToSeed = collegesData.map(c => {
+        const isBase64 = c.image && c.image.startsWith("data:image/");
+        return {
+          ...c,
+          image: isBase64 ? "" : c.image
+        };
+      });
+      await seedCollectionIfEmpty("colleges", dataToSeed, (c) => c.id);
       await seedCollectionIfEmpty("cutoffs", cutoffsData, (c) => c.id || `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
       await seedCollectionIfEmpty("seat_matrix", seatMatrixData, (s) => `${s.collegeCode}_${s.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`);
       await seedCollectionIfEmpty("bulk_files", defaultBulkFiles, (b) => b.name.replace(/[^a-zA-Z0-9]/g, "_"));
@@ -319,8 +331,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Setup Snapshot listeners
     const unsubColleges = onSnapshot(collection(db, "colleges"), (snap) => {
       const list: College[] = [];
-      snap.forEach((d) => list.push(d.data() as College));
-      if (list.length > 0) setColleges(list);
+      snap.forEach((d) => {
+        const firestoreCollege = d.data() as College;
+        const localCollege = collegesData.find(c => c.id === firestoreCollege.id);
+        const image = (firestoreCollege.image && !firestoreCollege.image.startsWith("data:image/"))
+          ? firestoreCollege.image
+          : (localCollege ? localCollege.image : firestoreCollege.image);
+        list.push({
+          ...firestoreCollege,
+          image: image || ""
+        });
+      });
+      if (list.length > 0) {
+        // Sort colleges to match the original index ordering in collegesData
+        list.sort((a, b) => {
+          const indexA = collegesData.findIndex(c => c.id === a.id);
+          const indexB = collegesData.findIndex(c => c.id === b.id);
+          return indexA - indexB;
+        });
+        setColleges(list);
+      }
     });
 
     const unsubCutoffs = onSnapshot(collection(db, "cutoffs"), (snap) => {
