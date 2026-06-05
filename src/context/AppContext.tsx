@@ -66,6 +66,7 @@ export interface VisitorLog {
   percentile?: number;
   visitCount: number;
   lastVisitTime: string;
+  lastVisitTimestamp?: number;
   role: "Standard" | "Guest" | "Anonymous";
   totalSessionTime?: number;
   lastActivity?: number;
@@ -475,6 +476,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           email: emailClean,
           percentile: currentUser.percentile || 0,
           lastVisitTime: timeStr,
+          lastVisitTimestamp: Date.now(),
           lastActivity: Date.now(),
           role: currentUser.email && !currentUser.email.includes(".demo@") ? "Standard" : "Guest"
         };
@@ -497,6 +499,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: `Anonymous Guest #${anonId}`,
           email: `anonymous.${anonId}@bihareduconnect.in`,
           lastVisitTime: timeStr,
+          lastVisitTimestamp: Date.now(),
           lastActivity: Date.now(),
           role: "Anonymous"
         };
@@ -521,9 +524,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Stable order ref: stores the sorted ID order so rows don't jump on every update
-  const logsOrderRef = React.useRef<string[]>([]);
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const sessionVisitedLog = sessionStorage.getItem("bihareduconnect_session_visited_log");
@@ -531,9 +531,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sessionStorage.setItem("bihareduconnect_session_visited_log", "true");
         recordVisit(user);
       }
-      
-      // Reset order ref when user changes (fresh login)
-      logsOrderRef.current = [];
 
       // Setup Firebase real-time listener for visitor logs
       const unsubscribe = onSnapshot(collection(db, "visitor_logs"), (snapshot) => {
@@ -546,27 +543,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           globalVisits += data.visitCount || 1;
         });
 
-        // Find IDs that are genuinely new (not seen before)
-        const existingIds = new Set(logsOrderRef.current);
-        const newIds = [...incomingMap.keys()].filter(id => !existingIds.has(id));
+        const logsList = Array.from(incomingMap.values());
 
-        if (newIds.length > 0) {
-          // Sort only the NEW entries by lastActivity descending
-          const newEntries = newIds.map(id => incomingMap.get(id)!);
-          newEntries.sort((a, b) => {
-            const timeA = a.lastActivity || new Date(a.lastVisitTime).getTime() || 0;
-            const timeB = b.lastActivity || new Date(b.lastVisitTime).getTime() || 0;
-            return timeB - timeA;
-          });
-          // Prepend new entries to the stable order (newest first)
-          logsOrderRef.current = [...newEntries.map(e => e.id), ...logsOrderRef.current];
-        }
+        // Robust helper to get the last visit time for sorting
+        const getLogTime = (log: VisitorLog) => {
+          if (log.lastVisitTimestamp) return log.lastVisitTimestamp;
+          if (log.lastVisitTime) {
+            const parsed = new Date(log.lastVisitTime).getTime();
+            if (!isNaN(parsed)) return parsed;
+          }
+          return log.lastActivity || 0;
+        };
 
-        // Build the final logs array using stable order, updating data in-place
-        const stableIds = logsOrderRef.current.filter(id => incomingMap.has(id));
-        const stableLogs = stableIds.map(id => incomingMap.get(id)!);
+        // Sort globally by visit time descending
+        logsList.sort((a, b) => getLogTime(b) - getLogTime(a));
 
-        setVisitorLogs(stableLogs);
+        setVisitorLogs(logsList);
         
         // Update totalVisits globally based on live Firebase data
         // We add a baseline of 124 (the original hardcoded mock data baseline)
@@ -575,7 +567,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.error("Firebase snapshot error: ", error);
         // Fallback to local storage if firebase fails
         const stored = localStorage.getItem("bihareduconnect_visitor_logs");
-        if (stored) setVisitorLogs(JSON.parse(stored));
+        if (stored) {
+          try {
+            const parsedLogs = JSON.parse(stored) as VisitorLog[];
+            const getLogTime = (log: VisitorLog) => {
+              if (log.lastVisitTimestamp) return log.lastVisitTimestamp;
+              if (log.lastVisitTime) {
+                const parsed = new Date(log.lastVisitTime).getTime();
+                if (!isNaN(parsed)) return parsed;
+              }
+              return log.lastActivity || 0;
+            };
+            parsedLogs.sort((a, b) => getLogTime(b) - getLogTime(a));
+            setVisitorLogs(parsedLogs);
+          } catch (e) {
+            console.error("Failed to parse fallback visitor logs", e);
+          }
+        }
       });
       // Setup Firebase real-time listener for registered users
       const unsubscribeUsers = onSnapshot(collection(db, "registered_users"), (snapshot) => {
