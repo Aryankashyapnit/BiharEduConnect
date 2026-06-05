@@ -1479,90 +1479,96 @@ export default function Homepage() {
       </section>
 
       {/* Fixed Interactive Expandable Counseling AI Assistant Chatbot */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-        {/* Chat Drawer Window */}
-        {chatOpen && (
-          <div className="w-80 sm:w-96 h-[450px] rounded-3xl glass-card border border-gray-250 dark:border-slate-850 shadow-2xl flex flex-col overflow-hidden mb-3 animate-fade-in relative backdrop-blur-xl">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808]" />
-            {/* Header */}
-            <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-b border-gray-200/50 dark:border-slate-800/60 flex items-center justify-between backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] flex items-center justify-center text-white text-xs font-black shadow-inner">
-                  <Sparkles className="w-4.5 h-4.5 text-white animate-pulse" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-slate-850 dark:text-gray-150">Counselling Assistant</h4>
-                  <span className="text-[9px] text-emerald-500 font-extrabold flex items-center gap-1 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                    Active Help Node
-                  </span>
-                </div>
+      {/* Chat Drawer Window */}
+      {chatOpen && (
+        <div className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[450px] rounded-3xl glass-card border border-gray-250 dark:border-slate-850 shadow-2xl flex flex-col overflow-hidden animate-fade-in backdrop-blur-xl">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808]" />
+          {/* Header */}
+          <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-b border-gray-200/50 dark:border-slate-800/60 flex items-center justify-between backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] flex items-center justify-center text-white text-xs font-black shadow-inner">
+                <Sparkles className="w-4.5 h-4.5 text-white animate-pulse" />
               </div>
-              <button
-                onClick={() => setChatOpen(false)}
-                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-905 rounded-lg text-gray-405 hover:text-slate-800 dark:hover:text-white cursor-pointer transition-colors"
+              <div>
+                <h4 className="text-xs font-black text-slate-850 dark:text-gray-150">Counselling Assistant</h4>
+                <span className="text-[9px] text-emerald-500 font-extrabold flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  Active Help Node
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setChatOpen(false)}
+              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-905 rounded-lg text-gray-405 hover:text-slate-800 dark:hover:text-white cursor-pointer transition-colors"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
+          </div>
+
+          {/* Chat Body messages area */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/20 dark:bg-slate-950/10">
+            {chatMessages.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
               >
-                <X className="w-4.5 h-4.5" />
-              </button>
-            </div>
-
-            {/* Chat Body messages area */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/20 dark:bg-slate-950/10">
-              {chatMessages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className={`max-w-[85%] p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${
-                    msg.sender === "user"
-                      ? "bg-[#2563EB] text-white rounded-tr-none"
-                      : "bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-gray-200 rounded-tl-none border border-gray-150 dark:border-slate-850"
-                  }`}>
-                    {msg.text}
-                  </div>
+                <div className={`max-w-[85%] p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${
+                  msg.sender === "user"
+                    ? "bg-[#2563EB] text-white rounded-tr-none"
+                    : "bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-gray-200 rounded-tl-none border border-gray-150 dark:border-slate-850"
+                }`}>
+                  {msg.text}
                 </div>
-              ))}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="p-3 rounded-2xl rounded-tl-none bg-slate-50 dark:bg-slate-900 text-gray-400 border border-gray-150 dark:border-slate-850 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
-                    <span className="animate-bounce">●</span>
-                    <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>●</span>
-                    <span className="animate-bounce" style={{ animationDelay: "0.4s" }}>●</span>
-                    <span className="text-[10px] text-gray-400 font-bold ml-1 uppercase tracking-wider">Thinking...</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Chat Footer preset questions drawer */}
-            <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-t border-gray-200/50 dark:border-slate-800/60 space-y-2 backdrop-blur-md">
-              <span className="text-[9px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-wider block">Ask preset counseling questions</span>
-              <div className="flex flex-wrap gap-1.5">
-                {chatbotQuestions.map((q, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleAskQuestion(q.q, q.a)}
-                    disabled={isTyping}
-                    className="px-2.5 py-1.5 rounded-lg bg-white/80 dark:bg-slate-900/80 text-[10px] text-slate-750 dark:text-gray-300 font-extrabold border border-gray-200 dark:border-slate-800 hover:border-[#2563EB] hover:text-[#2563EB] dark:hover:text-[#60a5fa] disabled:opacity-50 transition-all duration-300 cursor-pointer shadow-sm"
-                  >
-                    {q.q}
-                  </button>
-                ))}
               </div>
+            ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="p-3 rounded-2xl rounded-tl-none bg-slate-50 dark:bg-slate-900 text-gray-400 border border-gray-150 dark:border-slate-850 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
+                  <span className="animate-bounce">●</span>
+                  <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>●</span>
+                  <span className="animate-bounce" style={{ animationDelay: "0.4s" }}>●</span>
+                  <span className="text-[10px] text-gray-400 font-bold ml-1 uppercase tracking-wider">Thinking...</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Chat Footer preset questions drawer */}
+          <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-t border-gray-200/50 dark:border-slate-800/60 space-y-2 backdrop-blur-md">
+            <span className="text-[9px] text-gray-400 dark:text-gray-550 font-black uppercase tracking-wider block">Ask preset counseling questions</span>
+            <div className="flex flex-wrap gap-1.5">
+              {chatbotQuestions.map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleAskQuestion(q.q, q.a)}
+                  disabled={isTyping}
+                  className="px-2.5 py-1.5 rounded-lg bg-white/80 dark:bg-slate-900/80 text-[10px] text-slate-750 dark:text-gray-300 font-extrabold border border-gray-200 dark:border-slate-800 hover:border-[#2563EB] hover:text-[#2563EB] dark:hover:text-[#60a5fa] disabled:opacity-50 transition-all duration-300 cursor-pointer shadow-sm"
+                >
+                  {q.q}
+                </button>
+              ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Toggle Expand Bubble Button */}
-        <button
-          onClick={() => setChatOpen(!chatOpen)}
-          className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] hover:shadow-2xl text-white shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer relative group btn-premium border border-white/10"
-        >
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] animate-ping opacity-25 group-hover:opacity-40" />
-          <MessageSquare className="w-6 h-6 text-white group-hover:rotate-6 transition-transform relative z-10" />
-          <Sparkles className="w-3.5 h-3.5 absolute top-2 right-2 text-white animate-pulse relative z-10" />
-        </button>
-      </div>
+      {/* Toggle Expand Bubble Button */}
+      <button
+        onClick={() => setChatOpen(!chatOpen)}
+        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] hover:shadow-2xl text-white shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group btn-premium border border-white/10"
+      >
+        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] animate-ping opacity-25 group-hover:opacity-40" />
+        <div className="relative w-6 h-6 flex items-center justify-center">
+          {chatOpen ? (
+            <X className="w-6 h-6 text-white transition-transform duration-300 rotate-90" />
+          ) : (
+            <>
+              <MessageSquare className="w-6 h-6 text-white group-hover:rotate-6 transition-transform relative z-10" />
+              <Sparkles className="w-3.5 h-3.5 absolute -top-1 -right-1 text-white animate-pulse relative z-10" />
+            </>
+          )}
+        </div>
+      </button>
 
     </div>
   );
