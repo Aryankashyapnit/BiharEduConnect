@@ -78,7 +78,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Navigation Links */}
           {user && !user.isAdmin && !isAdminRoute && (
-            <nav className="hidden lg:flex items-center p-1 space-x-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl">
+            <nav className="hidden lg:flex items-center p-1 space-x-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl ml-8 mr-4">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link.href);
