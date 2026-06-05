@@ -263,12 +263,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const colRef = collection(db, collectionName);
       const snap = await getDocs(colRef);
       if (snap.size < defaultData.length) {
-        console.log(`Seeding/Updating Firestore collection: ${collectionName} (${snap.size} currently, seeding ${defaultData.length})`);
+        console.log(`Seeding missing documents in Firestore collection: ${collectionName} (${snap.size} currently, target ${defaultData.length})`);
         let idx = 0;
         for (const item of defaultData) {
           const id = getId(item, idx);
           try {
-            await setDoc(doc(db, collectionName, id), item as any);
+            const docRef = doc(db, collectionName, id);
+            const docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) {
+              await setDoc(docRef, item as any);
+              console.log(`Successfully seeded missing document: ${id} in ${collectionName}`);
+            }
           } catch (itemErr) {
             console.error(`Error seeding document ${id} in ${collectionName}:`, itemErr);
           }
