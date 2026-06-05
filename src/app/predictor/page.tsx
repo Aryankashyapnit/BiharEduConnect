@@ -690,8 +690,8 @@ export default function CollegePredictor() {
           ) : (
             <div className="space-y-6 animate-fade-in">
               {/* Output Controls Bar */}
-              <div className="glass-card rounded-2xl p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
+              <div className="glass-card rounded-2xl p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="text-left">
                   <h3 className="font-extrabold text-slate-800 dark:text-white text-base">
                     Predictions Found ({filteredPredictions.length})
                   </h3>
@@ -700,12 +700,12 @@ export default function CollegePredictor() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                   {/* Chance Filter */}
                   <select
                     value={filterChance}
                     onChange={(e) => setFilterChance(e.target.value)}
-                    className="px-3 py-1.5 text-xs font-semibold border border-gray-200 dark:border-slate-800 rounded-lg bg-gray-50/50 dark:bg-slate-950/60 dark:text-white cursor-pointer focus:outline-none focus:border-[#FF9933]"
+                    className="w-full sm:w-auto px-3 py-2 text-xs font-semibold border border-gray-250 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-950/60 dark:text-white cursor-pointer focus:outline-none focus:border-[#FF9933]"
                   >
                     <option value="All">All Chances</option>
                     <option value="High">High Chance</option>
@@ -717,7 +717,7 @@ export default function CollegePredictor() {
                   <select
                     value={filterBranch}
                     onChange={(e) => setFilterBranch(e.target.value)}
-                    className="px-3 py-1.5 text-xs font-semibold border border-gray-200 dark:border-slate-800 rounded-lg bg-gray-50/50 dark:bg-slate-950/60 dark:text-white cursor-pointer focus:outline-none focus:border-[#FF9933]"
+                    className="w-full sm:w-auto px-3 py-2 text-xs font-semibold border border-gray-255 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-950/60 dark:text-white cursor-pointer focus:outline-none focus:border-[#FF9933]"
                   >
                     <option value="All">All Branches</option>
                     {uniqueBranches.map((br) => (
@@ -728,10 +728,10 @@ export default function CollegePredictor() {
                   </select>
 
                   {/* Export Options */}
-                  <div className="no-print">
+                  <div className="w-full sm:w-auto no-print">
                     <button
                       onClick={handlePrint}
-                      className="px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/60 hover:bg-[#2563EB] hover:text-white dark:hover:bg-[#2563EB] hover:border-transparent text-gray-600 dark:text-gray-300 cursor-pointer transition-all duration-300 flex items-center gap-1.5 text-xs font-extrabold shadow-sm hover:shadow-md hover-lift"
+                      className="w-full sm:w-auto px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/60 hover:bg-[#2563EB] hover:text-white dark:hover:bg-[#2563EB] hover:border-transparent text-gray-600 dark:text-gray-300 cursor-pointer transition-all duration-300 flex items-center justify-center gap-1.5 text-xs font-extrabold shadow-sm hover:shadow-md hover-lift"
                       title="Print or Save PDF Report"
                     >
                       <Download className="w-4 h-4" />
