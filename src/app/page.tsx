@@ -22,10 +22,6 @@ import {
   ChevronUp,
   FileText,
   ShieldAlert,
-  Plus,
-  Edit,
-  Trash2,
-  Save,
   X,
   SlidersHorizontal,
   Building,
@@ -948,8 +944,8 @@ export default function Homepage() {
                 <h4 className="text-sm font-extrabold text-slate-800 dark:text-white">{test.student}</h4>
                 <span className="text-[10px] text-gray-400 font-bold block mt-0.5">{test.college}</span>
               </div>
-            </d   </div>
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
