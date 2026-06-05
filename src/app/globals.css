@@ -170,6 +170,9 @@ button:not(:disabled),
   position: relative;
   transition: transform 0.25s cubic-bezier(0.34, 1.65, 0.66, 1), box-shadow 0.25s cubic-bezier(0.34, 1.65, 0.66, 1), background-color 0.15s ease, border-color 0.15s ease, filter 0.15s ease !important;
   cursor: pointer;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 button:not(:disabled):hover,
@@ -228,6 +231,8 @@ button:not(:disabled):active,
 
 .animate-float {
   animation: float 4.5s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
 /* Shine text */
@@ -278,6 +283,9 @@ input:not([type="checkbox"]):focus, select:focus, textarea:focus {
 /* Soft Hover Borders on Glassmorphic Cards */
 .glass-card {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease !important;
+  will-change: transform, box-shadow;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .glass-card:hover {

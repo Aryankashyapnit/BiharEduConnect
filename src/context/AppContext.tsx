@@ -199,8 +199,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [colleges, setColleges] = useState<College[]>(collegesData);
-  const [cutoffs, setCutoffs] = useState<Cutoff[]>(cutoffsData);
-  const [seatMatrix, setSeatMatrix] = useState<SeatMatrixEntry[]>(seatMatrixData);
+  const [cutoffs, setCutoffs] = useState<Cutoff[]>([]);
+  const [seatMatrix, setSeatMatrix] = useState<SeatMatrixEntry[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [savedPredictions, setSavedPredictions] = useState<SavedPrediction[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -235,6 +235,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const storedBlocked = localStorage.getItem("bihareduconnect_blocked_emails");
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
+
+      const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
+      if (storedCutoffs) {
+        try {
+          setCutoffs(JSON.parse(storedCutoffs));
+        } catch (e) {
+          console.error("Failed to parse cached cutoffs", e);
+        }
+      }
+
+      const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
+      if (storedSeatMatrix) {
+        try {
+          setSeatMatrix(JSON.parse(storedSeatMatrix));
+        } catch (e) {
+          console.error("Failed to parse cached seat matrix", e);
+        }
+      }
 
       const sessionVisited = sessionStorage.getItem("bihareduconnect_session_visited");
       if (!sessionVisited) {
