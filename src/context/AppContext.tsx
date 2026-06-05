@@ -5,7 +5,8 @@ import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
 import { db } from "../lib/firebase";
-import { collection, doc, setDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment, query, limit } from "firebase/firestore";
+
 
 export interface SavedPrediction {
   id: string;
@@ -272,7 +273,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  // Seeding Helpers
   const seedCollectionIfEmpty = async <T,>(
     collectionName: string,
     defaultData: T[],
@@ -280,19 +280,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   ) => {
     try {
       const colRef = collection(db, collectionName);
-      const snap = await getDocs(colRef);
-      if (snap.size < defaultData.length) {
-        console.log(`Seeding missing documents in Firestore collection: ${collectionName} (${snap.size} currently, target ${defaultData.length})`);
+      const q = query(colRef, limit(1));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        console.log(`Seeding Firestore collection: ${collectionName} (currently empty, target ${defaultData.length})`);
         let idx = 0;
         for (const item of defaultData) {
           const id = getId(item, idx);
           try {
             const docRef = doc(db, collectionName, id);
-            const docSnap = await getDoc(docRef);
-            if (!docSnap.exists()) {
-              await setDoc(docRef, item as any);
-              console.log(`Successfully seeded missing document: ${id} in ${collectionName}`);
-            }
+            await setDoc(docRef, item as any);
+            console.log(`Successfully seeded document: ${id} in ${collectionName}`);
           } catch (itemErr) {
             console.error(`Error seeding document ${id} in ${collectionName}:`, itemErr);
           }
@@ -330,8 +328,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
       });
       await seedCollectionIfEmpty("colleges", dataToSeed, (c) => c.id);
-      await seedCollectionIfEmpty("cutoffs", cutoffsData, (c) => c.id || `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
-      await seedCollectionIfEmpty("seat_matrix", seatMatrixData, (s) => `${s.collegeCode}_${s.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`);
       await seedCollectionIfEmpty("bulk_files", defaultBulkFiles, (b) => b.name.replace(/[^a-zA-Z0-9]/g, "_"));
       await seedCollectionIfEmpty("timeline_events", defaultTimelineEvents, (t) => t.id.toString());
       
@@ -367,47 +363,100 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         });
       });
       if (list.length > 0) {
-        // Sort colleges to match the original index ordering in collegesData
         list.sort((a, b) => {
-          const indexA = collegesData.findIndex(c => c.id === a.id);
-          const indexB = collegesData.findIndex(c => c.id === b.id);
+          let indexA = collegesData.findIndex(c => c.id === a.id);
+          let indexB = collegesData.findIndex(c => c.id === b.id);
+          if (indexA === -1) indexA = 9999;
+          if (indexB === -1) indexB = 9999;
           return indexA - indexB;
         });
         setColleges(list);
       }
+    }, (error) => {
+      console.warn("Colleges listener failed:", error.message);
     });
 
     const unsubCutoffs = onSnapshot(collection(db, "cutoffs"), (snap) => {
       const list: Cutoff[] = [];
       snap.forEach((d) => list.push(d.data() as Cutoff));
-      if (list.length > 0) {
-        setCutoffs(list);
-        localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(list));
+      
+      const merged = [...cutoffsData];
+      list.forEach((firestoreCutoff) => {
+        const index = merged.findIndex(c => 
+          c.collegeCode === firestoreCutoff.collegeCode &&
+          c.branchCode === firestoreCutoff.branchCode &&
+          c.year === firestoreCutoff.year &&
+          c.round === firestoreCutoff.round &&
+          c.category === firestoreCutoff.category
+        );
+        if (index !== -1) {
+          merged[index] = firestoreCutoff;
+        } else {
+          merged.push(firestoreCutoff);
+        }
+      });
+      
+      setCutoffs(merged);
+      localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged));
+    }, (error) => {
+      console.warn("Cutoffs listener failed:", error.message);
+      const stored = localStorage.getItem("bihareduconnect_cutoffs");
+      if (stored) {
+        try {
+          setCutoffs(JSON.parse(stored));
+        } catch (e) {
+          setCutoffs(cutoffsData);
+        }
+      } else {
+        setCutoffs(cutoffsData);
       }
     });
 
     const unsubSeatMatrix = onSnapshot(collection(db, "seat_matrix"), (snap) => {
       const list: SeatMatrixEntry[] = [];
       snap.forEach((d) => list.push(d.data() as SeatMatrixEntry));
-      if (list.length > 0) {
-        setSeatMatrix(list);
-        localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(list));
+      
+      const merged = [...seatMatrixData];
+      list.forEach((entry) => {
+        const index = merged.findIndex(s => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode);
+        if (index !== -1) {
+          merged[index] = entry;
+        } else {
+          merged.push(entry);
+        }
+      });
+      
+      setSeatMatrix(merged);
+      localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged));
+    }, (error) => {
+      console.warn("Seat matrix listener failed:", error.message);
+      const stored = localStorage.getItem("bihareduconnect_seat_matrix");
+      if (stored) {
+        try {
+          setSeatMatrix(JSON.parse(stored));
+        } catch (e) {
+          setSeatMatrix(seatMatrixData);
+        }
+      } else {
+        setSeatMatrix(seatMatrixData);
       }
     });
 
     const unsubBulkFiles = onSnapshot(collection(db, "bulk_files"), (snap) => {
       const list: BulkFile[] = [];
       snap.forEach((d) => list.push(d.data() as BulkFile));
-      if (list.length > 0) setBulkFiles(list);
+      setBulkFiles(list);
+    }, (error) => {
+      console.warn("Bulk files listener failed:", error.message);
     });
 
     const unsubTimeline = onSnapshot(collection(db, "timeline_events"), (snap) => {
       const list: TimelineEvent[] = [];
       snap.forEach((d) => list.push(d.data() as TimelineEvent));
-      if (list.length > 0) {
-        list.sort((a, b) => a.id - b.id);
-        setTimelineEvents(list);
-      }
+      list.sort((a, b) => a.id - b.id);
+      setTimelineEvents(list);
+    }, (error) => {
+      console.warn("Timeline listener failed:", error.message);
     });
 
     const unsubGuides = onSnapshot(collection(db, "guide_steps"), (snap) => {
@@ -420,12 +469,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       const cleanList = list.filter(Boolean);
       if (cleanList.length > 0) setGuideSteps(cleanList);
+    }, (error) => {
+      console.warn("Guides listener failed:", error.message);
     });
 
     const unsubSettings = onSnapshot(doc(db, "settings", "whatsapp"), (snap) => {
       if (snap.exists()) {
         setWhatsappLink(snap.data().link || "https://wa.me/919999999999");
       }
+    }, (error) => {
+      console.warn("Settings listener failed:", error.message);
     });
 
     const unsubChats = onSnapshot(collection(db, "chat_sessions"), (snap) => {
@@ -440,6 +493,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return (b.lastMessageTime || "").localeCompare(a.lastMessageTime || "");
       });
       setChatSessions(list);
+    }, (error) => {
+      console.warn("Chats listener failed:", error.message);
     });
 
     return () => {
@@ -564,7 +619,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // We add a baseline of 124 (the original hardcoded mock data baseline)
         setTotalVisits(124 + globalVisits);
       }, (error) => {
-        console.error("Firebase snapshot error: ", error);
+        console.warn("Firebase snapshot warning (visitor logs): ", error.message);
         // Fallback to local storage if firebase fails
         const stored = localStorage.getItem("bihareduconnect_visitor_logs");
         if (stored) {
@@ -581,7 +636,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             parsedLogs.sort((a, b) => getLogTime(b) - getLogTime(a));
             setVisitorLogs(parsedLogs);
           } catch (e) {
-            console.error("Failed to parse fallback visitor logs", e);
+            console.warn("Failed to parse fallback visitor logs", e);
           }
         }
       });
@@ -593,7 +648,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         });
         setRegisteredUsers(users);
       }, (error) => {
-        console.error("Firebase users snapshot error: ", error);
+        console.warn("Firebase users snapshot warning: ", error.message);
         const stored = localStorage.getItem("bihareduconnect_registered_users");
         if (stored) setRegisteredUsers(JSON.parse(stored));
       });
@@ -749,8 +804,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Dynamic Datastore Handlers
   const addBulkFile = async (file: BulkFile) => {
     try {
-      const docId = file.name.replace(/[^a-zA-Z0-9]/g, "_");
-      await setDoc(doc(db, "bulk_files", docId), file);
+      // Use addDoc to generate a unique ID, avoiding collisions with existing seeded files.
+      const colRef = collection(db, "bulk_files");
+      await addDoc(colRef, file);
     } catch (e) {
       console.error("Error adding bulk file:", e);
     }

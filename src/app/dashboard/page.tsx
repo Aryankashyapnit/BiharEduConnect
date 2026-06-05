@@ -91,14 +91,6 @@ export default function StudentDashboard() {
     setEditNameValue(user?.name || "");
   };
 
-  if (user && user.isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold uppercase tracking-widest text-xs">
-        <span className="animate-pulse">Loading Clearance Credentials...</span>
-      </div>
-    );
-  }
-
   const handleUpgradeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setUpgradeError("");
@@ -447,6 +439,13 @@ export default function StudentDashboard() {
   
   const readinessScore = Math.round(((checklistProgress * 0.3) + (docProgress * 0.5) + (badgesProgress * 0.2)) * 100);
 
+  if (user && user.isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold uppercase tracking-widest text-xs">
+        <span className="animate-pulse">Loading Clearance Credentials...</span>
+      </div>
+    );
+  }
 
   return (
     <AuthGate>

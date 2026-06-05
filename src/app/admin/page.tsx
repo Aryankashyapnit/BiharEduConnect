@@ -127,27 +127,6 @@ export default function AdminDashboard() {
     logout
   } = useApp();
 
-  // Route protection alert
-  if (user && !user.isAdmin) {
-    return (
-      <AuthGate>
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <div className="bg-white dark:bg-slate-900 border border-red-500/20 rounded-3xl p-8 shadow-xl max-w-md mx-auto space-y-4">
-            <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
-              <ShieldAlert className="w-8 h-8" />
-            </div>
-            <h2 className="text-xl font-extrabold text-slate-850 dark:text-white uppercase tracking-wider">
-              Access Denied
-            </h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-              🚫 Administrative clearance level required. Your account (<strong>{user.name}</strong>) does not have sufficient permissions to view the datastore control panel.
-            </p>
-          </div>
-        </div>
-      </AuthGate>
-    );
-  }
-
   // Active navigation tab
   const [activeTab, setActiveTab] = useState<"colleges" | "bulk" | "cutoffs" | "guides" | "timeline" | "students" | "settings">("colleges");
 
@@ -160,6 +139,7 @@ export default function AdminDashboard() {
   const [studentFormPassword, setStudentFormPassword] = useState("");
   const [isEditingStudent, setIsEditingStudent] = useState(false);
   const [editingStudentEmail, setEditingStudentEmail] = useState<string | null>(null);
+  const [visitorLogSort, setVisitorLogSort] = useState<"recent" | "top">("recent");
   
   // Chat Logs viewer states
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -694,6 +674,27 @@ export default function AdminDashboard() {
     updateWhatsappLink(settingsWhatsappLink.trim());
     showNotification("✓ Site configuration settings updated successfully!");
   };
+
+  // Route protection alert
+  if (user && !user.isAdmin) {
+    return (
+      <AuthGate>
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+          <div className="bg-white dark:bg-slate-900 border border-red-500/20 rounded-3xl p-8 shadow-xl max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+            <h2 className="text-xl font-extrabold text-slate-850 dark:text-white uppercase tracking-wider">
+              Access Denied
+            </h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+              🚫 Administrative clearance level required. Your account (<strong>{user.name}</strong>) does not have sufficient permissions to view the datastore control panel.
+            </p>
+          </div>
+        </div>
+      </AuthGate>
+    );
+  }
 
   return (
     <AuthGate>
@@ -1983,13 +1984,13 @@ export default function AdminDashboard() {
         {activeTab === "students" && (
           <div className="space-y-6">
             {/* Stats Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
               {/* Stat 1: Platform Visits */}
               <div className="bg-gradient-to-br from-[#2563EB]/10 to-[#1d4ed8]/5 dark:from-slate-900 dark:to-slate-950 border border-[#2563EB]/15 dark:border-slate-800 rounded-3xl p-5 shadow-sm relative overflow-hidden group">
                 <div className="absolute right-4 top-4 opacity-15 text-[#2563EB] group-hover:scale-110 transform transition-transform duration-300">
                   <Users className="w-10 h-10" />
                 </div>
-                <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">Total Platform Visits</span>
+                <span className="text-[10px] text-gray-550 font-extrabold uppercase tracking-wider block">Total Platform Visits</span>
                 <span className="text-3xl font-black text-slate-800 dark:text-white block mt-1">{totalVisits}</span>
                 <span className="text-[10px] text-[#2563EB] font-bold block mt-1.5 flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -2002,7 +2003,7 @@ export default function AdminDashboard() {
                 <div className="absolute right-4 top-4 opacity-15 text-amber-500 group-hover:scale-110 transform transition-transform duration-300">
                   <Users className="w-10 h-10" />
                 </div>
-                <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">Registered Candidates</span>
+                <span className="text-[10px] text-gray-550 font-extrabold uppercase tracking-wider block">Registered Candidates</span>
                 <span className="text-3xl font-black text-slate-800 dark:text-white block mt-1">{registeredUsers.length}</span>
                 <span className="text-[10px] text-amber-500 font-bold block mt-1.5">
                   Clearance Level: Student merit records
@@ -2014,11 +2015,35 @@ export default function AdminDashboard() {
                 <div className="absolute right-4 top-4 opacity-15 text-[#138808] group-hover:scale-110 transform transition-transform duration-300">
                   <MessageSquare className="w-10 h-10" />
                 </div>
-                <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">AI Chat Enquiries</span>
+                <span className="text-[10px] text-gray-550 font-extrabold uppercase tracking-wider block">AI Chat Enquiries</span>
                 <span className="text-3xl font-black text-slate-800 dark:text-white block mt-1">{chatSessions.length}</span>
                 <span className="text-[10px] text-[#138808] font-bold block mt-1.5">
                   Visitor logs tracked via AI Chatbot
                 </span>
+              </div>
+
+              {/* Stat 4: Top Visitor */}
+              <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:from-slate-900 dark:to-slate-950 border border-purple-500/15 dark:border-slate-800 rounded-3xl p-5 shadow-sm relative overflow-hidden group">
+                <div className="absolute right-4 top-4 opacity-15 text-purple-500 group-hover:scale-110 transform transition-transform duration-300">
+                  <Crown className="w-10 h-10" />
+                </div>
+                <span className="text-[10px] text-gray-550 font-extrabold uppercase tracking-wider block">Top Portal Visitor</span>
+                {(() => {
+                  if (!visitorLogs || visitorLogs.length === 0) {
+                    return <span className="text-3xl font-black text-slate-800 dark:text-white block mt-1">N/A</span>;
+                  }
+                  const topLog = [...visitorLogs].sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0))[0];
+                  return (
+                    <>
+                      <span className="text-lg font-black text-slate-800 dark:text-white block mt-1 truncate" title={topLog.name}>
+                        {topLog.name}
+                      </span>
+                      <span className="text-[10px] text-purple-500 font-bold block mt-1.5 flex items-center gap-1">
+                        🏆 {topLog.visitCount || 0} visits logged
+                      </span>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
@@ -2441,17 +2466,45 @@ export default function AdminDashboard() {
 
             {/* Detailed Platform Visitor Log Tracking Table */}
             <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col gap-4 mt-6">
-              <div className="border-b border-gray-100 dark:border-slate-850 pb-3 text-left">
-                <h3 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-2">
-                  <Database className="w-5 h-5 text-[#138808]" />
-                  <span>Platform Visitor Visit Logging Table</span>
-                  <span className="bg-emerald-500/10 text-emerald-505 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                    Real-time Logs
-                  </span>
-                </h3>
-                <p className="text-[10px] text-gray-400 mt-0.5">
-                  Tracks exactly who loaded the portal, their candidate credentials, JEE percentile, and aggregate visits count.
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-850 pb-3 text-left">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-2">
+                    <Database className="w-5 h-5 text-[#138808]" />
+                    <span>Platform Visitor Visit Logging Table</span>
+                    <span className="bg-emerald-500/10 text-emerald-500 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                      Real-time Logs
+                    </span>
+                  </h3>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    Tracks exactly who loaded the portal, their candidate credentials, JEE percentile, and aggregate visits count.
+                  </p>
+                </div>
+                
+                {/* Sort Segmented Control Toggle */}
+                <div className="flex border border-gray-150 dark:border-slate-800 rounded-xl overflow-hidden p-1 bg-gray-50/50 dark:bg-slate-950/60 self-start sm:self-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisitorLogSort("recent")}
+                    className={`px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                      visitorLogSort === "recent"
+                        ? "bg-[#138808] text-white shadow-sm"
+                        : "text-gray-400 hover:text-slate-700 dark:hover:text-white"
+                    }`}
+                  >
+                    🕒 Recent Visits
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVisitorLogSort("top")}
+                    className={`px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                      visitorLogSort === "top"
+                        ? "bg-amber-500 text-white shadow-sm"
+                        : "text-gray-400 hover:text-[#FF9933]"
+                    }`}
+                  >
+                    🔥 Top Visitors
+                  </button>
+                </div>
               </div>
 
               <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-slate-850">
@@ -2467,13 +2520,36 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-slate-850">
-                    {visitorLogs && visitorLogs.length > 0 ? (
-                      visitorLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                          <td className="p-3.5 font-bold">
-                            <div className="flex items-center gap-2">
-                              <span className="text-slate-800 dark:text-gray-200">{log.name}</span>
-                              {log.role === "Standard" ? (
+                    {(() => {
+                      if (!visitorLogs || visitorLogs.length === 0) {
+                        return (
+                          <tr>
+                            <td colSpan={6} className="p-6 text-center text-gray-400">
+                              No visitor logs captured yet.
+                            </td>
+                          </tr>
+                        );
+                      }
+                      
+                      const maxVisits = Math.max(...visitorLogs.map(l => l.visitCount || 0));
+                      const sortedLogs = [...visitorLogs];
+                      if (visitorLogSort === "top") {
+                        sortedLogs.sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0));
+                      }
+                      
+                      return sortedLogs.map((log) => {
+                        const isTopVisitor = log.visitCount && log.visitCount === maxVisits && maxVisits > 0;
+                        return (
+                          <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                            <td className="p-3.5 font-bold">
+                              <div className="flex items-center gap-2">
+                                <span className="text-slate-800 dark:text-gray-200">{log.name}</span>
+                                {isTopVisitor && (
+                                  <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[8px] font-extrabold uppercase flex items-center gap-1 shrink-0">
+                                    <Crown className="w-2.5 h-2.5 text-amber-500" /> Top Visitor
+                                  </span>
+                                )}
+                                {log.role === "Standard" ? (
                                 <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 text-[8px] font-extrabold uppercase">
                                   Standard
                                 </span>
@@ -2506,14 +2582,9 @@ export default function AdminDashboard() {
                             {log.lastVisitTime}
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={6} className="p-6 text-center text-gray-400">
-                          No visitor logs captured yet.
-                        </td>
-                      </tr>
-                    )}
+                        );
+                      });
+                    })()}
                   </tbody>
                 </table>
               </div>

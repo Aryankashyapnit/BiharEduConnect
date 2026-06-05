@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, setLogLevel } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDJoxUDi_ityt7t2mpHJ9veO9WPST_l7WY",
@@ -14,5 +14,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
+
+// Mute internal logging (such as quota exceeded errors/warnings) in console
+setLogLevel("silent");
 
 export { app, db };

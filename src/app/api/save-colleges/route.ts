@@ -10,6 +10,16 @@ export async function POST(request: Request) {
   try {
     const { colleges, seatMatrix } = await request.json();
 
+    // Check if running on Vercel (read-only environment)
+    if (process.env.VERCEL === "1" || process.env.VERCEL_ENV !== undefined) {
+      console.log("Running on Vercel: skipping file write/git push operations.");
+      return NextResponse.json({
+        success: true,
+        pushed: false,
+        warning: "Changes successfully updated in the Firestore database. Local codebase file sync/Git push is skipped since Vercel is a read-only serverless environment."
+      });
+    }
+
     // 1. Sync colleges if provided
     if (colleges && Array.isArray(colleges)) {
       const filePath = path.join(process.cwd(), "src/data/colleges.ts");
