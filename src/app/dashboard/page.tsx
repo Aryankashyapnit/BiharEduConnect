@@ -31,7 +31,8 @@ import {
   RefreshCcw,
   Edit2,
   Check,
-  X
+  X,
+  Laptop
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -681,6 +682,38 @@ export default function StudentDashboard() {
                     )}
                   </div>
                 </div>
+
+                {/* AI Preference Sheet Simulator Card */}
+                <div className="glass-card hover-lift rounded-2xl p-6 relative overflow-hidden bg-gradient-to-br from-[#2563EB]/5 to-transparent border border-gray-150 dark:border-slate-800">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9933] to-[#138808]" />
+                  
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="p-3 bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60a5fa] rounded-xl shrink-0">
+                      <Laptop className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-slate-850 dark:text-white text-left">
+                        Preference Sheet Worksheet
+                      </h3>
+                      <p className="text-[10px] text-gray-500 font-semibold mt-1 text-left">
+                        Build and optimize your college choice arrangement using our real-time AI analyzer.
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-600 dark:text-gray-300 font-semibold leading-relaxed mb-5 text-left">
+                    Order your options, evaluate your list's health index score, check location details, and print/share your locked list.
+                  </p>
+
+                  <Link
+                    href="/choices"
+                    className="w-full py-2.5 bg-gradient-to-r from-[#2563EB] to-[#1d4ed8] text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg hover:from-[#1d4ed8] hover:to-[#173eab] flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.01] transition-all"
+                  >
+                    Open Simulator
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+
               </div>
             </div>
             

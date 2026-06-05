@@ -18,7 +18,8 @@ import {
   GitCompare,
   Compass,
   User,
-  Clock
+  Clock,
+  Laptop
 } from "lucide-react";
 
 export const Navbar: React.FC = () => {
@@ -38,6 +39,7 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { href: "/colleges", label: "Colleges DB", icon: GraduationCap },
     { href: "/predictor", label: "Predictor", icon: Compass },
+    { href: "/choices", label: "Preference Sheet", icon: Laptop },
     { href: "/cutoffs", label: "Cutoffs", icon: TrendingUp },
     { href: "/compare", label: "Compare Tools", icon: GitCompare },
     { href: "/guide", label: "Counselling Guide", icon: Info },
