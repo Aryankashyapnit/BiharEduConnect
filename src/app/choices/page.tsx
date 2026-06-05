@@ -12,7 +12,13 @@ import {
   FileText, 
   MessageSquare, 
   Compass, 
-  Sparkles 
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
+  HelpCircle,
+  Info,
+  ArrowUpDown,
+  UserCheck
 } from "lucide-react";
 
 interface Choice {
@@ -25,12 +31,24 @@ interface Choice {
 }
 
 export default function ChoiceSimulatorPage() {
-  const { colleges } = useApp();
+  const { colleges, cutoffs, user } = useApp();
 
   const [choices, setChoices] = useState<Choice[]>([]);
   const [simCollegeId, setSimCollegeId] = useState("");
   const [simBranchName, setSimBranchName] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Personalized Counseling States
+  const [percentileInput, setPercentileInput] = useState<number | "">(85);
+  const [categoryInput, setCategoryInput] = useState("UR");
+  const [genderInput, setGenderInput] = useState("Co-ed");
+
+  // Sync with user context when loaded
+  useEffect(() => {
+    if (user && user.percentile) {
+      setPercentileInput(user.percentile);
+    }
+  }, [user]);
 
   // Load initial choices from localStorage
   useEffect(() => {
@@ -43,11 +61,11 @@ export default function ChoiceSimulatorPage() {
           console.error("Failed to parse stored choices", e);
         }
       } else {
-        // Default initial choices
+        // Default initial choices (Using exact database college codes so cutoff lookup matches)
         setChoices([
-          { id: "choice-1", collegeName: "Muzaffarpur Institute of Technology", collegeCode: "MIT-MUZ", branchName: "CSE", branchCode: "CSE", avgPackage: 6.2 },
-          { id: "choice-2", collegeName: "Bhagalpur College of Engineering", collegeCode: "BCE-BHG", branchName: "CSE", branchCode: "CSE", avgPackage: 5.8 },
-          { id: "choice-3", collegeName: "Muzaffarpur Institute of Technology", collegeCode: "MIT-MUZ", branchName: "ECE", branchCode: "ECE", avgPackage: 5.2 }
+          { id: "choice-1", collegeName: "Muzaffarpur Institute of Technology", collegeCode: "MIT-MUZAFFARPUR", branchName: "CSE", branchCode: "CSE", avgPackage: 6.2 },
+          { id: "choice-2", collegeName: "Bhagalpur College of Engineering", collegeCode: "BCE-BHAGALPUR", branchName: "CSE", branchCode: "CSE", avgPackage: 5.8 },
+          { id: "choice-3", collegeName: "Muzaffarpur Institute of Technology", collegeCode: "MIT-MUZAFFARPUR", branchName: "ECE", branchCode: "ECE", avgPackage: 5.2 }
         ]);
       }
       setIsLoaded(true);
@@ -109,59 +127,189 @@ export default function ChoiceSimulatorPage() {
     saveToLocalStorage(updated);
   };
 
+  // Helper: Estimate UGEAC Rank from Percentile
+  const getEstimatedRank = () => {
+    const pctVal = Number(percentileInput);
+    if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) return 1000;
+    const factor = (100 - pctVal);
+    const targetRank = Math.round(10 * Math.pow(factor, 1.7) + 1);
+    return Math.max(1, targetRank);
+  };
+
+  const estimatedRank = getEstimatedRank();
+
+  // Helper: Get Closing Cutoff Rank for a choice under chosen Category/Gender
+  const getChoiceClosingRank = (choice: Choice) => {
+    if (!cutoffs || cutoffs.length === 0) return 2000;
+    
+    // Find matching cutoff row for 2025 (latest), Round 1, selected Category and Gender
+    const match = cutoffs.find(
+      c => c.collegeCode === choice.collegeCode && 
+           c.branchCode === choice.branchCode && 
+           c.year === 2025 && 
+           c.round === 1 && 
+           c.category === categoryInput
+    );
+    
+    if (match) return match.closingRank;
+
+    // Fallback general base calculation
+    const baseRanks: Record<string, number> = {
+      "MIT-MUZAFFARPUR": 240,
+      "BCE-BHAGALPUR": 450,
+      "BCE-BAKHTIYARPUR": 680,
+      "GCE-GAYA": 850,
+      "DCE-DARBHANGA": 920,
+      "NCE-CHANDI": 980,
+      "MCE-MOTIHARI": 1200,
+      "GEC-JEHANABAD": 2200,
+      "GEC-MUNGER": 2250
+    };
+    const base = baseRanks[choice.collegeCode] || 1500;
+    return base;
+  };
+
+  // Helper: Classify a choice relative to estimated rank
+  const getChoiceClassification = (choice: Choice) => {
+    const closingRank = getChoiceClosingRank(choice);
+    // If closing rank is significantly smaller than estimated rank, it's a dream
+    if (closingRank < estimatedRank * 0.85) {
+      return { label: "Dream", style: "bg-red-500/10 text-red-600 border-red-500/20", icon: "🚀" };
+    }
+    // If closing rank is near estimated rank, it's realistic
+    if (closingRank <= estimatedRank * 1.35) {
+      return { label: "Realistic", style: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: "🎯" };
+    }
+    // Otherwise, it's a safety backup
+    return { label: "Safety", style: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20", icon: "🛡️" };
+  };
+
+  // Core Evaluation Engine
   const getChoiceQualityReport = () => {
     let score = 100;
+    const blockingErrors: { index1: number; index2: number; c1: Choice; c2: Choice; r1: number; r2: number }[] = [];
     const warnings: string[] = [];
     const successes: string[] = [];
+    
+    let dreamCount = 0;
+    let realisticCount = 0;
+    let safetyCount = 0;
 
     if (!isLoaded || choices.length === 0) {
-      return { score: 0, warnings: ["Add some choices to calculate preference sheet quality."], successes: [] };
+      return { 
+        score: 0, 
+        warnings: ["Add some choices to calculate preference sheet quality."], 
+        successes: [], 
+        blockingErrors: [],
+        dreamCount: 0,
+        realisticCount: 0,
+        safetyCount: 0
+      };
     }
 
-    // Rule 1: Length check
+    // 1. Length check
     if (choices.length < 5) {
       score -= 25;
-      warnings.push("⚠️ Too few choices. Place at least 5-10 options to safeguard your round allocations.");
+      warnings.push("Too few choices: Add at least 5-10 options to safeguard against getting zero college allocations.");
     } else if (choices.length < 10) {
       score -= 10;
-      warnings.push("⚠️ Listing under 10 choices increases allocation slip-out risk. Try adding 3-5 more district backup colleges.");
+      warnings.push("Moderate risk: Listing under 10 choices increases slip-out risk. Try adding 3-5 more backup options.");
     } else {
-      successes.push("✓ Safe range: Your sheet contains a healthy number of choices.");
+      successes.push("Safe count: Your preference sheet contains a healthy number of choices.");
     }
 
-    // Rule 2: Choice ordering check (Placement validation)
-    let orderViolation = false;
-    for (let i = 0; i < choices.length - 1; i++) {
-      const current = choices[i];
-      const next = choices[i + 1];
-      
-      if (current.branchCode === next.branchCode && current.avgPackage < next.avgPackage) {
-        orderViolation = true;
-        warnings.push(`⚠️ Quality Warning: You placed ${current.collegeCode} (${current.avgPackage} LPA) above ${next.collegeCode} (${next.avgPackage} LPA) for ${current.branchCode}. Check if you prefer the location of ${current.collegeCode}.`);
-        score -= 10;
-        break; // Show one placement warning to avoid clutter
+    // 2. Classify list and compile counts
+    choices.forEach(c => {
+      const cls = getChoiceClassification(c);
+      if (cls.label === "Dream") dreamCount++;
+      else if (cls.label === "Realistic") realisticCount++;
+      else safetyCount++;
+    });
+
+    // 3. Blocking Order Check (The critical check requested by user)
+    // Checks if a student placed an easy-to-get college (high cutoff rank) above a hard-to-get college (low cutoff rank)
+    for (let i = 0; i < choices.length; i++) {
+      const r1 = getChoiceClosingRank(choices[i]);
+      for (let j = i + 1; j < choices.length; j++) {
+        const r2 = getChoiceClosingRank(choices[j]);
+        // If a choice placed higher (choice i) has a much larger closing rank (meaning it is significantly easier to get)
+        // than a choice placed lower (choice j).
+        if (r1 > r2 + 250) {
+          blockingErrors.push({
+            index1: i,
+            index2: j,
+            c1: choices[i],
+            c2: choices[j],
+            r1,
+            r2
+          });
+        }
       }
     }
-    if (!orderViolation) {
-      successes.push("✓ Optimal Ranking: Top placement colleges are correctly prioritised at the head of your list.");
+
+    // Deduct points for blocking errors
+    if (blockingErrors.length > 0) {
+      // Deduct 15 points per blocking pair, max 45 points
+      const deduction = Math.min(blockingErrors.length * 15, 45);
+      score -= deduction;
+      warnings.push(`Blocking Sequence Error: You placed an easier backup college above a highly competitive dream college. This blocks your dream options.`);
+    } else {
+      successes.push("Perfect Sequence: Choices are sorted correctly from most competitive to safe backup options.");
     }
 
-    // Rule 3: Backup check
-    const hasTopTier = choices.some(c => c.collegeCode === "MITM" || c.collegeCode === "BCEB" || c.collegeCode === "MIT-MUZ" || c.collegeCode === "BCE-BHG");
-    if (!hasTopTier) {
-      warnings.push("💡 Tip: Consider adding premier state nodes like MIT Muzaffarpur or BCE Bhagalpur as top dream preferences.");
-    } else {
-      successes.push("✓ Aspirational Mix: Premier state nodes are included in your preference lock.");
+    // 4. Mix balance checks
+    if (choices.length > 0) {
+      if (safetyCount === 0) {
+        score -= 15;
+        warnings.push("No Safety Backup: Add at least 2 safety colleges (closing rank > estimated rank) at the bottom to secure an allocation.");
+      } else {
+        successes.push(`Includes Safety: You have ${safetyCount} backup option(s) at the bottom of your sheet.`);
+      }
+
+      if (dreamCount === 0) {
+        score -= 10;
+        warnings.push("No Dream Choices: Add 2-3 highly competitive colleges at the very top. There is no risk in listing top-tier options first!");
+      }
     }
 
     return {
       score: Math.max(score, 10),
       warnings,
-      successes
+      successes,
+      blockingErrors,
+      dreamCount,
+      realisticCount,
+      safetyCount
     };
   };
 
   const choiceReport = getChoiceQualityReport();
+
+  // Counseling Bhaiya's Hinglish advice bubble
+  const getCounsellingBhaiyaMessage = () => {
+    if (choices.length === 0) {
+      return "Arre! Pehle upper selector se kuch colleges aur engineering branches add karo preference list me, tab mai check karke guide karunga!";
+    }
+
+    if (choiceReport.blockingErrors.length > 0) {
+      const firstError = choiceReport.blockingErrors[0];
+      return `Galti pakdi gayi! 🛑 Aapne high cutoff rank wale college (${firstError.c1.collegeCode}) ko top preference me rakha hai aur aapse behtar placement wale college (${firstError.c2.collegeCode}) ko niche rakha hai. Bihar UGEAC me computer upper preferences ko pehle check karta hai. Agar aap dono ke liye qualify karenge, toh automatically aapko niche tier wala college mil jayega, aur behtar college lock ho jayega! Niche order adjust karein.`;
+    }
+
+    if (choiceReport.safetyCount === 0) {
+      return `Risky List! ⚠️ Aapne rank #${estimatedRank} ke hisab se backup/safety colleges list me add nahi kiye hain. Agar category/cutoff fluctuations hui, toh Round 1 aur Round 2 me seat milna muskil ho jayega. Kuch district level safe GECs add karke unhe list ke niche rakhein!`;
+    }
+
+    if (choiceReport.dreamCount === 0) {
+      return `Ek chota tip! 💡 Aapne sirf safe aur realistic options rakhein hain. Hamesha list ke starting me 3-4 dream colleges (jaise MIT Muzaffarpur, BCE Bhagalpur) jarur rakhein. Rank agar thodi kam bhi hai, fir bhi inko top me rakhne me koi nuksaan ya penalty nahi hai!`;
+    }
+
+    if (choices.length < 7) {
+      return "Aapka sequence toh thik lag raha hai, par total choices thode kam hain. Kam se kam 8-12 preferences rakhein taaki counseling round slip-out ka risk bilkul zero ho jaye.";
+    }
+
+    return "Shabash! 🌟 Aapki choice sheet bilkul perfect hai. Aapne premium dream preferences ko upar rakha hai, beech me realistic matches hain, aur bottom me safe backup colleges hain. Is tarike se aapko aapke rank ke hisab se best available college mil jayega!";
+  };
 
   return (
     <AuthGate>
@@ -175,19 +323,19 @@ export default function ChoiceSimulatorPage() {
         <div className="text-center max-w-3xl mx-auto mb-10 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2563EB]/10 dark:bg-[#2563EB]/20 text-[#2563EB] dark:text-[#60a5fa] text-xs font-bold uppercase tracking-wider mb-4 border border-[#2563EB]/20 shadow-sm animate-pulse">
             <Sparkles className="w-3.5 h-3.5" />
-            AI Choice-Locking Sheet Optimizer
+            AI Choice-Locking Sheet Advisor
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-none drop-shadow-sm">
             Mock Choice-Filling <span className="gradient-text-premium">Worksheet</span>
           </h1>
           <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 font-semibold leading-relaxed">
-            Create, re-order, and optimize your UGEAC college preference lock list. Our real-time AI analyzer evaluates your preference sheet hierarchy and awards a quality confidence score.
+            Create, re-order, and optimize your UGEAC college preference lock list. Our real-time AI counselor evaluates your preference list, flags blocking mistakes, and guides you to secure your best college seat.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
           {/* Left Panel: Build Choice Sheet (Col-7) */}
-          <div className="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between relative overflow-hidden group">
+          <div className="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden group">
             <div className="space-y-6 text-left">
               <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-850 pb-3">
                 <h3 className="text-md font-black text-slate-800 dark:text-white flex items-center gap-2">
@@ -201,7 +349,7 @@ export default function ChoiceSimulatorPage() {
               {/* Add choice Form */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-4 bg-slate-50/50 dark:bg-slate-900/30 border border-gray-200/50 dark:border-slate-800 rounded-2xl">
                 <div className="sm:col-span-6">
-                  <label className="block text-[9px] font-extrabold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Select College</label>
+                  <label className="block text-[9px] font-extrabold text-gray-400 dark:text-slate-550 uppercase tracking-widest mb-1.5">Select College</label>
                   <select
                     value={simCollegeId}
                     onChange={(e) => {
@@ -224,7 +372,7 @@ export default function ChoiceSimulatorPage() {
                 </div>
 
                 <div className="sm:col-span-4">
-                  <label className="block text-[9px] font-extrabold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Select Branch</label>
+                  <label className="block text-[9px] font-extrabold text-gray-400 dark:text-slate-550 uppercase tracking-widest mb-1.5">Select Branch</label>
                   <select
                     value={simBranchName}
                     onChange={(e) => setSimBranchName(e.target.value)}
@@ -251,66 +399,78 @@ export default function ChoiceSimulatorPage() {
               </div>
 
               {/* Choices Table List */}
-              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
                 {!isLoaded ? (
                   <div className="text-center py-12">
                     <span className="text-xs text-gray-450 animate-pulse">Loading mock preferences...</span>
                   </div>
                 ) : choices.length === 0 ? (
                   <div className="text-center py-12 border border-dashed border-gray-200 dark:border-slate-800 rounded-2xl bg-white/20 dark:bg-slate-900/10">
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Your mock choice list is empty. Add engineering branches from the selector above!</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-550">Your mock choice list is empty. Add engineering branches from the selector above!</p>
                   </div>
                 ) : (
-                  choices.map((c, idx) => (
-                    <div
-                      key={c.id}
-                      className="flex items-center justify-between p-3.5 bg-white/85 dark:bg-slate-900/60 border border-gray-150 dark:border-slate-800 rounded-xl hover:border-[#2563EB]/35 transition-all hover:shadow-sm"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 pr-4">
-                        <span className="h-5 w-5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-850 dark:text-gray-300 flex items-center justify-center text-[10px] font-black shrink-0">
-                          {idx + 1}
-                        </span>
-                        <div className="min-w-0 text-left">
-                          <span className="font-extrabold text-xs text-slate-800 dark:text-gray-200 truncate block leading-tight">{c.collegeName} ({c.collegeCode})</span>
-                          <span className="text-[10px] text-[#FF9933] font-bold block truncate mt-0.5">{c.branchName}</span>
+                  choices.map((c, idx) => {
+                    const classification = getChoiceClassification(c);
+                    return (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between p-3.5 bg-white/85 dark:bg-slate-900/60 border border-gray-150 dark:border-slate-800 rounded-xl hover:border-[#2563EB]/35 transition-all hover:shadow-sm"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-4">
+                          <span className="h-5 w-5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-850 dark:text-gray-300 flex items-center justify-center text-[10px] font-black shrink-0">
+                            {idx + 1}
+                          </span>
+                          <div className="min-w-0 text-left">
+                            <span className="font-extrabold text-xs text-slate-800 dark:text-gray-200 truncate block leading-tight">
+                              {c.collegeName} ({c.collegeCode})
+                            </span>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-[10px] text-[#FF9933] font-bold">
+                                {c.branchName}
+                              </span>
+                              <span className={`text-[8px] font-extrabold px-1.5 py-0.5 rounded border ${classification.style}`}>
+                                {classification.icon} {classification.label}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action buttons (Up, Down, Delete) */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => moveChoice(idx, "up")}
+                            disabled={idx === 0}
+                            className="p-1.5 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer flex items-center justify-center"
+                          >
+                            <ChevronUp className="w-3.5 h-3.5 text-gray-500" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveChoice(idx, "down")}
+                            disabled={idx === choices.length - 1}
+                            className="p-1.5 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer flex items-center justify-center"
+                          >
+                            <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteChoice(c.id)}
+                            className="p-1.5 border border-red-500/10 text-red-500 rounded-lg hover:bg-red-500/5 cursor-pointer flex items-center justify-center"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
-
-                      {/* Action buttons (Up, Down, Delete) */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => moveChoice(idx, "up")}
-                          disabled={idx === 0}
-                          className="p-1.5 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer flex items-center justify-center"
-                        >
-                          <ChevronUp className="w-3.5 h-3.5 text-gray-500" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveChoice(idx, "down")}
-                          disabled={idx === choices.length - 1}
-                          className="p-1.5 border border-gray-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer flex items-center justify-center"
-                        >
-                          <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteChoice(c.id)}
-                          className="p-1.5 border border-red-500/10 text-red-500 rounded-lg hover:bg-red-500/5 cursor-pointer flex items-center justify-center"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
 
             {/* Export actions at bottom */}
             {choices.length > 0 && (
-              <div className="pt-6 border-t border-gray-100 dark:border-slate-800/80 flex flex-wrap gap-3">
+              <div className="pt-6 mt-6 border-t border-gray-100 dark:border-slate-800/80 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -340,66 +500,162 @@ export default function ChoiceSimulatorPage() {
           </div>
 
           {/* Right Panel: AI Preference Sheet Evaluation (Col-5) */}
-          <div className="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/10 rounded-bl-full pointer-events-none" />
+          <div className="lg:col-span-5 space-y-6">
             
-            <div className="space-y-6">
-              <h3 className="text-md font-black text-slate-800 dark:text-white border-b border-gray-100 dark:border-slate-800 pb-3 flex items-center gap-2 text-left">
-                <Compass className="w-5 h-5 text-[#FF9933]" /> AI Strength Analysis
+            {/* 1. Personalized Counseling Config Profile */}
+            <div className="glass-card rounded-3xl p-6 shadow-xl text-left border border-[#2563EB]/10">
+              <h3 className="text-xs font-extrabold text-[#2563EB] uppercase tracking-wider flex items-center gap-1.5 mb-4 border-b border-gray-100 dark:border-slate-800 pb-2">
+                <UserCheck className="w-4 h-4" /> Counseling Profile Settings
               </h3>
+              
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">JEE Main Percentile</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={percentileInput} 
+                    onChange={(e) => {
+                      const val = e.target.value === "" ? "" : parseFloat(e.target.value);
+                      if (val === "" || (!isNaN(val) && val >= 0 && val <= 100)) {
+                        setPercentileInput(val);
+                      }
+                    }}
+                    className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 dark:text-white rounded-xl text-xs font-semibold focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">UGEAC Category</label>
+                  <select 
+                    value={categoryInput} 
+                    onChange={(e) => setCategoryInput(e.target.value)}
+                    className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 dark:text-white rounded-xl text-xs font-semibold focus:outline-none cursor-pointer"
+                  >
+                    <option value="UR">UR (Unreserved)</option>
+                    <option value="BC">BC (OBC-Backward Class)</option>
+                    <option value="EBC">EBC (Extremely Backward)</option>
+                    <option value="EWS">EWS (Economically Weaker)</option>
+                    <option value="SC">SC (Scheduled Caste)</option>
+                    <option value="ST">ST (Scheduled Tribe)</option>
+                    <option value="RCG">RCG (Girls Quota)</option>
+                  </select>
+                </div>
+              </div>
 
-              {/* Radial Score Dial */}
-              <div className="flex flex-col items-center py-4 bg-slate-50/50 dark:bg-slate-900/30 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-inner relative">
-                <div className="relative flex items-center justify-center w-28 h-28 rounded-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-850 shadow-inner animate-float">
-                  <div className="absolute inset-1.5 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-slate-850 dark:text-white leading-none">
-                      {choiceReport.score}%
-                    </span>
-                    <span className="text-[7px] text-[#2563EB] font-black uppercase tracking-wider mt-1">Sheet Health</span>
+              <div className="mt-4 p-3 bg-[#2563EB]/5 rounded-2xl flex items-center justify-between border border-[#2563EB]/10">
+                <div className="text-[10px] font-bold text-gray-500">Estimated State Merit Rank:</div>
+                <div className="text-sm font-black text-[#2563EB]">UGEAC Rank #{estimatedRank}</div>
+              </div>
+            </div>
+
+            {/* 2. AI Strength Analysis Health Meter */}
+            <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between relative overflow-hidden text-left">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/10 rounded-bl-full pointer-events-none" />
+              
+              <div className="space-y-6">
+                <h3 className="text-md font-black text-slate-800 dark:text-white border-b border-gray-100 dark:border-slate-800 pb-3 flex items-center gap-2">
+                  <Compass className="w-5 h-5 text-[#FF9933]" /> AI Preference Audit
+                </h3>
+
+                {/* Radial Score Dial */}
+                <div className="flex flex-col items-center py-4 bg-slate-50/50 dark:bg-slate-900/30 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-inner relative">
+                  <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-850 shadow-inner animate-float">
+                    <div className="absolute inset-1.5 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow flex flex-col items-center justify-center">
+                      <span className="text-xl font-black text-slate-850 dark:text-white leading-none">
+                        {choiceReport.score}%
+                      </span>
+                      <span className="text-[6px] text-[#2563EB] font-black uppercase tracking-wider mt-0.5">Sheet Health</span>
+                    </div>
+                    {/* Gauge Ring */}
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="48" cy="48" r="40" stroke="rgba(226, 232, 240, 0.4)" strokeWidth="5" fill="transparent" />
+                      <circle
+                        cx="48" cy="48" r="40"
+                        stroke="url(#choiceDialGradient2)" strokeWidth="5" fill="transparent"
+                        strokeDasharray="251"
+                        strokeDashoffset={251 - (251 * choiceReport.score) / 100}
+                        className="transition-all duration-500 ease-out"
+                      />
+                      <defs>
+                        <linearGradient id="choiceDialGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#FF9933" />
+                          <stop offset="100%" stopColor="#138808" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   </div>
-                  {/* Gauge Ring */}
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="56" cy="56" r="48" stroke="rgba(226, 232, 240, 0.4)" strokeWidth="6" fill="transparent" />
-                    <circle
-                      cx="56" cy="56" r="48"
-                      stroke="url(#choiceDialGradient)" strokeWidth="6" fill="transparent"
-                      strokeDasharray="301"
-                      strokeDashoffset={301 - (301 * choiceReport.score) / 100}
-                      className="transition-all duration-500 ease-out"
-                    />
-                    <defs>
-                      <linearGradient id="choiceDialGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#FF9933" />
-                        <stop offset="100%" stopColor="#138808" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                  
+                  {/* Distribution badges */}
+                  <div className="flex items-center gap-2 mt-4 text-[9px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/10">
+                      Dream: {choiceReport.dreamCount}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/10">
+                      Realistic: {choiceReport.realisticCount}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/10">
+                      Safety: {choiceReport.safetyCount}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[9px] text-gray-500 font-extrabold uppercase mt-3 tracking-widest">Preference Sheet Quality Score</span>
+
+                {/* 3. Counselling Bhaiya Hinglish Advisor Bubble */}
+                <div className="p-4 bg-gradient-to-r from-amber-500/5 to-emerald-500/5 border border-amber-500/15 dark:border-emerald-500/10 rounded-2xl text-[11px] leading-relaxed relative">
+                  <div className="flex items-center gap-1.5 mb-2 font-black text-slate-800 dark:text-white text-xs">
+                    <span className="h-5 w-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-[10px] shadow">🤖</span>
+                    Counselling Bhaiya AI Guide
+                  </div>
+                  <p className="text-gray-650 dark:text-gray-300 font-bold italic">
+                    "{getCounsellingBhaiyaMessage()}"
+                  </p>
+                </div>
+
+                {/* 4. Warning/Success Logs list */}
+                <div className="space-y-2.5">
+                  <h4 className="text-[10px] font-black text-gray-400 dark:text-slate-550 uppercase tracking-widest">Audit logs & warnings</h4>
+                  
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                    
+                    {/* Critical Blocking Errors section */}
+                    {choiceReport.blockingErrors.map((err, i) => (
+                      <div key={`block-${i}`} className="p-3 bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 rounded-xl text-[10.5px] leading-relaxed">
+                        <div className="flex items-center gap-1 text-red-600 font-black mb-1">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          CRITICAL BLOCKING MISTAKE
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300 font-semibold">
+                          Aapne high-cutoff college <strong className="text-slate-900 dark:text-white font-extrabold">#{err.index1 + 1} ({err.c1.collegeCode} - {err.c1.branchCode})</strong> ko behtar option <strong className="text-slate-900 dark:text-white font-extrabold">#{err.index2 + 1} ({err.c2.collegeCode} - {err.c2.branchCode})</strong> ke upar rakha hai.
+                        </p>
+                        <div className="mt-1.5 p-1.5 bg-red-500/10 text-red-700 rounded-lg font-bold text-[9.5px]">
+                          💡 Solution: Move choice #{err.index2 + 1} above choice #{err.index1 + 1} to maximize placement package odds!
+                        </div>
+                      </div>
+                    ))}
+
+                    {choiceReport.warnings.map((warn, i) => (
+                      <div key={`warn-${i}`} className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 rounded-xl text-[10.5px] text-amber-600 dark:text-amber-500 font-semibold leading-relaxed flex gap-2 items-start">
+                        <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                        <span>{warn}</span>
+                      </div>
+                    ))}
+                    
+                    {choiceReport.successes.map((succ, i) => (
+                      <div key={`succ-${i}`} className="p-3 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/15 rounded-xl text-[10.5px] text-[#138808] dark:text-[#22c55e] font-semibold leading-relaxed flex gap-2 items-start">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                        <span>{succ}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Warning/Success Logs list */}
-              <div className="space-y-2.5">
-                <h4 className="text-[10px] font-black text-gray-400 dark:text-slate-550 uppercase tracking-widest text-left">Optimization Audit Logs</h4>
-                
-                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 text-left">
-                  {choiceReport.warnings.map((warn, i) => (
-                    <div key={i} className="p-3 bg-red-500/5 dark:bg-red-500/10 border border-red-500/15 rounded-xl text-[11px] text-red-500 font-semibold leading-relaxed">
-                      {warn}
-                    </div>
-                  ))}
-                  {choiceReport.successes.map((succ, i) => (
-                    <div key={i} className="p-3 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/15 rounded-xl text-[11px] text-[#138808] dark:text-[#22c55e] font-semibold leading-relaxed">
-                      {succ}
-                    </div>
-                  ))}
-                </div>
+              <div className="pt-4 mt-6 border-t border-gray-150 dark:border-slate-800 text-[9px] text-gray-450 leading-normal">
+                💡 <strong>Counseling Rule:</strong> Place your highest priority options at the very top. A higher-ranked preference in UGEAC choice entries secures seats with zero risk of penalty.
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-150 dark:border-slate-800 text-[10px] text-gray-450 leading-normal text-left">
-              💡 <strong>Counseling Tip:</strong> Place your highest priority options at the very top. A higher-ranked preference in UGEAC choice entries secures seats with zero risk of penalty.
-            </div>
           </div>
         </div>
       </div>
