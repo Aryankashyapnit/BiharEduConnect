@@ -2,6 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useApp } from "../context/AppContext";
+import { db } from "../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { 
   Sparkles, 
   MessageSquare, 
@@ -48,45 +50,50 @@ export const AIChatbot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Sync active chat session with localStorage for Admin Panel logs
+  // Sync active chat session with Firestore for Admin Panel logs
   useEffect(() => {
     if (messages.length <= 1) return;
     
-    try {
-      const storedSessions = localStorage.getItem("bihareduconnect_chat_sessions");
-      let sessions: any[] = storedSessions ? JSON.parse(storedSessions) : [];
-      
-      const sessionId = user ? `session-${user.email || user.name}` : "session-guest";
-      const existingIndex = sessions.findIndex(s => s.id === sessionId);
-      
-      const updatedSession = {
-        id: sessionId,
-        studentName: user ? user.name : "Guest Student",
-        studentEmail: user ? (user.email || "No Email (Guest)") : "guest@bihareduconnect.in",
-        percentile: user ? (user.percentile || 0) : 0,
-        messages: messages.map(m => ({
-          sender: m.sender,
-          text: m.text,
-          timestamp: m.timestamp
-        })),
-        lastMessageTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        date: new Date().toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short",
-          year: "numeric"
-        })
-      };
-      
-      if (existingIndex > -1) {
-        sessions[existingIndex] = updatedSession;
-      } else {
-        sessions.unshift(updatedSession);
+    const syncChatToFirestore = async () => {
+      try {
+        let anonId = "";
+        if (typeof window !== "undefined") {
+          anonId = localStorage.getItem("bihareduconnect_anon_id") || "";
+          if (!anonId) {
+            anonId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            localStorage.setItem("bihareduconnect_anon_id", anonId);
+          }
+        }
+        
+        const sessionId = user 
+          ? `session-${(user.email || user.name).toLowerCase().replace(/[^a-zA-Z0-9]/g, "_")}` 
+          : `session-guest-${anonId}`;
+        
+        const updatedSession = {
+          id: sessionId,
+          studentName: user ? user.name : `Guest Student #${anonId}`,
+          studentEmail: user ? (user.email || `No Email (Guest #${anonId})`) : `anonymous.${anonId}@bihareduconnect.in`,
+          percentile: user ? (user.percentile || 0) : 0,
+          messages: messages.map(m => ({
+            sender: m.sender,
+            text: m.text,
+            timestamp: m.timestamp
+          })),
+          lastMessageTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          date: new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+          })
+        };
+        
+        await setDoc(doc(db, "chat_sessions", sessionId), updatedSession);
+      } catch (e) {
+        console.error("Failed to sync chat session to Firestore:", e);
       }
-      
-      localStorage.setItem("bihareduconnect_chat_sessions", JSON.stringify(sessions));
-    } catch (e) {
-      console.error("Failed to sync chat session to admin log:", e);
-    }
+    };
+
+    syncChatToFirestore();
   }, [messages, user]);
 
   const handleSendMessage = (text: string) => {

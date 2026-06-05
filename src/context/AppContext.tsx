@@ -5,7 +5,7 @@ import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
 import { db } from "../lib/firebase";
-import { collection, doc, setDoc, onSnapshot, getDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
+import { collection, doc, setDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment } from "firebase/firestore";
 
 export interface SavedPrediction {
   id: string;
@@ -128,6 +128,9 @@ interface AppContextType {
   blockStudent: (email: string) => void;
   unblockStudent: (email: string) => void;
   visitorLogs: VisitorLog[];
+  chatSessions: any[];
+  deleteChatSession: (id: string) => Promise<void>;
+  clearAllChatSessions: () => Promise<void>;
   whatsappLink: string;
   updateWhatsappLink: (link: string) => void;
 }
@@ -207,6 +210,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [bulkFiles, setBulkFiles] = useState<BulkFile[]>(defaultBulkFiles);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(defaultTimelineEvents);
   const [guideSteps, setGuideSteps] = useState<GuideStep[]>(defaultGuideSteps);
+  const [chatSessions, setChatSessions] = useState<any[]>([]);
 
   // Authentication States
   const [user, setUser] = useState<User | null>(null);
@@ -217,7 +221,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [visitorLogs, setVisitorLogs] = useState<VisitorLog[]>([]);
   const [whatsappLink, setWhatsappLink] = useState<string>("https://wa.me/919999999999");
 
-  // Load from localStorage on mount
+  // Load client-only configurations from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedFavs = localStorage.getItem("bihareduconnect_favs");
@@ -226,141 +230,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const storedPredictions = localStorage.getItem("bihareduconnect_predictions");
       if (storedPredictions) setSavedPredictions(JSON.parse(storedPredictions));
 
-      const storedColleges = localStorage.getItem("bihareduconnect_colleges");
-      let collegesUpdated = false;
-      if (storedColleges) {
-        try {
-          const parsed = JSON.parse(storedColleges);
-          const needsUpdate = parsed.length < collegesData.length || collegesData.some(c => {
-            const cached = parsed.find((p: any) => p.id === c.id);
-            if (!cached) return true;
-            if (c.image && c.image.startsWith("data:image") && (!cached.image || !cached.image.startsWith("data:image"))) {
-              return true;
-            }
-            return false;
-          });
-
-          if (needsUpdate) {
-            setColleges(collegesData);
-            localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
-            collegesUpdated = true;
-          } else {
-            setColleges(parsed);
-          }
-        } catch (e) {
-          setColleges(collegesData);
-          localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
-          collegesUpdated = true;
-        }
-      } else {
-        setColleges(collegesData);
-        localStorage.setItem("bihareduconnect_colleges", JSON.stringify(collegesData));
-        collegesUpdated = true;
-      }
-
-      // Cutoffs Dynamic Loading & Migration
-      const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
-      let activeCutoffs = cutoffsData;
-      if (storedCutoffs) {
-        try {
-          const parsed = JSON.parse(storedCutoffs);
-          if (parsed.length < cutoffsData.length) {
-            activeCutoffs = cutoffsData;
-            localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
-          } else {
-            activeCutoffs = parsed;
-          }
-        } catch (e) {
-          activeCutoffs = cutoffsData;
-          localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
-        }
-      } else {
-        localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
-      }
-      setCutoffs(activeCutoffs);
-
-      // Seat Matrix Dynamic Loading & Migration
-      const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
-      let activeSeatMatrix = seatMatrixData;
-      if (storedSeatMatrix && !collegesUpdated) {
-        try {
-          const parsed = JSON.parse(storedSeatMatrix);
-          if (parsed.length < 50) {
-            activeSeatMatrix = seatMatrixData;
-            localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
-          } else {
-            activeSeatMatrix = parsed;
-          }
-        } catch (e) {
-          activeSeatMatrix = seatMatrixData;
-          localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
-        }
-      } else {
-        localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
-      }
-      setSeatMatrix(activeSeatMatrix);
-
-      // Bulk Files Dynamic Loading
-      const storedBulkFiles = localStorage.getItem("bihareduconnect_bulk_files");
-      if (storedBulkFiles) {
-        setBulkFiles(JSON.parse(storedBulkFiles));
-      } else {
-        setBulkFiles(defaultBulkFiles);
-        localStorage.setItem("bihareduconnect_bulk_files", JSON.stringify(defaultBulkFiles));
-      }
-
-      // Timeline Events Dynamic Loading & Auto-Migration to Official Screenshot Dates
-      const storedTimelineEvents = localStorage.getItem("bihareduconnect_timeline_events");
-      let activeTimeline = defaultTimelineEvents;
-      if (storedTimelineEvents) {
-        try {
-          const parsed = JSON.parse(storedTimelineEvents);
-          // If cached data is the old 4-item list or contains the old mock dates, overwrite with new official ones!
-          if (parsed.length <= 4 || parsed.some((e: any) => e.date.includes("June 05") || e.date.includes("June 18"))) {
-            activeTimeline = defaultTimelineEvents;
-            localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
-          } else {
-            activeTimeline = parsed;
-          }
-        } catch (e) {
-          activeTimeline = defaultTimelineEvents;
-          localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
-        }
-      } else {
-        localStorage.setItem("bihareduconnect_timeline_events", JSON.stringify(defaultTimelineEvents));
-      }
-      setTimelineEvents(activeTimeline);
-
-      // Guide Steps Dynamic Loading
-      const storedGuideSteps = localStorage.getItem("bihareduconnect_guide_steps");
-      if (storedGuideSteps) {
-        setGuideSteps(JSON.parse(storedGuideSteps));
-      } else {
-        setGuideSteps(defaultGuideSteps);
-        localStorage.setItem("bihareduconnect_guide_steps", JSON.stringify(defaultGuideSteps));
-      }
-
       const storedUser = localStorage.getItem("bihareduconnect_user");
       if (storedUser) setUser(JSON.parse(storedUser));
-
-      const storedUsers = localStorage.getItem("bihareduconnect_registered_users");
-      if (storedUsers) {
-        setRegisteredUsers(JSON.parse(storedUsers));
-      } else {
-        const defaultUsers: RegisteredUser[] = [
-          { name: "Aman Raj", email: "amanraj.demo@bihareduconnect.in", percentile: 88.5, password: "demo" },
-          { name: "Priya Sharma", email: "priyasharma.demo@bihareduconnect.in", percentile: 94.2, password: "demo" },
-          { name: "Rohan Kumar", email: "rohan.kumar@gmail.com", percentile: 91.5, password: "student123" }
-        ];
-        setRegisteredUsers(defaultUsers);
-        localStorage.setItem("bihareduconnect_registered_users", JSON.stringify(defaultUsers));
-      }
 
       const storedBlocked = localStorage.getItem("bihareduconnect_blocked_emails");
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
-      // totalVisits is now completely driven by Firebase in the onSnapshot listener below.
-      // We still mark session visited to avoid spamming the database with a visit on every page reload
       const sessionVisited = sessionStorage.getItem("bihareduconnect_session_visited");
       if (!sessionVisited) {
         sessionStorage.setItem("bihareduconnect_session_visited", "true");
@@ -375,14 +250,148 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           document.documentElement.classList.remove("dark");
         }
       }
-
-      const storedWhatsappLink = localStorage.getItem("bihareduconnect_whatsapp_link");
-      if (storedWhatsappLink) {
-        setWhatsappLink(storedWhatsappLink);
-      } else {
-        localStorage.setItem("bihareduconnect_whatsapp_link", "https://wa.me/919999999999");
-      }
     }
+  }, []);
+
+  // Seeding Helpers
+  const seedCollectionIfEmpty = async <T,>(
+    collectionName: string,
+    defaultData: T[],
+    getId: (item: T, idx: number) => string
+  ) => {
+    try {
+      const colRef = collection(db, collectionName);
+      const snap = await getDocs(colRef);
+      if (snap.empty) {
+        console.log(`Seeding Firestore collection: ${collectionName}`);
+        let idx = 0;
+        for (const item of defaultData) {
+          const id = getId(item, idx);
+          await setDoc(doc(db, collectionName, id), item as any);
+          idx++;
+        }
+      }
+    } catch (e) {
+      console.error(`Error seeding ${collectionName}:`, e);
+    }
+  };
+
+  const seedSettingsIfEmpty = async () => {
+    try {
+      const docRef = doc(db, "settings", "whatsapp");
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) {
+        await setDoc(docRef, { link: "https://wa.me/919999999999" });
+      }
+    } catch (e) {
+      console.error("Error seeding settings:", e);
+    }
+  };
+
+  // Setup Real-time Firestore Sync Listeners
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const performSeedingAndSetup = async () => {
+      await seedCollectionIfEmpty("colleges", collegesData, (c) => c.id);
+      await seedCollectionIfEmpty("cutoffs", cutoffsData, (c) => c.id || `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      await seedCollectionIfEmpty("seat_matrix", seatMatrixData, (s) => `${s.collegeCode}_${s.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`);
+      await seedCollectionIfEmpty("bulk_files", defaultBulkFiles, (b) => b.name.replace(/[^a-zA-Z0-9]/g, "_"));
+      await seedCollectionIfEmpty("timeline_events", defaultTimelineEvents, (t) => t.id.toString());
+      
+      try {
+        const colRef = collection(db, "guide_steps");
+        const snap = await getDocs(colRef);
+        if (snap.empty) {
+          for (let i = 0; i < defaultGuideSteps.length; i++) {
+            await setDoc(doc(db, "guide_steps", i.toString()), defaultGuideSteps[i]);
+          }
+        }
+      } catch (e) {
+        console.error("Error seeding guide steps:", e);
+      }
+
+      await seedSettingsIfEmpty();
+    };
+
+    performSeedingAndSetup();
+
+    // Setup Snapshot listeners
+    const unsubColleges = onSnapshot(collection(db, "colleges"), (snap) => {
+      const list: College[] = [];
+      snap.forEach((d) => list.push(d.data() as College));
+      if (list.length > 0) setColleges(list);
+    });
+
+    const unsubCutoffs = onSnapshot(collection(db, "cutoffs"), (snap) => {
+      const list: Cutoff[] = [];
+      snap.forEach((d) => list.push(d.data() as Cutoff));
+      if (list.length > 0) setCutoffs(list);
+    });
+
+    const unsubSeatMatrix = onSnapshot(collection(db, "seat_matrix"), (snap) => {
+      const list: SeatMatrixEntry[] = [];
+      snap.forEach((d) => list.push(d.data() as SeatMatrixEntry));
+      if (list.length > 0) setSeatMatrix(list);
+    });
+
+    const unsubBulkFiles = onSnapshot(collection(db, "bulk_files"), (snap) => {
+      const list: BulkFile[] = [];
+      snap.forEach((d) => list.push(d.data() as BulkFile));
+      if (list.length > 0) setBulkFiles(list);
+    });
+
+    const unsubTimeline = onSnapshot(collection(db, "timeline_events"), (snap) => {
+      const list: TimelineEvent[] = [];
+      snap.forEach((d) => list.push(d.data() as TimelineEvent));
+      if (list.length > 0) {
+        list.sort((a, b) => a.id - b.id);
+        setTimelineEvents(list);
+      }
+    });
+
+    const unsubGuides = onSnapshot(collection(db, "guide_steps"), (snap) => {
+      const list: GuideStep[] = new Array(defaultGuideSteps.length);
+      snap.forEach((d) => {
+        const idx = parseInt(d.id, 10);
+        if (!isNaN(idx) && idx >= 0) {
+          list[idx] = d.data() as GuideStep;
+        }
+      });
+      const cleanList = list.filter(Boolean);
+      if (cleanList.length > 0) setGuideSteps(cleanList);
+    });
+
+    const unsubSettings = onSnapshot(doc(db, "settings", "whatsapp"), (snap) => {
+      if (snap.exists()) {
+        setWhatsappLink(snap.data().link || "https://wa.me/919999999999");
+      }
+    });
+
+    const unsubChats = onSnapshot(collection(db, "chat_sessions"), (snap) => {
+      const list: any[] = [];
+      snap.forEach((d) => list.push(d.data()));
+      list.sort((a, b) => {
+        const dateA = a.date || "";
+        const dateB = b.date || "";
+        if (dateA !== dateB) {
+          return new Date(dateB).getTime() - new Date(dateA).getTime();
+        }
+        return (b.lastMessageTime || "").localeCompare(a.lastMessageTime || "");
+      });
+      setChatSessions(list);
+    });
+
+    return () => {
+      unsubColleges();
+      unsubCutoffs();
+      unsubSeatMatrix();
+      unsubBulkFiles();
+      unsubTimeline();
+      unsubGuides();
+      unsubSettings();
+      unsubChats();
+    };
   }, []);
 
   const recordVisit = async (currentUser: User | null) => {
@@ -453,6 +462,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Stable order ref: stores the sorted ID order so rows don't jump on every update
+  const logsOrderRef = React.useRef<string[]>([]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const sessionVisitedLog = sessionStorage.getItem("bihareduconnect_session_visited_log");
@@ -461,24 +473,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         recordVisit(user);
       }
       
+      // Reset order ref when user changes (fresh login)
+      logsOrderRef.current = [];
+
       // Setup Firebase real-time listener for visitor logs
       const unsubscribe = onSnapshot(collection(db, "visitor_logs"), (snapshot) => {
-        const logs: VisitorLog[] = [];
+        const incomingMap = new Map<string, VisitorLog>();
         let globalVisits = 0;
         
         snapshot.forEach((doc) => {
           const data = doc.data() as VisitorLog;
-          logs.push(data);
+          incomingMap.set(data.id, data);
           globalVisits += data.visitCount || 1;
         });
-        
-        // Sort by lastActivity (timestamp) descending, fallback to string parsing
-        logs.sort((a, b) => {
-          const timeA = a.lastActivity || new Date(a.lastVisitTime).getTime() || 0;
-          const timeB = b.lastActivity || new Date(b.lastVisitTime).getTime() || 0;
-          return timeB - timeA;
-        });
-        setVisitorLogs(logs);
+
+        // Find IDs that are genuinely new (not seen before)
+        const existingIds = new Set(logsOrderRef.current);
+        const newIds = [...incomingMap.keys()].filter(id => !existingIds.has(id));
+
+        if (newIds.length > 0) {
+          // Sort only the NEW entries by lastActivity descending
+          const newEntries = newIds.map(id => incomingMap.get(id)!);
+          newEntries.sort((a, b) => {
+            const timeA = a.lastActivity || new Date(a.lastVisitTime).getTime() || 0;
+            const timeB = b.lastActivity || new Date(b.lastVisitTime).getTime() || 0;
+            return timeB - timeA;
+          });
+          // Prepend new entries to the stable order (newest first)
+          logsOrderRef.current = [...newEntries.map(e => e.id), ...logsOrderRef.current];
+        }
+
+        // Build the final logs array using stable order, updating data in-place
+        const stableIds = logsOrderRef.current.filter(id => incomingMap.has(id));
+        const stableLogs = stableIds.map(id => incomingMap.get(id)!);
+
+        setVisitorLogs(stableLogs);
         
         // Update totalVisits globally based on live Firebase data
         // We add a baseline of 124 (the original hardcoded mock data baseline)
@@ -626,142 +655,145 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // ADMIN OPERATIONS
-  const addCollege = (college: College) => {
-    setColleges((prev) => {
-      const updated = [...prev, college];
-      saveToLocalStorage("bihareduconnect_colleges", updated);
-      return updated;
-    });
+  const addCollege = async (college: College) => {
+    try {
+      await setDoc(doc(db, "colleges", college.id), college);
+    } catch (e) {
+      console.error("Error adding college:", e);
+    }
   };
 
-  const updateCollege = (college: College) => {
-    setColleges((prev) => {
-      const updated = prev.map((c) => (c.id === college.id ? college : c));
-      saveToLocalStorage("bihareduconnect_colleges", updated);
-      return updated;
-    });
+  const updateCollege = async (college: College) => {
+    try {
+      await setDoc(doc(db, "colleges", college.id), college);
+    } catch (e) {
+      console.error("Error updating college:", e);
+    }
   };
 
-  const deleteCollege = (collegeId: string) => {
-    setColleges((prev) => {
-      const updated = prev.filter((c) => c.id !== collegeId);
-      saveToLocalStorage("bihareduconnect_colleges", updated);
-      return updated;
-    });
+  const deleteCollege = async (collegeId: string) => {
+    try {
+      await deleteDoc(doc(db, "colleges", collegeId));
+    } catch (e) {
+      console.error("Error deleting college:", e);
+    }
   };
 
   // Dynamic Datastore Handlers
-  const addBulkFile = (file: BulkFile) => {
-    setBulkFiles((prev) => {
-      const updated = [file, ...prev];
-      saveToLocalStorage("bihareduconnect_bulk_files", updated);
-      return updated;
-    });
+  const addBulkFile = async (file: BulkFile) => {
+    try {
+      const docId = file.name.replace(/[^a-zA-Z0-9]/g, "_");
+      await setDoc(doc(db, "bulk_files", docId), file);
+    } catch (e) {
+      console.error("Error adding bulk file:", e);
+    }
   };
 
-  const deleteBulkFile = (fileName: string) => {
-    setBulkFiles((prev) => {
-      const updated = prev.filter((f) => f.name !== fileName);
-      saveToLocalStorage("bihareduconnect_bulk_files", updated);
-      return updated;
-    });
+  const deleteBulkFile = async (fileName: string) => {
+    try {
+      const docId = fileName.replace(/[^a-zA-Z0-9]/g, "_");
+      await deleteDoc(doc(db, "bulk_files", docId));
+    } catch (e) {
+      console.error("Error deleting bulk file:", e);
+    }
   };
 
-  const addTimelineEvent = (event: Omit<TimelineEvent, "id">) => {
-    setTimelineEvents((prev) => {
-      const nextId = prev.length > 0 ? Math.max(...prev.map((e) => e.id)) + 1 : 1;
+  const addTimelineEvent = async (event: Omit<TimelineEvent, "id">) => {
+    try {
+      const nextId = timelineEvents.length > 0 ? Math.max(...timelineEvents.map((e) => e.id)) + 1 : 1;
       const newEvent: TimelineEvent = { ...event, id: nextId };
-      const updated = [...prev, newEvent];
-      saveToLocalStorage("bihareduconnect_timeline_events", updated);
-      return updated;
-    });
+      await setDoc(doc(db, "timeline_events", nextId.toString()), newEvent);
+    } catch (e) {
+      console.error("Error adding timeline event:", e);
+    }
   };
 
-  const updateTimelineEvent = (id: number, updatedFields: Partial<TimelineEvent>) => {
-    setTimelineEvents((prev) => {
-      const updated = prev.map((ev) => (ev.id === id ? { ...ev, ...updatedFields } : ev));
-      saveToLocalStorage("bihareduconnect_timeline_events", updated);
-      return updated;
-    });
+  const updateTimelineEvent = async (id: number, updatedFields: Partial<TimelineEvent>) => {
+    try {
+      const ref = doc(db, "timeline_events", id.toString());
+      await updateDoc(ref, updatedFields);
+    } catch (e) {
+      console.error("Error updating timeline event:", e);
+    }
   };
 
-  const deleteTimelineEvent = (id: number) => {
-    setTimelineEvents((prev) => {
-      const updated = prev.filter((ev) => ev.id !== id);
-      saveToLocalStorage("bihareduconnect_timeline_events", updated);
-      return updated;
-    });
+  const deleteTimelineEvent = async (id: number) => {
+    try {
+      await deleteDoc(doc(db, "timeline_events", id.toString()));
+    } catch (e) {
+      console.error("Error deleting timeline event:", e);
+    }
   };
 
-  const updateGuideStep = (index: number, updatedFields: Partial<GuideStep>) => {
-    setGuideSteps((prev) => {
-      const updated = [...prev];
-      if (updated[index]) {
-        updated[index] = { ...updated[index], ...updatedFields };
-      }
-      saveToLocalStorage("bihareduconnect_guide_steps", updated);
-      return updated;
-    });
+  const updateGuideStep = async (index: number, updatedFields: Partial<GuideStep>) => {
+    try {
+      const ref = doc(db, "guide_steps", index.toString());
+      await setDoc(ref, { ...guideSteps[index], ...updatedFields });
+    } catch (e) {
+      console.error("Error updating guide step:", e);
+    }
   };
 
-  const injectCutoffs = (newCutoffs: Cutoff[]) => {
-    setCutoffs((prev) => {
-      const updated = [...prev];
-      newCutoffs.forEach((newC) => {
-        const idx = updated.findIndex(
-          (c) =>
-            c.collegeCode === newC.collegeCode &&
-            c.branchCode === newC.branchCode &&
-            c.year === newC.year &&
-            c.round === newC.round &&
-            c.category === newC.category
-        );
-        if (idx !== -1) {
-          updated[idx] = newC;
-        } else {
-          if (!newC.id) {
-            newC.id = `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-          }
-          updated.push(newC);
+  const injectCutoffs = async (newCutoffs: Cutoff[]) => {
+    try {
+      for (const cutoff of newCutoffs) {
+        let id = cutoff.id;
+        if (!id) {
+          id = `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         }
-      });
-      saveToLocalStorage("bihareduconnect_cutoffs", updated);
-      return updated;
-    });
-  };
-
-  const deleteCutoff = (id: string) => {
-    setCutoffs((prev) => {
-      const updated = prev.filter((c) => c.id !== id);
-      saveToLocalStorage("bihareduconnect_cutoffs", updated);
-      return updated;
-    });
-  };
-
-  const resetCutoffs = () => {
-    setCutoffs(cutoffsData);
-    saveToLocalStorage("bihareduconnect_cutoffs", cutoffsData);
-  };
-
-  const updateSeatMatrixEntry = (entry: SeatMatrixEntry) => {
-    setSeatMatrix((prev) => {
-      const updated = [...prev];
-      const idx = updated.findIndex(
-        (s) => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode
-      );
-      if (idx !== -1) {
-        updated[idx] = entry;
-      } else {
-        updated.push(entry);
+        await setDoc(doc(db, "cutoffs", id), { ...cutoff, id });
       }
-      saveToLocalStorage("bihareduconnect_seat_matrix", updated);
-      return updated;
-    });
+    } catch (e) {
+      console.error("Error injecting cutoffs:", e);
+    }
   };
 
-  const resetSeatMatrix = () => {
-    setSeatMatrix(seatMatrixData);
-    saveToLocalStorage("bihareduconnect_seat_matrix", seatMatrixData);
+  const deleteCutoff = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "cutoffs", id));
+    } catch (e) {
+      console.error("Error deleting cutoff:", e);
+    }
+  };
+
+  const resetCutoffs = async () => {
+    try {
+      const colRef = collection(db, "cutoffs");
+      const snap = await getDocs(colRef);
+      for (const d of snap.docs) {
+        await deleteDoc(d.ref);
+      }
+      for (const c of cutoffsData) {
+        await setDoc(doc(db, "cutoffs", c.id), c);
+      }
+    } catch (e) {
+      console.error("Error resetting cutoffs:", e);
+    }
+  };
+
+  const updateSeatMatrixEntry = async (entry: SeatMatrixEntry) => {
+    try {
+      const id = `${entry.collegeCode}_${entry.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`;
+      await setDoc(doc(db, "seat_matrix", id), entry);
+    } catch (e) {
+      console.error("Error updating seat matrix entry:", e);
+    }
+  };
+
+  const resetSeatMatrix = async () => {
+    try {
+      const colRef = collection(db, "seat_matrix");
+      const snap = await getDocs(colRef);
+      for (const d of snap.docs) {
+        await deleteDoc(d.ref);
+      }
+      for (const entry of seatMatrixData) {
+        const id = `${entry.collegeCode}_${entry.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`;
+        await setDoc(doc(db, "seat_matrix", id), entry);
+      }
+    } catch (e) {
+      console.error("Error resetting seat matrix:", e);
+    }
   };
  
   // Authentication Helpers
@@ -1074,9 +1106,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const updateWhatsappLink = (link: string) => {
-    setWhatsappLink(link);
-    saveToLocalStorage("bihareduconnect_whatsapp_link", link);
+  const updateWhatsappLink = async (link: string) => {
+    try {
+      await setDoc(doc(db, "settings", "whatsapp"), { link });
+    } catch (e) {
+      console.error("Error updating whatsapp link:", e);
+    }
+  };
+
+  const deleteChatSession = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "chat_sessions", id));
+    } catch (e) {
+      console.error("Error deleting chat session:", e);
+    }
+  };
+
+  const clearAllChatSessions = async () => {
+    try {
+      const snap = await getDocs(collection(db, "chat_sessions"));
+      for (const d of snap.docs) {
+        await deleteDoc(d.ref);
+      }
+    } catch (e) {
+      console.error("Error clearing chat sessions:", e);
+    }
   };
 
   return (
@@ -1136,7 +1190,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         unblockStudent,
         visitorLogs,
         whatsappLink,
-        updateWhatsappLink
+        updateWhatsappLink,
+        chatSessions,
+        deleteChatSession,
+        clearAllChatSessions
       }}
     >
       {children}

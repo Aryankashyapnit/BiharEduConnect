@@ -789,10 +789,11 @@ export default function Homepage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feat, i) => {
             const Icon = feat.icon;
+            const neonBorderClass = i === 0 || i === 3 ? "neon-border-orange" : i === 1 ? "neon-border-blue" : "neon-border-green";
             return (
               <div
                 key={i}
-                className="glass-card rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/10 border border-gray-150 dark:border-slate-800 flex flex-col justify-between group transition-all duration-500 transform hover:-translate-y-2 relative overflow-hidden"
+                className={`glass-card rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/10 border border-gray-150 dark:border-slate-800 flex flex-col justify-between group transition-all duration-500 transform hover:-translate-y-2 relative overflow-hidden ${neonBorderClass}`}
               >
                 {/* Decorative hover gradient block */}
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feat.color} rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-2xl`} />

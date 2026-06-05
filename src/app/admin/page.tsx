@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { College } from "../../data/colleges";
 import { AuthGate } from "../../components/AuthGate";
+import { db } from "../../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { 
   ShieldAlert, 
   Building, 
@@ -119,6 +121,9 @@ export default function AdminDashboard() {
     visitorLogs,
     whatsappLink,
     updateWhatsappLink,
+    chatSessions,
+    deleteChatSession,
+    clearAllChatSessions,
     logout
   } = useApp();
 
@@ -157,7 +162,6 @@ export default function AdminDashboard() {
   const [editingStudentEmail, setEditingStudentEmail] = useState<string | null>(null);
   
   // Chat Logs viewer states
-  const [chatSessions, setChatSessions] = useState<any[]>([]);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
   // Tab 3: Admin Cutoff Filters
@@ -179,21 +183,10 @@ export default function AdminDashboard() {
   const [seatRcg, setSeatRcg] = useState<number>(1);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("bihareduconnect_chat_sessions");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setChatSessions(parsed);
-          if (parsed.length > 0) {
-            setSelectedSessionId(parsed[0].id);
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
+    if (chatSessions && chatSessions.length > 0 && !selectedSessionId) {
+      setSelectedSessionId(chatSessions[0].id);
     }
-  }, [activeTab]);
+  }, [chatSessions, selectedSessionId]);
 
   // Notifications
   const [successMsg, setSuccessMsg] = useState("");
@@ -264,7 +257,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleGenerateMockChats = () => {
+  const handleGenerateMockChats = async () => {
     const mockSessions = [
       {
         id: "mock-session-aman",
@@ -295,10 +288,16 @@ export default function AdminDashboard() {
         ]
       }
     ];
-    localStorage.setItem("bihareduconnect_chat_sessions", JSON.stringify(mockSessions));
-    setChatSessions(mockSessions);
-    setSelectedSessionId(mockSessions[0].id);
-    showNotification("✓ Mock chat sessions generated for testing!");
+    try {
+      for (const session of mockSessions) {
+        await setDoc(doc(db, "chat_sessions", session.id), session);
+      }
+      setSelectedSessionId(mockSessions[0].id);
+      showNotification("✓ Mock chat sessions generated in Firestore!");
+    } catch (e) {
+      console.error(e);
+      showNotification("❌ Failed to generate test data.");
+    }
   };
 
   const handleOpenSeatEditor = (collegeCode: string, branchCode: string) => {
@@ -2304,12 +2303,11 @@ export default function AdminDashboard() {
                 <div className="flex gap-2">
                   {chatSessions.length > 0 && (
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (confirm("Clear all captured student AI chat logs?")) {
-                          localStorage.removeItem("bihareduconnect_chat_sessions");
-                          setChatSessions([]);
+                          await clearAllChatSessions();
                           setSelectedSessionId(null);
-                          showNotification("✓ All visitor visitor logs cleared successfully.");
+                          showNotification("✓ All visitor logs cleared successfully.");
                         }
                       }}
                       className="px-2.5 py-1.5 border border-red-500/20 text-red-500 text-[10px] font-bold uppercase rounded-lg hover:bg-red-500/5 cursor-pointer transition-colors"
@@ -2379,14 +2377,29 @@ export default function AdminDashboard() {
                       return (
                         <>
                           {/* Selected Header */}
-                          <div className="bg-slate-100 dark:bg-slate-900 px-4 py-2 border-b border-gray-155 dark:border-slate-800 text-left flex items-center justify-between">
+                          <div className="bg-slate-100 dark:bg-slate-900 px-4 py-3 border-b border-gray-155 dark:border-slate-800 text-left flex items-center justify-between">
                             <div className="min-w-0">
                               <h4 className="text-xs font-bold text-slate-800 dark:text-white leading-tight truncate">{session.studentName}</h4>
                               <span className="text-[9px] text-gray-450 block truncate">{session.studentEmail} &bull; JEE: {session.percentile}%</span>
                             </div>
-                            <span className="text-[9px] bg-slate-200 dark:bg-slate-800 text-gray-600 dark:text-gray-350 px-2 py-0.5 rounded font-extrabold uppercase shrink-0">
-                              {session.date}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] bg-slate-200 dark:bg-slate-800 text-gray-600 dark:text-gray-350 px-2 py-1 rounded font-extrabold uppercase shrink-0">
+                                {session.date}
+                              </span>
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Delete chat log for ${session.studentName}?`)) {
+                                    await deleteChatSession(session.id);
+                                    setSelectedSessionId(null);
+                                    showNotification("✓ Chat log deleted successfully.");
+                                  }
+                                }}
+                                className="p-1 hover:bg-red-500/10 text-red-500 rounded transition-colors cursor-pointer flex items-center justify-center"
+                                title="Delete Log"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
 
                           {/* Bubble list */}
