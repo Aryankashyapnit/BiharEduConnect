@@ -15,10 +15,9 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
-  HelpCircle,
   Info,
-  ArrowUpDown,
-  UserCheck
+  UserCheck,
+  Download
 } from "lucide-react";
 
 interface Choice {
@@ -313,7 +312,23 @@ export default function ChoiceSimulatorPage() {
 
   return (
     <AuthGate>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
+      {/* Styles for print styling */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          body {
+            background-color: white !important;
+            color: black !important;
+          }
+          nav, header, footer, .no-print {
+            display: none !important;
+          }
+          #print-section {
+            display: block !important;
+          }
+        }
+      ` }} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative no-print">
         {/* Floating Radial Mesh Blur Backgrounds */}
         <div className="absolute top-10 left-10 w-80 h-80 bg-[#FF9933]/5 rounded-full blur-3xl pointer-events-none animate-float" />
         <div className="absolute top-1/3 right-10 w-96 h-96 bg-[#138808]/5 rounded-full blur-3xl pointer-events-none animate-float" style={{ animationDelay: "-3s" }} />
@@ -470,7 +485,7 @@ export default function ChoiceSimulatorPage() {
 
             {/* Export actions at bottom */}
             {choices.length > 0 && (
-              <div className="pt-6 mt-6 border-t border-gray-100 dark:border-slate-800/80 flex flex-wrap gap-3">
+              <div className="pt-6 mt-6 border-t border-gray-150 dark:border-slate-800/80 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -479,9 +494,16 @@ export default function ChoiceSimulatorPage() {
                     navigator.clipboard.writeText(shareText);
                     alert("✓ Mock Preference List copied to clipboard with AI Optimization details!");
                   }}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold transition-all transform active:scale-95 cursor-pointer shadow flex items-center gap-1.5 border border-slate-700/50"
+                  className="px-4 py-2.5 bg-slate-850 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold transition-all transform active:scale-95 cursor-pointer shadow flex items-center gap-1.5 border border-slate-750"
                 >
-                  <FileText className="w-4 h-4 text-gray-400 dark:text-slate-600" /> Copy Sheet Data
+                  <FileText className="w-4 h-4 text-gray-400 dark:text-slate-600" /> Copy Data
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl text-xs font-bold transition-all transform active:scale-95 cursor-pointer shadow flex items-center gap-1.5 border border-red-500/10"
+                >
+                  <Download className="w-4 h-4" /> Download PDF
                 </button>
                 <button
                   type="button"
@@ -493,14 +515,14 @@ export default function ChoiceSimulatorPage() {
                   }}
                   className="px-4 py-2.5 bg-[#138808] hover:bg-[#0f7c05] text-white rounded-xl text-xs font-bold transition-all transform active:scale-95 cursor-pointer shadow flex items-center gap-1.5"
                 >
-                  <MessageSquare className="w-4 h-4" /> Share on WhatsApp
+                  <MessageSquare className="w-4 h-4" /> WhatsApp Share
                 </button>
               </div>
             )}
           </div>
 
           {/* Right Panel: AI Preference Sheet Evaluation (Col-5) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 no-print">
             
             {/* 1. Personalized Counseling Config Profile */}
             <div className="glass-card rounded-3xl p-6 shadow-xl text-left border border-[#2563EB]/10">
@@ -657,6 +679,49 @@ export default function ChoiceSimulatorPage() {
             </div>
 
           </div>
+        </div>
+      </div>
+
+      {/* PDF Print Report Container */}
+      <div id="print-section" className="hidden print:block p-8 bg-white text-black text-left font-sans">
+        <div className="border-b-4 border-slate-900 pb-4 mb-6">
+          <h1 className="text-xl font-black tracking-tight uppercase text-slate-900">BIHAR COMBINED ENTRANCE COMPETITIVE EXAMINATION BOARD</h1>
+          <h2 className="text-sm font-bold text-slate-600 mt-0.5">UGEAC 2026 Counseling - Choice-Locking Sheet</h2>
+          <div className="grid grid-cols-2 gap-4 mt-6 text-xs text-slate-850">
+            <div><strong>Candidate Name:</strong> {user?.name || "Candidate"}</div>
+            <div><strong>Estimated UGEAC Rank:</strong> #{estimatedRank}</div>
+            <div><strong>Selected Category:</strong> {categoryInput}</div>
+            <div><strong>Generated Date:</strong> {new Date().toLocaleDateString("en-IN")}</div>
+          </div>
+        </div>
+
+        <table className="w-full border-collapse border border-slate-350 text-xs text-slate-800">
+          <thead>
+            <tr className="bg-slate-100 font-bold border-b border-slate-350 text-left">
+              <th className="px-4 py-2.5 border-r border-slate-350 w-12 text-center">Pref #</th>
+              <th className="px-4 py-2.5 border-r border-slate-350 w-32 text-center">College Code</th>
+              <th className="px-4 py-2.5 border-r border-slate-350">College Name</th>
+              <th className="px-4 py-2.5 border-r border-slate-350 w-36">Selected Branch</th>
+              <th className="px-4 py-2.5 w-24 text-center">Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {choices.map((c, i) => (
+              <tr key={c.id} className="border-b border-slate-350">
+                <td className="px-4 py-2.5 border-r border-slate-350 text-center font-bold">{i + 1}</td>
+                <td className="px-4 py-2.5 border-r border-slate-350 font-bold text-center">{c.collegeCode}</td>
+                <td className="px-4 py-2.5 border-r border-slate-350 font-semibold text-slate-900">{c.collegeName}</td>
+                <td className="px-4 py-2.5 border-r border-slate-350 font-bold text-[#FF9933]">{c.branchCode}</td>
+                <td className="px-4 py-2.5 text-center font-semibold text-slate-600">{categoryInput}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="mt-12 text-[10px] text-gray-500 border-t border-slate-200 pt-4 text-center leading-relaxed">
+          <strong>Important Note:</strong> This is a reference preference sheet generated by BiharEduConnect's AI Advisor. 
+          Ensure you fill these choices in the exact same sequence on the official UGEAC/BCECE portal. 
+          Keep this sheet safe for reference during online choice locking.
         </div>
       </div>
     </AuthGate>
