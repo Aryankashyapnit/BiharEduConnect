@@ -68,6 +68,7 @@ export interface VisitorLog {
   lastVisitTime: string;
   role: "Standard" | "Guest" | "Anonymous";
   totalSessionTime?: number;
+  lastActivity?: number;
 }
 
 interface AppContextType {
@@ -406,6 +407,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           email: emailClean,
           percentile: currentUser.percentile || 0,
           lastVisitTime: timeStr,
+          lastActivity: Date.now(),
           role: currentUser.email && !currentUser.email.includes(".demo@") ? "Standard" : "Guest"
         };
       } else {
@@ -427,6 +429,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: `Anonymous Guest #${anonId}`,
           email: `anonymous.${anonId}@bihareduconnect.in`,
           lastVisitTime: timeStr,
+          lastActivity: Date.now(),
           role: "Anonymous"
         };
       }
@@ -469,8 +472,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           globalVisits += data.visitCount || 1;
         });
         
-        // Sort by lastVisitTime descending (roughly)
-        logs.sort((a, b) => new Date(b.lastVisitTime).getTime() - new Date(a.lastVisitTime).getTime());
+        // Sort by lastActivity (timestamp) descending, fallback to string parsing
+        logs.sort((a, b) => {
+          const timeA = a.lastActivity || new Date(a.lastVisitTime).getTime() || 0;
+          const timeB = b.lastActivity || new Date(b.lastVisitTime).getTime() || 0;
+          return timeB - timeA;
+        });
         setVisitorLogs(logs);
         
         // Update totalVisits globally based on live Firebase data
@@ -523,7 +530,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (docId) {
             const docRef = doc(db, "visitor_logs", docId);
             await setDoc(docRef, {
-              totalSessionTime: increment(10)
+              totalSessionTime: increment(10),
+              lastActivity: Date.now()
             }, { merge: true });
           }
         } catch (e) {
