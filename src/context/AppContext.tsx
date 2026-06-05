@@ -339,9 +339,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       snap.forEach((d) => {
         const firestoreCollege = d.data() as College;
         const localCollege = collegesData.find(c => c.id === firestoreCollege.id);
-        const image = (firestoreCollege.image && !firestoreCollege.image.startsWith("data:image/"))
+        const image = firestoreCollege.image
           ? firestoreCollege.image
-          : (localCollege ? localCollege.image : firestoreCollege.image);
+          : (localCollege ? localCollege.image : "");
         list.push({
           ...firestoreCollege,
           image: image || ""
