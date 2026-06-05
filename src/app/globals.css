@@ -256,3 +256,55 @@ button:not(:disabled):active,
 .dark .bg-glow-blob {
   opacity: 0.06;
 }
+
+/* Premium Focus Glows for Inputs & Dropdowns */
+input:not([type="checkbox"]), select, textarea {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+input:not([type="checkbox"]):focus, select:focus, textarea:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(37, 99, 235, 0.05) !important;
+  transform: translateY(-0.5px);
+  background-color: #ffffff !important;
+}
+
+.dark input:not([type="checkbox"]):focus, .dark select:focus, .dark textarea:focus {
+  border-color: #FF9933 !important;
+  box-shadow: 0 0 0 4px rgba(255, 153, 51, 0.15), 0 4px 12px rgba(255, 153, 51, 0.08) !important;
+  background-color: rgba(9, 14, 26, 0.85) !important;
+}
+
+/* Soft Hover Borders on Glassmorphic Cards */
+.glass-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.glass-card:hover {
+  border-color: rgba(37, 99, 235, 0.22) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.02), 0 0 20px rgba(37, 99, 235, 0.04) !important;
+}
+
+.dark .glass-card:hover {
+  border-color: rgba(255, 153, 51, 0.15) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28), 0 0 20px rgba(255, 153, 51, 0.03) !important;
+}
+
+/* Pulse Glow Halo Keyframes */
+@keyframes pulseGlowBlue {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(37, 99, 235, 0.2); }
+  50% { box-shadow: 0 0 12px 3px rgba(37, 99, 235, 0.08); }
+}
+
+@keyframes pulseGlowOrange {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(255, 153, 51, 0.2); }
+  50% { box-shadow: 0 0 12px 3px rgba(255, 153, 51, 0.08); }
+}
+
+.pulse-glow-blue {
+  animation: pulseGlowBlue 2.5s infinite ease-in-out;
+}
+
+.pulse-glow-orange {
+  animation: pulseGlowOrange 2.5s infinite ease-in-out;
+}
