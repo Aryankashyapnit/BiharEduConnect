@@ -361,13 +361,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const unsubCutoffs = onSnapshot(collection(db, "cutoffs"), (snap) => {
       const list: Cutoff[] = [];
       snap.forEach((d) => list.push(d.data() as Cutoff));
-      if (list.length > 0) setCutoffs(list);
+      if (list.length > 0) {
+        setCutoffs(list);
+        localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(list));
+      }
     });
 
     const unsubSeatMatrix = onSnapshot(collection(db, "seat_matrix"), (snap) => {
       const list: SeatMatrixEntry[] = [];
       snap.forEach((d) => list.push(d.data() as SeatMatrixEntry));
-      if (list.length > 0) setSeatMatrix(list);
+      if (list.length > 0) {
+        setSeatMatrix(list);
+        localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(list));
+      }
     });
 
     const unsubBulkFiles = onSnapshot(collection(db, "bulk_files"), (snap) => {

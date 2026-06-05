@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
-import { getCutoff } from "../../data/cutoffs";
+import { getCutoff, getEstimatedCutoff } from "../../data/cutoffs";
 import { branchNames } from "../../data/colleges";
 import { 
   Compass, 
@@ -50,7 +50,9 @@ export default function CollegePredictor() {
     rkType: "ur" | "category"
   ) => {
     let targetRank = 0;
+    let estimatedUR = 0;
     
+    // 1. Calculate General UR rank first
     if (type === "percentile") {
       const pctVal = Number(pct);
       if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) {
@@ -59,32 +61,53 @@ export default function CollegePredictor() {
       }
       
       const factor = (100 - pctVal);
-      targetRank = Math.round(10 * Math.pow(factor, 1.7) + 1);
-      targetRank = Math.max(1, targetRank);
+      estimatedUR = Math.round(10 * Math.pow(factor, 1.7) + 1);
+      estimatedUR = Math.max(1, estimatedUR);
     } else {
       const rankVal = Number(rk);
       if (isNaN(rankVal) || rankVal <= 0) {
         alert("Please enter a valid rank number");
         return;
       }
-      if (rkType === "category" && cat !== "UR") {
-        let multiplier = 1.0;
-        switch (cat) {
-          case "BC": multiplier = 3.5; break;
-          case "EBC": multiplier = 2.8; break;
-          case "EWS": multiplier = 5.0; break;
-          case "SC": multiplier = 6.5; break;
-          case "ST": multiplier = 45.0; break;
-          case "RCG": multiplier = 15.0; break;
-        }
-        targetRank = Math.round(rankVal * multiplier);
-      } else {
-        targetRank = rankVal;
+      
+      let baseRankVal = rankVal;
+      if (type === "bcece_rank") {
+        baseRankVal = Math.round(baseRankVal * 1.45); // convert BCECE to equivalent UGEAC rank
       }
 
-      if (type === "bcece_rank") {
-        targetRank = Math.round(targetRank * 1.45);
+      if (rkType === "category" && cat !== "UR") {
+        // User entered Category Rank, convert to General UR rank
+        let ratio = 1.0;
+        switch (cat) {
+          case "BC": ratio = 3.5; break;
+          case "EBC": ratio = 2.8; break;
+          case "EWS": ratio = 5.0; break;
+          case "SC": ratio = 6.5; break;
+          case "ST": ratio = 45.0; break;
+          case "RCG": ratio = 15.0; break;
+        }
+        estimatedUR = Math.round(baseRankVal * ratio);
+      } else {
+        // User entered General UR Rank
+        estimatedUR = baseRankVal;
       }
+    }
+
+    // 2. Convert estimatedUR to targetRank in category units to compare with database category cutoffs
+    if (cat === "UR") {
+      targetRank = estimatedUR;
+    } else {
+      let ratio = 1.0;
+      switch (cat) {
+        case "BC": ratio = 3.5; break;
+        case "EBC": ratio = 2.8; break;
+        case "EWS": ratio = 5.0; break;
+        case "SC": ratio = 6.5; break;
+        case "ST": ratio = 45.0; break;
+        case "RCG": ratio = 15.0; break;
+      }
+      targetRank = Math.round(estimatedUR / ratio);
+      targetRank = Math.max(1, targetRank);
     }
 
     const results: any[] = [];
