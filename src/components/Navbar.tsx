@@ -86,13 +86,13 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all duration-200 ${
+                    className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all duration-250 transform active:scale-[0.96] cursor-pointer group ${
                       active
                         ? "text-[#2563EB] dark:text-[#FF9933] bg-white dark:bg-slate-900 shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-slate-200/50 dark:border-slate-700/50"
                         : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${active ? "text-[#2563EB] dark:text-[#FF9933]" : "text-slate-400 dark:text-slate-500"}`} />
+                    <Icon className={`w-4 h-4 transition-transform duration-250 group-hover:scale-[1.12] ${active ? "text-[#2563EB] dark:text-[#FF9933]" : "text-slate-400 dark:text-slate-500"}`} />
                     <span>{link.label}</span>
                   </Link>
                 );
