@@ -5,8 +5,8 @@ import { College, collegesData } from "../data/colleges";
 import { Cutoff, cutoffsData } from "../data/cutoffs";
 import { SeatMatrixEntry, seatMatrixData } from "../data/seatMatrix";
 import { db } from "../lib/firebase";
-import { collection, doc, setDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment, query, limit } from "firebase/firestore";
-
+import { collection, doc, setDoc, onSnapshot, getDoc, getDocs, updateDoc, deleteDoc, increment } from "firebase/firestore";
+import { supabase } from "../lib/supabase"; // SUPABASE IMPORT
 
 export interface SavedPrediction {
   id: string;
@@ -90,7 +90,6 @@ interface AppContextType {
   updateCollege: (college: College) => void;
   deleteCollege: (collegeId: string) => void;
   
-  // Dynamic Sync Additions
   bulkFiles: BulkFile[];
   addBulkFile: (file: BulkFile) => void;
   deleteBulkFile: (fileName: string) => void;
@@ -109,7 +108,6 @@ interface AppContextType {
   updateSeatMatrixEntry: (entry: SeatMatrixEntry) => void;
   resetSeatMatrix: () => void;
   
-  // Authentication
   user: User | null;
   showAuthModal: boolean;
   pendingRedirect: string | null;
@@ -179,14 +177,14 @@ const defaultGuideSteps: GuideStep[] = [
     subtitle: "Locking & Verification",
     iconName: "Lock",
     color: "border-amber-500 text-amber-500",
-    description: "Once satisfied with your choice hierarchy, click 'Lock Choices'. This requires OTP verification sent to your registered mobile and email. Remember: **If you do not lock choices manually, your last saved choices will be locked automatically at the deadline.** However, manual locking is highly recommended."
+    description: "Once satisfied with your choice hierarchy, click 'Lock Choices'. This requires OTP verification sent to your registered mobile and email. Remember: If you do not lock choices manually, your last saved choices will be locked automatically at the deadline. However, manual locking is highly recommended."
   },
   {
     title: "5. Seat Allotment Round 1",
     subtitle: "Allotment Letter",
     iconName: "Building",
     color: "border-purple-500 text-purple-500",
-    description: "BCECE publishes the Round 1 Seat Allotment results on their portal. Log in to check your allocation status. If allocated, you must download your 'Seat Allotment Letter'. You will be asked a crucial question: **'Do you want to participate in upgrade for Round 2?'** Choose 'Yes' (Upgrade) or 'No' (Freeze)."
+    description: "BCECE publishes the Round 1 Seat Allotment results on their portal. Log in to check your allocation status. If allocated, you must download your 'Seat Allotment Letter'. You will be asked a crucial question: 'Do you want to participate in upgrade for Round 2?' Choose 'Yes' (Upgrade) or 'No' (Freeze)."
   },
   {
     title: "6. Document Verification (DV)",
@@ -208,13 +206,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [totalVisits, setTotalVisits] = useState<number>(0);
 
-  // Dynamic States
   const [bulkFiles, setBulkFiles] = useState<BulkFile[]>(defaultBulkFiles);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(defaultTimelineEvents);
   const [guideSteps, setGuideSteps] = useState<GuideStep[]>(defaultGuideSteps);
   const [chatSessions, setChatSessions] = useState<any[]>([]);
 
-  // Authentication States
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
@@ -240,20 +236,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
       if (storedCutoffs) {
-        try {
-          setCutoffs(JSON.parse(storedCutoffs));
-        } catch (e) {
-          console.error("Failed to parse cached cutoffs", e);
-        }
+        try { setCutoffs(JSON.parse(storedCutoffs)); } catch (e) {}
       }
 
       const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
       if (storedSeatMatrix) {
-        try {
-          setSeatMatrix(JSON.parse(storedSeatMatrix));
-        } catch (e) {
-          console.error("Failed to parse cached seat matrix", e);
-        }
+        try { setSeatMatrix(JSON.parse(storedSeatMatrix)); } catch (e) {}
       }
 
       const sessionVisited = sessionStorage.getItem("bihareduconnect_session_visited");
@@ -264,232 +252,82 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const storedDark = localStorage.getItem("bihareduconnect_dark");
       if (storedDark) {
         setDarkMode(storedDark === "true");
-        if (storedDark === "true") {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
+        if (storedDark === "true") document.documentElement.classList.add("dark");
+        else document.documentElement.classList.remove("dark");
       }
     }
   }, []);
 
-  const seedCollectionIfEmpty = async <T,>(
-    collectionName: string,
-    defaultData: T[],
-    getId: (item: T, idx: number) => string
-  ) => {
-    try {
-      const colRef = collection(db, collectionName);
-      const q = query(colRef, limit(1));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        console.log(`Seeding Firestore collection: ${collectionName} (currently empty, target ${defaultData.length})`);
-        let idx = 0;
-        for (const item of defaultData) {
-          const id = getId(item, idx);
-          try {
-            const docRef = doc(db, collectionName, id);
-            await setDoc(docRef, item as any);
-            console.log(`Successfully seeded document: ${id} in ${collectionName}`);
-          } catch (itemErr) {
-            console.error(`Error seeding document ${id} in ${collectionName}:`, itemErr);
-          }
-          idx++;
-        }
-      }
-    } catch (e) {
-      console.error(`Error seeding ${collectionName}:`, e);
-    }
-  };
-
-  const seedSettingsIfEmpty = async () => {
-    try {
-      const docRef = doc(db, "settings", "whatsapp");
-      const snap = await getDoc(docRef);
-      if (!snap.exists()) {
-        await setDoc(docRef, { link: "https://wa.me/919999999999" });
-      }
-    } catch (e) {
-      console.error("Error seeding settings:", e);
-    }
-  };
-
-  // Setup Real-time Firestore Sync Listeners
+  // HYBRID DATA FETCHING: SUPABASE (Heavy) + FIREBASE (Auth/Logs)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const performSeedingAndSetup = async () => {
-      // Clean up base64 images from colleges default data during seed to prevent Firestore document size limit issues (1MB)
-      const dataToSeed = collegesData.map(c => {
-        const isBase64 = c.image && c.image.startsWith("data:image/");
-        return {
-          ...c,
-          image: isBase64 ? "" : c.image
-        };
-      });
-      await seedCollectionIfEmpty("colleges", dataToSeed, (c) => c.id);
-      await seedCollectionIfEmpty("bulk_files", defaultBulkFiles, (b) => b.name.replace(/[^a-zA-Z0-9]/g, "_"));
-      await seedCollectionIfEmpty("timeline_events", defaultTimelineEvents, (t) => t.id.toString());
-      
+    // --- SUPABASE FETCHING ---
+    const fetchSupabaseData = async () => {
       try {
-        const colRef = collection(db, "guide_steps");
-        const snap = await getDocs(colRef);
-        if (snap.empty) {
-          for (let i = 0; i < defaultGuideSteps.length; i++) {
-            await setDoc(doc(db, "guide_steps", i.toString()), defaultGuideSteps[i]);
-          }
+        // 1. Fetch Colleges
+        const { data: colData } = await supabase.from('colleges').select('*');
+        if (colData && colData.length > 0) {
+          const mappedColleges = colData.map((d: any) => ({
+            id: d.id, name: d.name, code: d.code, location: d.location, established: d.established,
+            nirf: d.nirf, averagePackage: d.average_package, highestPackage: d.highest_package,
+            tuitionFee: d.tuition_fee, hostelAvailable: d.hostel_available, hostelFee: d.hostel_fee,
+            website: d.website, description: d.description, campusSize: d.campus_size,
+            branches: d.branches || [], recruits: d.recruits || [], image: d.image || ""
+          }));
+          setColleges(mappedColleges as College[]);
         }
-      } catch (e) {
-        console.error("Error seeding guide steps:", e);
-      }
 
-      await seedSettingsIfEmpty();
+        // 2. Fetch Cutoffs
+        const { data: cutData } = await supabase.from('cutoffs').select('*');
+        if (cutData && cutData.length > 0) {
+          const mappedCutoffs = cutData.map((d: any) => ({
+            id: d.id.toString(), collegeCode: d.college_code, branchCode: d.branch_code,
+            year: d.year, round: d.round, category: d.category, gender: d.gender,
+            openingRank: d.opening_rank, closingRank: d.closing_rank
+          }));
+          setCutoffs(mappedCutoffs as Cutoff[]);
+          localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(mappedCutoffs));
+        }
+
+        // 3. Fetch Seat Matrix
+        const { data: smData } = await supabase.from('seat_matrix').select('*');
+        if (smData && smData.length > 0) {
+          const mappedSeats = smData.map((d: any) => ({
+            collegeCode: d.college_code, branchCode: d.branch_code, totalSeats: d.total_seats,
+            categorySeats: { UR: d.ur_seats, BC: d.bc_seats, EBC: d.ebc_seats, SC: d.sc_seats, ST: d.st_seats, EWS: d.ews_seats, RCG: d.rcg_seats }
+          }));
+          setSeatMatrix(mappedSeats as SeatMatrixEntry[]);
+        }
+
+        // 4. Fetch Timeline Events
+        const { data: tlData } = await supabase.from('timeline_events').select('*').order('id', { ascending: true });
+        if (tlData && tlData.length > 0) setTimelineEvents(tlData as TimelineEvent[]);
+
+        // 5. Fetch Bulk Files
+        const { data: bfData } = await supabase.from('bulk_files').select('*');
+        if (bfData && bfData.length > 0) setBulkFiles(bfData as BulkFile[]);
+
+      } catch (error) {
+        console.error("Error fetching Supabase heavy datastores:", error);
+      }
     };
 
-    performSeedingAndSetup();
+    fetchSupabaseData();
 
-    // Setup Snapshot listeners
-    const unsubColleges = onSnapshot(collection(db, "colleges"), (snap) => {
-      const list: College[] = [];
-      snap.forEach((d) => {
-        const firestoreCollege = d.data() as College;
-        const localCollege = collegesData.find(c => c.id === firestoreCollege.id);
-        const image = firestoreCollege.image
-          ? firestoreCollege.image
-          : (localCollege ? localCollege.image : "");
-        list.push({
-          ...firestoreCollege,
-          image: image || ""
-        });
-      });
-      if (list.length > 0) {
-        list.sort((a, b) => {
-          let indexA = collegesData.findIndex(c => c.id === a.id);
-          let indexB = collegesData.findIndex(c => c.id === b.id);
-          if (indexA === -1) indexA = 9999;
-          if (indexB === -1) indexB = 9999;
-          return indexA - indexB;
-        });
-        setColleges(list);
-      }
-    }, (error) => {
-      console.warn("Colleges listener failed:", error.message);
-    });
-
-    const unsubCutoffs = onSnapshot(collection(db, "cutoffs"), (snap) => {
-      const firestoreList: Cutoff[] = [];
-      snap.forEach((d) => {
-        const data = d.data() as Cutoff;
-        if (!data.id) data.id = d.id;
-        firestoreList.push(data);
-      });
-      
-      // Merge: start with defaults, then overlay any Firestore overrides
-      const merged = [...cutoffsData];
-      firestoreList.forEach((firestoreCutoff) => {
-        const index = merged.findIndex(c => 
-          c.collegeCode === firestoreCutoff.collegeCode &&
-          c.branchCode === firestoreCutoff.branchCode &&
-          c.year === firestoreCutoff.year &&
-          c.round === firestoreCutoff.round &&
-          c.category === firestoreCutoff.category
-        );
-        if (index !== -1) {
-          merged[index] = firestoreCutoff;
-        } else {
-          merged.push(firestoreCutoff);
-        }
-      });
-      
-      setCutoffs(merged);
-      try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged)); } catch(e) {}
-    }, (error) => {
-      console.warn("Cutoffs listener failed:", error.message);
-      // On error, keep current state (already initialized with cutoffsData or localStorage)
-      // Try to load from localStorage as a better fallback
-      try {
-        const stored = localStorage.getItem("bihareduconnect_cutoffs");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setCutoffs(parsed);
-          }
-        }
-      } catch (e) {
-        // Keep the default cutoffsData that was set during initialization
-      }
-    });
-
-    const unsubSeatMatrix = onSnapshot(collection(db, "seat_matrix"), (snap) => {
-      const firestoreList: SeatMatrixEntry[] = [];
-      snap.forEach((d) => firestoreList.push(d.data() as SeatMatrixEntry));
-      
-      // Merge: start with defaults, then overlay any Firestore overrides
-      const merged = [...seatMatrixData];
-      firestoreList.forEach((entry) => {
-        const index = merged.findIndex(s => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode);
-        if (index !== -1) {
-          merged[index] = entry;
-        } else {
-          merged.push(entry);
-        }
-      });
-      
-      setSeatMatrix(merged);
-      try { localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged)); } catch(e) {}
-    }, (error) => {
-      console.warn("Seat matrix listener failed:", error.message);
-      // On error, keep current state (already initialized with seatMatrixData or localStorage)
-      try {
-        const stored = localStorage.getItem("bihareduconnect_seat_matrix");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setSeatMatrix(parsed);
-          }
-        }
-      } catch (e) {
-        // Keep the default seatMatrixData that was set during initialization
-      }
-    });
-
-    const unsubBulkFiles = onSnapshot(collection(db, "bulk_files"), (snap) => {
-      const list: BulkFile[] = [];
-      snap.forEach((d) => list.push(d.data() as BulkFile));
-      setBulkFiles(list);
-    }, (error) => {
-      console.warn("Bulk files listener failed:", error.message);
-    });
-
-    const unsubTimeline = onSnapshot(collection(db, "timeline_events"), (snap) => {
-      const list: TimelineEvent[] = [];
-      snap.forEach((d) => list.push(d.data() as TimelineEvent));
-      list.sort((a, b) => a.id - b.id);
-      setTimelineEvents(list);
-    }, (error) => {
-      console.warn("Timeline listener failed:", error.message);
-    });
-
+    // --- FIREBASE SNAPSHOTS ---
     const unsubGuides = onSnapshot(collection(db, "guide_steps"), (snap) => {
       const list: GuideStep[] = new Array(defaultGuideSteps.length);
       snap.forEach((d) => {
         const idx = parseInt(d.id, 10);
-        if (!isNaN(idx) && idx >= 0) {
-          list[idx] = d.data() as GuideStep;
-        }
+        if (!isNaN(idx) && idx >= 0) list[idx] = d.data() as GuideStep;
       });
       const cleanList = list.filter(Boolean);
       if (cleanList.length > 0) setGuideSteps(cleanList);
-    }, (error) => {
-      console.warn("Guides listener failed:", error.message);
     });
 
     const unsubSettings = onSnapshot(doc(db, "settings", "whatsapp"), (snap) => {
-      if (snap.exists()) {
-        setWhatsappLink(snap.data().link || "https://wa.me/919999999999");
-      }
-    }, (error) => {
-      console.warn("Settings listener failed:", error.message);
+      if (snap.exists()) setWhatsappLink(snap.data().link || "https://wa.me/919999999999");
     });
 
     const unsubChats = onSnapshot(collection(db, "chat_sessions"), (snap) => {
@@ -498,25 +336,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       list.sort((a, b) => {
         const dateA = a.date || "";
         const dateB = b.date || "";
-        if (dateA !== dateB) {
-          return new Date(dateB).getTime() - new Date(dateA).getTime();
-        }
+        if (dateA !== dateB) return new Date(dateB).getTime() - new Date(dateA).getTime();
         return (b.lastMessageTime || "").localeCompare(a.lastMessageTime || "");
       });
       setChatSessions(list);
-    }, (error) => {
-      console.warn("Chats listener failed:", error.message);
+    });
+
+    const unsubVisitorLogs = onSnapshot(collection(db, "visitor_logs"), (snap) => {
+      const incomingMap = new Map<string, VisitorLog>();
+      let globalVisits = 0;
+      snap.forEach((doc) => {
+        const data = doc.data() as VisitorLog;
+        incomingMap.set(data.id, data);
+        globalVisits += data.visitCount || 1;
+      });
+      const logsList = Array.from(incomingMap.values());
+      const getLogTime = (log: VisitorLog) => {
+        if (log.lastVisitTimestamp) return log.lastVisitTimestamp;
+        if (log.lastVisitTime) {
+          const parsed = new Date(log.lastVisitTime).getTime();
+          if (!isNaN(parsed)) return parsed;
+        }
+        return log.lastActivity || 0;
+      };
+      logsList.sort((a, b) => getLogTime(b) - getLogTime(a));
+      setVisitorLogs(logsList);
+      setTotalVisits(124 + globalVisits);
+    });
+
+    const unsubUsers = onSnapshot(collection(db, "registered_users"), (snap) => {
+      const users: RegisteredUser[] = [];
+      snap.forEach((doc) => users.push(doc.data() as RegisteredUser));
+      setRegisteredUsers(users);
     });
 
     return () => {
-      unsubColleges();
-      unsubCutoffs();
-      unsubSeatMatrix();
-      unsubBulkFiles();
-      unsubTimeline();
       unsubGuides();
       unsubSettings();
       unsubChats();
+      unsubVisitorLogs();
+      unsubUsers();
     };
   }, []);
 
@@ -526,64 +385,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         day: "2-digit", month: "short", year: "numeric",
         hour: "2-digit", minute: "2-digit", hour12: true
       });
-      
       let visitorData: any = {};
       let docId = "";
 
       if (currentUser) {
         if (currentUser.isAdmin) return;
-        
         const emailClean = currentUser.email ? currentUser.email.toLowerCase().trim() : `${currentUser.name.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
         docId = emailClean.replace(/[^a-zA-Z0-9]/g, "_");
-        
         visitorData = {
-          id: docId,
-          name: currentUser.name,
-          email: emailClean,
-          percentile: currentUser.percentile || 0,
-          lastVisitTime: timeStr,
-          lastVisitTimestamp: Date.now(),
-          lastActivity: Date.now(),
+          id: docId, name: currentUser.name, email: emailClean, percentile: currentUser.percentile || 0,
+          lastVisitTime: timeStr, lastVisitTimestamp: Date.now(), lastActivity: Date.now(),
           role: currentUser.email && !currentUser.email.includes(".demo@") ? "Standard" : "Guest"
         };
       } else {
-        // Unique anonymous tracking
-        let anonId = "";
-        if (typeof window !== "undefined") {
-          anonId = localStorage.getItem("bihareduconnect_anon_id") || "";
-          if (!anonId) {
-            anonId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            localStorage.setItem("bihareduconnect_anon_id", anonId);
-          }
-        } else {
-          anonId = "SERVER";
+        let anonId = typeof window !== "undefined" ? (localStorage.getItem("bihareduconnect_anon_id") || "") : "SERVER";
+        if (!anonId && typeof window !== "undefined") {
+          anonId = Math.random().toString(36).substring(2, 8).toUpperCase();
+          localStorage.setItem("bihareduconnect_anon_id", anonId);
         }
-        
         docId = `anonymous_guest_${anonId}`;
         visitorData = {
-          id: docId,
-          name: `Anonymous Guest #${anonId}`,
-          email: `anonymous.${anonId}@bihareduconnect.in`,
-          lastVisitTime: timeStr,
-          lastVisitTimestamp: Date.now(),
-          lastActivity: Date.now(),
-          role: "Anonymous"
+          id: docId, name: `Anonymous Guest #${anonId}`, email: `anonymous.${anonId}@bihareduconnect.in`,
+          lastVisitTime: timeStr, lastVisitTimestamp: Date.now(), lastActivity: Date.now(), role: "Anonymous"
         };
       }
 
       const docRef = doc(db, "visitor_logs", docId);
       const docSnap = await getDoc(docRef);
-      
       if (docSnap.exists()) {
-        await updateDoc(docRef, {
-          ...visitorData,
-          visitCount: docSnap.data().visitCount + 1
-        });
+        await updateDoc(docRef, { ...visitorData, visitCount: docSnap.data().visitCount + 1 });
       } else {
-        await setDoc(docRef, {
-          ...visitorData,
-          visitCount: 1
-        });
+        await setDoc(docRef, { ...visitorData, visitCount: 1 });
       }
     } catch (e) {
       console.error("Firebase logging error: ", e);
@@ -597,84 +429,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sessionStorage.setItem("bihareduconnect_session_visited_log", "true");
         recordVisit(user);
       }
-
-      // Setup Firebase real-time listener for visitor logs
-      const unsubscribe = onSnapshot(collection(db, "visitor_logs"), (snapshot) => {
-        const incomingMap = new Map<string, VisitorLog>();
-        let globalVisits = 0;
-        
-        snapshot.forEach((doc) => {
-          const data = doc.data() as VisitorLog;
-          incomingMap.set(data.id, data);
-          globalVisits += data.visitCount || 1;
-        });
-
-        const logsList = Array.from(incomingMap.values());
-
-        // Robust helper to get the last visit time for sorting
-        const getLogTime = (log: VisitorLog) => {
-          if (log.lastVisitTimestamp) return log.lastVisitTimestamp;
-          if (log.lastVisitTime) {
-            const parsed = new Date(log.lastVisitTime).getTime();
-            if (!isNaN(parsed)) return parsed;
-          }
-          return log.lastActivity || 0;
-        };
-
-        // Sort globally by visit time descending
-        logsList.sort((a, b) => getLogTime(b) - getLogTime(a));
-
-        setVisitorLogs(logsList);
-        
-        // Update totalVisits globally based on live Firebase data
-        // We add a baseline of 124 (the original hardcoded mock data baseline)
-        setTotalVisits(124 + globalVisits);
-      }, (error) => {
-        console.warn("Firebase snapshot warning (visitor logs): ", error.message);
-        // Fallback to local storage if firebase fails
-        const stored = localStorage.getItem("bihareduconnect_visitor_logs");
-        if (stored) {
-          try {
-            const parsedLogs = JSON.parse(stored) as VisitorLog[];
-            const getLogTime = (log: VisitorLog) => {
-              if (log.lastVisitTimestamp) return log.lastVisitTimestamp;
-              if (log.lastVisitTime) {
-                const parsed = new Date(log.lastVisitTime).getTime();
-                if (!isNaN(parsed)) return parsed;
-              }
-              return log.lastActivity || 0;
-            };
-            parsedLogs.sort((a, b) => getLogTime(b) - getLogTime(a));
-            setVisitorLogs(parsedLogs);
-          } catch (e) {
-            console.warn("Failed to parse fallback visitor logs", e);
-          }
-        }
-      });
-      // Setup Firebase real-time listener for registered users
-      const unsubscribeUsers = onSnapshot(collection(db, "registered_users"), (snapshot) => {
-        const users: RegisteredUser[] = [];
-        snapshot.forEach((doc) => {
-          users.push(doc.data() as RegisteredUser);
-        });
-        setRegisteredUsers(users);
-      }, (error) => {
-        console.warn("Firebase users snapshot warning: ", error.message);
-        const stored = localStorage.getItem("bihareduconnect_registered_users");
-        if (stored) setRegisteredUsers(JSON.parse(stored));
-      });
-      
-      return () => {
-        unsubscribe();
-        unsubscribeUsers();
-      };
     }
   }, [user]);
 
-  // Session Time Tracker
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const interval = setInterval(async () => {
       if (document.visibilityState === 'visible') {
         try {
@@ -684,61 +443,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             docId = emailClean.replace(/[^a-zA-Z0-9]/g, "_");
           } else if (!user) {
             const anonId = localStorage.getItem("bihareduconnect_anon_id");
-            if (anonId) {
-              docId = `anonymous_guest_${anonId}`;
-            }
+            if (anonId) docId = `anonymous_guest_${anonId}`;
           }
-          
           if (docId) {
             const docRef = doc(db, "visitor_logs", docId);
-            await setDoc(docRef, {
-              totalSessionTime: increment(10),
-              lastActivity: Date.now()
-            }, { merge: true });
+            await setDoc(docRef, { totalSessionTime: increment(10), lastActivity: Date.now() }, { merge: true });
           }
-        } catch (e) {
-          // Ignore if document not found or error
-        }
+        } catch (e) {}
       }
-    }, 10000); // Every 10 seconds
-
+    }, 10000);
     return () => clearInterval(interval);
   }, [user]);
 
-  // Sync state helpers
   const saveToLocalStorage = (key: string, data: any) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(key, JSON.stringify(data));
-    }
-  };
-
-  const syncUserToFirebase = async (userData: RegisteredUser) => {
-    try {
-      const docId = userData.email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
-      await setDoc(doc(db, "registered_users", docId), userData);
-    } catch (e) {
-      console.error("Failed to sync user to Firebase:", e);
-    }
-  };
-
-  const deleteUserFromFirebase = async (email: string) => {
-    try {
-      const docId = email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
-      await deleteDoc(doc(db, "registered_users", docId));
-    } catch (e) {
-      console.error("Failed to delete user from Firebase:", e);
-    }
+    if (typeof window !== "undefined") localStorage.setItem(key, JSON.stringify(data));
   };
 
   const toggleDarkMode = () => {
     setDarkMode((prev) => {
       const newVal = !prev;
       saveToLocalStorage("bihareduconnect_dark", newVal ? "true" : "false");
-      if (newVal) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      if (newVal) document.documentElement.classList.add("dark");
+      else document.documentElement.classList.remove("dark");
       return newVal;
     });
   };
@@ -763,15 +489,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const savePrediction = (prediction: Omit<SavedPrediction, "id" | "date">) => {
     setSavedPredictions((prev) => {
       const newPrediction: SavedPrediction = {
-        ...prediction,
-        id: `pred-${Date.now()}`,
-        date: new Date().toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
-        })
+        ...prediction, id: `pred-${Date.now()}`,
+        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
       };
       const updated = [newPrediction, ...prev];
       saveToLocalStorage("bihareduconnect_predictions", updated);
@@ -787,238 +506,193 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  // ADMIN OPERATIONS
+  // ==========================================
+  // ADMIN OPERATIONS (Mapped to Supabase)
+  // ==========================================
   const addCollege = async (college: College) => {
     try {
-      await setDoc(doc(db, "colleges", college.id), college);
-    } catch (e) {
-      console.error("Error adding college:", e);
-    }
+      const mapped = {
+        id: college.id, name: college.name, code: college.code, location: college.location,
+        established: college.established, nirf: college.nirf, average_package: college.averagePackage,
+        highest_package: college.highestPackage, tuition_fee: college.tuitionFee,
+        hostel_available: college.hostelAvailable, hostel_fee: college.hostelFee,
+        website: college.website, description: college.description, campus_size: college.campusSize,
+        branches: college.branches, recruits: college.recruits, image: college.image
+      };
+      await supabase.from('colleges').insert([mapped]);
+      setColleges(prev => [...prev, college]);
+    } catch (e) { console.error("Error adding college:", e); }
   };
 
   const updateCollege = async (college: College) => {
     try {
-      await setDoc(doc(db, "colleges", college.id), college);
-    } catch (e) {
-      console.error("Error updating college:", e);
-    }
+      const mapped = {
+        name: college.name, code: college.code, location: college.location, established: college.established,
+        nirf: college.nirf, average_package: college.averagePackage, highest_package: college.highestPackage,
+        tuition_fee: college.tuitionFee, hostel_available: college.hostelAvailable, hostel_fee: college.hostelFee,
+        website: college.website, description: college.description, campus_size: college.campusSize,
+        branches: college.branches, recruits: college.recruits, image: college.image
+      };
+      await supabase.from('colleges').update(mapped).eq('id', college.id);
+      setColleges(prev => prev.map(c => c.id === college.id ? college : c));
+    } catch (e) { console.error("Error updating college:", e); }
   };
 
   const deleteCollege = async (collegeId: string) => {
     try {
-      await deleteDoc(doc(db, "colleges", collegeId));
-    } catch (e) {
-      console.error("Error deleting college:", e);
-    }
+      await supabase.from('colleges').delete().eq('id', collegeId);
+      setColleges(prev => prev.filter(c => c.id !== collegeId));
+    } catch (e) { console.error("Error deleting college:", e); }
   };
 
-  // Dynamic Datastore Handlers
   const addBulkFile = async (file: BulkFile) => {
     try {
-      // Use file name as consistent doc ID so deleteBulkFile can find it
-      const docId = file.name.replace(/[^a-zA-Z0-9]/g, "_");
-      await setDoc(doc(db, "bulk_files", docId), file);
-    } catch (e) {
-      console.error("Error adding bulk file:", e);
-    }
+      await supabase.from('bulk_files').insert([file]);
+      setBulkFiles(prev => [...prev, file]);
+    } catch (e) { console.error("Error adding bulk file:", e); }
   };
 
   const deleteBulkFile = async (fileName: string) => {
     try {
-      const docId = fileName.replace(/[^a-zA-Z0-9]/g, "_");
-      await deleteDoc(doc(db, "bulk_files", docId));
-    } catch (e) {
-      console.error("Error deleting bulk file:", e);
-    }
+      await supabase.from('bulk_files').delete().eq('name', fileName);
+      setBulkFiles(prev => prev.filter(f => f.name !== fileName));
+    } catch (e) { console.error("Error deleting bulk file:", e); }
   };
 
   const addTimelineEvent = async (event: Omit<TimelineEvent, "id">) => {
     try {
       const nextId = timelineEvents.length > 0 ? Math.max(...timelineEvents.map((e) => e.id)) + 1 : 1;
-      const newEvent: TimelineEvent = { ...event, id: nextId };
-      await setDoc(doc(db, "timeline_events", nextId.toString()), newEvent);
-    } catch (e) {
-      console.error("Error adding timeline event:", e);
-    }
+      const newEvent = { ...event, id: nextId };
+      await supabase.from('timeline_events').insert([newEvent]);
+      setTimelineEvents(prev => [...prev, newEvent].sort((a,b) => a.id - b.id));
+    } catch (e) { console.error("Error adding timeline event:", e); }
   };
 
   const updateTimelineEvent = async (id: number, updatedFields: Partial<TimelineEvent>) => {
     try {
-      const ref = doc(db, "timeline_events", id.toString());
-      await updateDoc(ref, updatedFields);
-    } catch (e) {
-      console.error("Error updating timeline event:", e);
-    }
+      await supabase.from('timeline_events').update(updatedFields).eq('id', id);
+      setTimelineEvents(prev => prev.map(ev => ev.id === id ? { ...ev, ...updatedFields } : ev));
+    } catch (e) { console.error("Error updating timeline event:", e); }
   };
 
   const deleteTimelineEvent = async (id: number) => {
     try {
-      await deleteDoc(doc(db, "timeline_events", id.toString()));
-    } catch (e) {
-      console.error("Error deleting timeline event:", e);
-    }
+      await supabase.from('timeline_events').delete().eq('id', id);
+      setTimelineEvents(prev => prev.filter(ev => ev.id !== id));
+    } catch (e) { console.error("Error deleting timeline event:", e); }
   };
 
   const updateGuideStep = async (index: number, updatedFields: Partial<GuideStep>) => {
     try {
       const ref = doc(db, "guide_steps", index.toString());
       await setDoc(ref, { ...guideSteps[index], ...updatedFields });
-    } catch (e) {
-      console.error("Error updating guide step:", e);
-    }
+    } catch (e) { console.error("Error updating guide step:", e); }
   };
 
   const injectCutoffs = async (newCutoffs: Cutoff[]) => {
-    // Immediately update local state and localStorage (don't wait for Firestore snapshot)
-    const cutoffsWithIds = newCutoffs.map(cutoff => ({
-      ...cutoff,
-      id: cutoff.id || `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const cutoffsWithIds = newCutoffs.map(c => ({
+      ...c, id: c.id || `cutoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     }));
 
-    // Merge into current cutoffs state immediately
     setCutoffs(prev => {
-      const merged = [...prev];
-      cutoffsWithIds.forEach(newCutoff => {
-        const index = merged.findIndex(c =>
-          c.collegeCode === newCutoff.collegeCode &&
-          c.branchCode === newCutoff.branchCode &&
-          c.year === newCutoff.year &&
-          c.round === newCutoff.round &&
-          c.category === newCutoff.category
-        );
-        if (index !== -1) {
-          merged[index] = newCutoff;
-        } else {
-          merged.push(newCutoff);
-        }
-      });
-      // Save to localStorage immediately
-      try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged)); } catch(e) {}
+      const merged = [...prev, ...cutoffsWithIds];
+      localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(merged));
       return merged;
     });
 
-    // Then persist to Firestore in background
-    try {
-      for (const cutoff of cutoffsWithIds) {
-        await setDoc(doc(db, "cutoffs", cutoff.id), cutoff);
-      }
-    } catch (e) {
-      console.error("Error injecting cutoffs to Firestore:", e);
-      // Data is already saved locally, so user won't lose it
-    }
+    const mappedForSupabase = cutoffsWithIds.map(c => ({
+      college_code: c.collegeCode, branch_code: c.branchCode, year: c.year, round: c.round,
+      category: c.category, gender: c.gender, opening_rank: c.openingRank, closing_rank: c.closingRank
+    }));
+
+    try { await supabase.from('cutoffs').insert(mappedForSupabase); } catch (e) {}
   };
 
   const deleteCutoff = async (id: string) => {
-    // Immediately remove from local state
     setCutoffs(prev => {
       const updated = prev.filter(c => c.id !== id);
-      try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(updated)); } catch(e) {}
+      localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(updated));
       return updated;
     });
-
-    try {
-      await deleteDoc(doc(db, "cutoffs", id));
-    } catch (e) {
-      console.error("Error deleting cutoff from Firestore:", e);
-    }
+    try { await supabase.from('cutoffs').delete().eq('id', id); } catch (e) {}
   };
 
   const resetCutoffs = async () => {
-    // Immediately reset local state to defaults
     setCutoffs(cutoffsData);
-    try { localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData)); } catch(e) {}
-
+    localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
+    const mapped = cutoffsData.map(c => ({
+      college_code: c.collegeCode, branch_code: c.branchCode, year: c.year, round: c.round,
+      category: c.category, gender: c.gender, opening_rank: c.openingRank, closing_rank: c.closingRank
+    }));
     try {
-      const colRef = collection(db, "cutoffs");
-      const snap = await getDocs(colRef);
-      for (const d of snap.docs) {
-        await deleteDoc(d.ref);
-      }
-      for (const c of cutoffsData) {
-        await setDoc(doc(db, "cutoffs", c.id), c);
-      }
-    } catch (e) {
-      console.error("Error resetting cutoffs in Firestore:", e);
-    }
+      await supabase.from('cutoffs').delete().neq('id', 'dummy');
+      await supabase.from('cutoffs').insert(mapped);
+    } catch (e) {}
   };
 
   const updateSeatMatrixEntry = async (entry: SeatMatrixEntry) => {
-    // Immediately update local state and localStorage
     setSeatMatrix(prev => {
       const merged = [...prev];
       const index = merged.findIndex(s => s.collegeCode === entry.collegeCode && s.branchCode === entry.branchCode);
-      if (index !== -1) {
-        merged[index] = entry;
-      } else {
-        merged.push(entry);
-      }
-      try { localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged)); } catch(e) {}
+      if (index !== -1) merged[index] = entry;
+      else merged.push(entry);
+      localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(merged));
       return merged;
     });
 
-    // Then persist to Firestore
-    try {
-      const id = `${entry.collegeCode}_${entry.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`;
-      await setDoc(doc(db, "seat_matrix", id), entry);
-    } catch (e) {
-      console.error("Error updating seat matrix entry in Firestore:", e);
-    }
+    const mapped = {
+      college_code: entry.collegeCode, branch_code: entry.branchCode, total_seats: entry.totalSeats,
+      ur_seats: entry.categorySeats.UR, bc_seats: entry.categorySeats.BC, ebc_seats: entry.categorySeats.EBC,
+      sc_seats: entry.categorySeats.SC, st_seats: entry.categorySeats.ST, ews_seats: entry.categorySeats.EWS,
+      rcg_seats: entry.categorySeats.RCG
+    };
+    try { await supabase.from('seat_matrix').upsert([mapped], { onConflict: 'college_code, branch_code' }); } catch (e) {}
   };
 
   const resetSeatMatrix = async () => {
-    // Immediately reset local state
     setSeatMatrix(seatMatrixData);
-    try { localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData)); } catch(e) {}
-
+    localStorage.setItem("bihareduconnect_seat_matrix", JSON.stringify(seatMatrixData));
+    const mapped = seatMatrixData.map(entry => ({
+      college_code: entry.collegeCode, branch_code: entry.branchCode, total_seats: entry.totalSeats,
+      ur_seats: entry.categorySeats.UR, bc_seats: entry.categorySeats.BC, ebc_seats: entry.categorySeats.EBC,
+      sc_seats: entry.categorySeats.SC, st_seats: entry.categorySeats.ST, ews_seats: entry.categorySeats.EWS,
+      rcg_seats: entry.categorySeats.RCG
+    }));
     try {
-      const colRef = collection(db, "seat_matrix");
-      const snap = await getDocs(colRef);
-      for (const d of snap.docs) {
-        await deleteDoc(d.ref);
-      }
-      for (const entry of seatMatrixData) {
-        const id = `${entry.collegeCode}_${entry.branchCode.replace(/[^a-zA-Z0-9]/g, "_")}`;
-        await setDoc(doc(db, "seat_matrix", id), entry);
-      }
-    } catch (e) {
-      console.error("Error resetting seat matrix in Firestore:", e);
-    }
+      await supabase.from('seat_matrix').delete().neq('id', 'dummy'); 
+      await supabase.from('seat_matrix').insert(mapped);
+    } catch (e) {}
   };
- 
-  // Authentication Helpers
+
+  // Firebase Auth & User Functions
+  const syncUserToFirebase = async (userData: RegisteredUser) => {
+    try {
+      const docId = userData.email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+      await setDoc(doc(db, "registered_users", docId), userData);
+    } catch (e) {}
+  };
+
+  const deleteUserFromFirebase = async (email: string) => {
+    try {
+      const docId = email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+      await deleteDoc(doc(db, "registered_users", docId));
+    } catch (e) {}
+  };
+
   const loginDemo = (name: string, percentile: number): { success: boolean; error?: string } => {
     const nameClean = name.trim();
     const dummyEmail = `${nameClean.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
+    if (blockedEmails.includes(dummyEmail)) return { success: false, error: "Your guest session has been suspended." };
     
-    // Check if blocked
-    if (blockedEmails.includes(dummyEmail)) {
-      return { success: false, error: "Your guest session has been suspended by the administrator." };
-    }
-    
-    // Register dynamically if not exists
-    const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === dummyEmail);
-    if (!exists) {
-      const newDemoReg: RegisteredUser = {
-        name: nameClean,
-        email: dummyEmail,
-        percentile,
-        password: "demo"
-      };
+    if (!registeredUsers.some(u => u.email.toLowerCase() === dummyEmail)) {
+      const newDemoReg = { name: nameClean, email: dummyEmail, percentile, password: "demo" };
       const updatedUsers = [...registeredUsers, newDemoReg];
       setRegisteredUsers(updatedUsers);
       saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
       syncUserToFirebase(newDemoReg);
-    } else {
-      const existingUser = registeredUsers.find(u => u.email.toLowerCase().trim() === dummyEmail);
-      if (existingUser) syncUserToFirebase(existingUser);
     }
     
-    const demoUser: User = {
-      name: nameClean,
-      percentile,
-      email: dummyEmail,
-      isAdmin: false
-    };
+    const demoUser = { name: nameClean, percentile, email: dummyEmail, isAdmin: false };
     setUser(demoUser);
     saveToLocalStorage("bihareduconnect_user", demoUser);
     recordVisit(demoUser);
@@ -1027,11 +701,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loginAdmin = (email: string, pass: string): boolean => {
     if (email === "admin@bihareduconnect.in" && pass === "admin123") {
-      const adminUser: User = {
-        name: "Admin Profile",
-        email,
-        isAdmin: true
-      };
+      const adminUser = { name: "Admin Profile", email, isAdmin: true };
       setUser(adminUser);
       saveToLocalStorage("bihareduconnect_user", adminUser);
       return true;
@@ -1052,12 +722,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const updatedUser = { ...user, name: newName };
       setUser(updatedUser);
       saveToLocalStorage("bihareduconnect_user", updatedUser);
-      
-      // Update the name in registered users if they exist
       if (user.email) {
-        const updatedRegList = registeredUsers.map(u => 
-          u.email.toLowerCase() === user.email?.toLowerCase() ? { ...u, name: newName } : u
-        );
+        const updatedRegList = registeredUsers.map(u => u.email.toLowerCase() === user.email?.toLowerCase() ? { ...u, name: newName } : u);
         setRegisteredUsers(updatedRegList);
         saveToLocalStorage("bihareduconnect_registered_users", updatedRegList);
       }
@@ -1066,205 +732,95 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const registerUser = (name: string, email: string, percentile: number, pass: string): { success: boolean; error?: string } => {
     const emailLower = email.toLowerCase().trim();
-    if (emailLower === "admin@bihareduconnect.in") {
-      return { success: false, error: "This email address is reserved." };
-    }
+    if (emailLower === "admin@bihareduconnect.in") return { success: false, error: "Reserved email." };
+    if (registeredUsers.some(u => u.email.toLowerCase() === emailLower)) return { success: false, error: "Email exists." };
     
-    const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === emailLower);
-    if (exists) {
-      return { success: false, error: "An account with this email already exists." };
-    }
-    
-    const newUser: RegisteredUser = {
-      name: name.trim(),
-      email: emailLower,
-      percentile,
-      password: pass.trim()
-    };
-    
-    const updatedUsers = [...registeredUsers, newUser];
-    setRegisteredUsers(updatedUsers);
-    saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
+    const newUser = { name: name.trim(), email: emailLower, percentile, password: pass.trim() };
+    setRegisteredUsers([...registeredUsers, newUser]);
+    saveToLocalStorage("bihareduconnect_registered_users", [...registeredUsers, newUser]);
     syncUserToFirebase(newUser);
     
-    const userSession: User = {
-      name: newUser.name,
-      email: newUser.email,
-      percentile: newUser.percentile,
-      isAdmin: false
-    };
+    const userSession = { name: newUser.name, email: newUser.email, percentile: newUser.percentile, isAdmin: false };
     setUser(userSession);
     saveToLocalStorage("bihareduconnect_user", userSession);
-    
     return { success: true };
   };
 
-  const updateRegisteredUser = (oldEmail: string, updatedUser: RegisteredUser): { success: boolean; error?: string } => {
+  const updateRegisteredUser = (oldEmail: string, updatedUser: RegisteredUser) => {
     const oldEmailClean = oldEmail.toLowerCase().trim();
     const newEmailClean = updatedUser.email.toLowerCase().trim();
+    if (newEmailClean === "admin@bihareduconnect.in") return { success: false, error: "Reserved email." };
     
-    if (newEmailClean === "admin@bihareduconnect.in") {
-      return { success: false, error: "This email address is reserved." };
+    if (oldEmailClean !== newEmailClean && registeredUsers.some(u => u.email.toLowerCase() === newEmailClean)) {
+      return { success: false, error: "Email already in use." };
     }
     
-    if (oldEmailClean !== newEmailClean) {
-      const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === newEmailClean);
-      if (exists) {
-        return { success: false, error: "An account with the new email already exists." };
-      }
-    }
-    
-    const updatedList = registeredUsers.map(u => u.email.toLowerCase().trim() === oldEmailClean ? {
-      ...updatedUser,
-      email: newEmailClean,
-      name: updatedUser.name.trim(),
-      password: updatedUser.password ? updatedUser.password.trim() : ""
-    } : u);
-    
+    const updatedList = registeredUsers.map(u => u.email.toLowerCase() === oldEmailClean ? { ...updatedUser, email: newEmailClean } : u);
     setRegisteredUsers(updatedList);
     saveToLocalStorage("bihareduconnect_registered_users", updatedList);
     
-    if (oldEmailClean !== newEmailClean) {
-      deleteUserFromFirebase(oldEmailClean);
-    }
-    const newlyUpdatedUser = updatedList.find(u => u.email.toLowerCase().trim() === newEmailClean);
-    if (newlyUpdatedUser) {
-      syncUserToFirebase(newlyUpdatedUser);
-    }
+    if (oldEmailClean !== newEmailClean) deleteUserFromFirebase(oldEmailClean);
+    syncUserToFirebase(updatedList.find(u => u.email.toLowerCase() === newEmailClean)!);
     
-    if (user && user.email?.toLowerCase().trim() === oldEmailClean) {
-      const updatedSession: User = {
-        name: updatedUser.name,
-        email: newEmailClean,
-        percentile: updatedUser.percentile,
-        isAdmin: false
-      };
+    if (user && user.email?.toLowerCase() === oldEmailClean) {
+      const updatedSession = { name: updatedUser.name, email: newEmailClean, percentile: updatedUser.percentile, isAdmin: false };
       setUser(updatedSession);
       saveToLocalStorage("bihareduconnect_user", updatedSession);
     }
-    
     return { success: true };
   };
 
   const deleteRegisteredUser = (email: string) => {
     const emailClean = email.toLowerCase().trim();
-    const updatedList = registeredUsers.filter(u => u.email.toLowerCase().trim() !== emailClean);
+    const updatedList = registeredUsers.filter(u => u.email.toLowerCase() !== emailClean);
     setRegisteredUsers(updatedList);
     saveToLocalStorage("bihareduconnect_registered_users", updatedList);
     deleteUserFromFirebase(emailClean);
-    
-    if (user && user.email?.toLowerCase().trim() === emailClean) {
+    if (user && user.email?.toLowerCase() === emailClean) {
       setUser(null);
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("bihareduconnect_user");
-      }
+      localStorage.removeItem("bihareduconnect_user");
     }
   };
 
   const togglePremiumAccess = (email: string, hasPremium: boolean) => {
     const emailClean = email.toLowerCase().trim();
-    const targetUser = registeredUsers.find(u => u.email.toLowerCase().trim() === emailClean);
+    const targetUser = registeredUsers.find(u => u.email.toLowerCase() === emailClean);
     if (!targetUser) return;
-    
     const updatedUser = { ...targetUser, isPremium: hasPremium };
-    const updatedList = registeredUsers.map(u => u.email.toLowerCase().trim() === emailClean ? updatedUser : u);
-    
+    const updatedList = registeredUsers.map(u => u.email.toLowerCase() === emailClean ? updatedUser : u);
     setRegisteredUsers(updatedList);
     saveToLocalStorage("bihareduconnect_registered_users", updatedList);
     syncUserToFirebase(updatedUser);
-    
-    // Update active session if it's the current user
-    if (user && user.email?.toLowerCase().trim() === emailClean) {
-      const updatedSession = { ...user, isPremium: hasPremium };
-      setUser(updatedSession);
-      saveToLocalStorage("bihareduconnect_user", updatedSession);
+    if (user && user.email?.toLowerCase() === emailClean) {
+      setUser({ ...user, isPremium: hasPremium });
+      saveToLocalStorage("bihareduconnect_user", { ...user, isPremium: hasPremium });
     }
   };
 
-  const loginUser = (emailOrName: string, passOrPercentile: string): { success: boolean; error?: string } => {
+  const loginUser = (emailOrName: string, passOrPercentile: string) => {
     const inputClean = emailOrName.trim();
     const passClean = passOrPercentile.trim();
-    
-    // 1. Secret Admin check
     if (inputClean === "admin@bihareduconnect.in" && passClean === "admin123") {
-      const adminUser: User = {
-        name: "Admin Profile",
-        email: inputClean,
-        isAdmin: true
-      };
+      const adminUser = { name: "Admin Profile", email: inputClean, isAdmin: true };
       setUser(adminUser);
       saveToLocalStorage("bihareduconnect_user", adminUser);
       return { success: true };
     }
-    
-    // 2. Check registered users
-    const matchedUser = registeredUsers.find(
-      u => u.email.toLowerCase().trim() === inputClean.toLowerCase() && u.password === passClean
-    );
-    
+    const matchedUser = registeredUsers.find(u => u.email.toLowerCase() === inputClean.toLowerCase() && u.password === passClean);
     if (matchedUser) {
-      if (blockedEmails.includes(matchedUser.email.toLowerCase().trim())) {
-        return { success: false, error: "Your account has been suspended by the administrator." };
-      }
-      
+      if (blockedEmails.includes(matchedUser.email.toLowerCase())) return { success: false, error: "Suspended." };
       syncUserToFirebase(matchedUser);
-      
-      const userSession: User = {
-        name: matchedUser.name,
-        email: matchedUser.email,
-        percentile: matchedUser.percentile,
-        isPremium: matchedUser.isPremium,
-        isAdmin: false
-      };
+      const userSession = { name: matchedUser.name, email: matchedUser.email, percentile: matchedUser.percentile, isPremium: matchedUser.isPremium, isAdmin: false };
       setUser(userSession);
       saveToLocalStorage("bihareduconnect_user", userSession);
       recordVisit(userSession);
       return { success: true };
     }
-    
-    // 3. Fallback to instant Demo/Guest login if a numeric percentile is entered as the password
     const percentileVal = Number(passClean);
     if (inputClean && !isNaN(percentileVal) && percentileVal >= 0 && percentileVal <= 100) {
-      const dummyEmail = `${inputClean.toLowerCase().replace(/\s+/g, "")}.demo@bihareduconnect.in`;
-      
-      if (blockedEmails.includes(dummyEmail)) {
-        return { success: false, error: "Your account has been suspended by the administrator." };
-      }
-      
-      // Check if already in registeredUsers
-      const exists = registeredUsers.some(u => u.email.toLowerCase().trim() === dummyEmail);
-      if (!exists) {
-        const newDemoReg: RegisteredUser = {
-          name: inputClean,
-          email: dummyEmail,
-          percentile: percentileVal,
-          password: "demo"
-        };
-        const updatedUsers = [...registeredUsers, newDemoReg];
-        setRegisteredUsers(updatedUsers);
-        saveToLocalStorage("bihareduconnect_registered_users", updatedUsers);
-        syncUserToFirebase(newDemoReg);
-      } else {
-        const existingUser = registeredUsers.find(u => u.email.toLowerCase().trim() === dummyEmail);
-        if (existingUser) syncUserToFirebase(existingUser);
-      }
-      
-      const demoUser: User = {
-        name: inputClean,
-        percentile: percentileVal,
-        email: dummyEmail,
-        isAdmin: false
-      };
-      setUser(demoUser);
-      saveToLocalStorage("bihareduconnect_user", demoUser);
-      recordVisit(demoUser);
-      return { success: true };
+      return loginDemo(inputClean, percentileVal);
     }
-    
-    return { 
-      success: false, 
-      error: "Invalid credentials. Please enter a valid registered email and password, or use Name and JEE Percentile for guest sign in." 
-    };
+    return { success: false, error: "Invalid credentials." };
   };
 
   const logout = () => {
@@ -1278,17 +834,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const blockStudent = (email: string) => {
     const emailClean = email.toLowerCase().trim();
-    setBlockedEmails((prev) => {
+    setBlockedEmails(prev => {
       if (prev.includes(emailClean)) return prev;
-      const updated = [...prev, emailClean];
-      saveToLocalStorage("bihareduconnect_blocked_emails", updated);
-      return updated;
+      saveToLocalStorage("bihareduconnect_blocked_emails", [...prev, emailClean]);
+      return [...prev, emailClean];
     });
   };
 
   const unblockStudent = (email: string) => {
     const emailClean = email.toLowerCase().trim();
-    setBlockedEmails((prev) => {
+    setBlockedEmails(prev => {
       const updated = prev.filter(e => e !== emailClean);
       saveToLocalStorage("bihareduconnect_blocked_emails", updated);
       return updated;
@@ -1296,93 +851,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateWhatsappLink = async (link: string) => {
-    try {
-      await setDoc(doc(db, "settings", "whatsapp"), { link });
-    } catch (e) {
-      console.error("Error updating whatsapp link:", e);
-    }
+    try { await setDoc(doc(db, "settings", "whatsapp"), { link }); } catch (e) {}
   };
 
   const deleteChatSession = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, "chat_sessions", id));
-    } catch (e) {
-      console.error("Error deleting chat session:", e);
-    }
+    try { await deleteDoc(doc(db, "chat_sessions", id)); } catch (e) {}
   };
 
   const clearAllChatSessions = async () => {
     try {
       const snap = await getDocs(collection(db, "chat_sessions"));
-      for (const d of snap.docs) {
-        await deleteDoc(d.ref);
-      }
-    } catch (e) {
-      console.error("Error clearing chat sessions:", e);
-    }
+      for (const d of snap.docs) await deleteDoc(d.ref);
+    } catch (e) {}
   };
 
   return (
     <AppContext.Provider
       value={{
-        colleges,
-        cutoffs,
-        seatMatrix,
-        favorites,
-        savedPredictions,
-        totalVisits,
-        darkMode,
-        toggleDarkMode,
-        addFavorite,
-        removeFavorite,
-        savePrediction,
-        deletePrediction,
-        addCollege,
-        updateCollege,
-        deleteCollege,
-        
-        // Dynamic Sync Additions
-        bulkFiles,
-        addBulkFile,
-        deleteBulkFile,
-        timelineEvents,
-        addTimelineEvent,
-        updateTimelineEvent,
-        deleteTimelineEvent,
-        guideSteps,
-        updateGuideStep,
-        injectCutoffs,
-        deleteCutoff,
-        resetCutoffs,
-        updateSeatMatrixEntry,
-        resetSeatMatrix,
-        
-        // Auth values
-        user,
-        showAuthModal,
-        pendingRedirect,
-        setShowAuthModal,
-        setPendingRedirect,
-        loginDemo,
-        loginAdmin,
-        logout,
-        updateUserAvatar,
-        updateUserName,
-        registeredUsers,
-        registerUser,
-        updateRegisteredUser,
-        deleteRegisteredUser,
-        togglePremiumAccess,
-        loginUser,
-        blockedEmails,
-        blockStudent,
-        unblockStudent,
-        visitorLogs,
-        whatsappLink,
-        updateWhatsappLink,
-        chatSessions,
-        deleteChatSession,
-        clearAllChatSessions
+        colleges, cutoffs, seatMatrix, favorites, savedPredictions, totalVisits,
+        darkMode, toggleDarkMode, addFavorite, removeFavorite, savePrediction, deletePrediction,
+        addCollege, updateCollege, deleteCollege,
+        bulkFiles, addBulkFile, deleteBulkFile,
+        timelineEvents, addTimelineEvent, updateTimelineEvent, deleteTimelineEvent,
+        guideSteps, updateGuideStep,
+        injectCutoffs, deleteCutoff, resetCutoffs, updateSeatMatrixEntry, resetSeatMatrix,
+        user, showAuthModal, pendingRedirect, setShowAuthModal, setPendingRedirect,
+        loginDemo, loginAdmin, logout, updateUserAvatar, updateUserName,
+        registeredUsers, registerUser, updateRegisteredUser, deleteRegisteredUser,
+        togglePremiumAccess, loginUser, blockedEmails, blockStudent, unblockStudent,
+        visitorLogs, whatsappLink, updateWhatsappLink, chatSessions, deleteChatSession, clearAllChatSessions
       }}
     >
       {children}
@@ -1392,8 +889,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
+  if (!context) throw new Error("useApp must be used within an AppProvider");
   return context;
 };
