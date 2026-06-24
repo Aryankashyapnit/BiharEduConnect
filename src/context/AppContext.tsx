@@ -235,12 +235,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
       const storedVersion = localStorage.getItem("bihareduconnect_cutoffs_version");
-      if (storedVersion !== "v2025_calibrated_v2") {
+      if (storedVersion !== "v2025_calibrated_v3") {
         localStorage.removeItem("bihareduconnect_cutoffs");
-        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_calibrated_v2");
+        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_calibrated_v3");
         setCutoffs(cutoffsData);
         setTimeout(async () => {
           const mapped = cutoffsData.map(c => ({
+            id: c.id,
             college_code: c.collegeCode, branch_code: c.branchCode, year: c.year, round: c.round,
             category: c.category, gender: c.gender, opening_rank: c.openingRank, closing_rank: c.closingRank
           }));
@@ -640,6 +641,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCutoffs(cutoffsData);
     localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(cutoffsData));
     const mapped = cutoffsData.map(c => ({
+      id: c.id,
       college_code: c.collegeCode, branch_code: c.branchCode, year: c.year, round: c.round,
       category: c.category, gender: c.gender, opening_rank: c.openingRank, closing_rank: c.closingRank
     }));
