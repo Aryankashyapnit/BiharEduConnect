@@ -12,6 +12,51 @@ export interface Cutoff {
   closingRank: number;
 }
 
+export const categoryRatios: Record<string, number> = {
+  UR: 1.0,
+  BC: 2.72,
+  EBC: 3.54,
+  EWS: 4.59,
+  SC: 12.94,
+  ST: 45.0,
+  RCG: 7.89
+};
+
+export const categoryBenefitMultipliers: Record<string, number> = {
+  UR: 1.0,
+  BC: 1.35,
+  EBC: 1.55,
+  EWS: 1.45,
+  SC: 2.4,
+  ST: 2.1,
+  RCG: 1.7
+};
+
+export const convertPercentileToUR = (p: number): number => {
+  if (p >= 100) return 1;
+  if (p <= 0) return 16729;
+
+  const samples = [
+    { p: 100, r: 1 },
+    { p: 81, r: 2364 },
+    { p: 57, r: 7583 },
+    { p: 52, r: 8534 },
+    { p: 49.22, r: 9182 },
+    { p: 42, r: 10289 },
+    { p: 0, r: 16729 }
+  ];
+
+  for (let i = 0; i < samples.length - 1; i++) {
+    const s1 = samples[i];
+    const s2 = samples[i + 1];
+    if (p <= s1.p && p >= s2.p) {
+      const fraction = (p - s2.p) / (s1.p - s2.p);
+      return Math.round(s2.r + fraction * (s1.r - s2.r));
+    }
+  }
+  return 16729;
+};
+
 // Programmatic Generator for 2024 and 2025 UGEAC Closing/Opening ranks
 const generateAllCutoffs = (): Cutoff[] => {
   const generated: Cutoff[] = [];
@@ -125,18 +170,9 @@ const generateAllCutoffs = (): Cutoff[] => {
           const roundMult = round === 2 ? 1.12 : 1.0;
 
           categories.forEach((category) => {
-            let catMult = 1.0;
-            switch (category) {
-              case "UR": catMult = 1.0; break;
-              case "BC": catMult = 1.35; break;
-              case "EBC": catMult = 1.55; break;
-              case "EWS": catMult = 1.45; break;
-              case "SC": catMult = 2.4; break;
-              case "ST": catMult = 2.1; break;
-              case "RCG": catMult = 1.7; break;
-            }
-
-            const closingRank = Math.round(baseRank * branchMult * yearMult * roundMult * catMult);
+            const ratio = categoryRatios[category] || 1.0;
+            const benefit = categoryBenefitMultipliers[category] || 1.0;
+            const closingRank = Math.round((baseRank * branchMult * yearMult * roundMult * benefit) / ratio);
             const openingRank = Math.max(1, Math.round(closingRank * 0.72));
 
             generated.push({

@@ -38,6 +38,26 @@ function getCollegesData() {
   return JSON.parse(jsonString);
 }
 
+const categoryRatios = {
+  UR: 1.0,
+  BC: 2.72,
+  EBC: 3.54,
+  EWS: 4.59,
+  SC: 12.94,
+  ST: 45.0,
+  RCG: 7.89
+};
+
+const categoryBenefitMultipliers = {
+  UR: 1.0,
+  BC: 1.35,
+  EBC: 1.55,
+  EWS: 1.45,
+  SC: 2.4,
+  ST: 2.1,
+  RCG: 1.7
+};
+
 // Generate cutoff data based on cutoffs.ts logic
 function generateAllCutoffs(colleges) {
   const generated = [];
@@ -147,18 +167,9 @@ function generateAllCutoffs(colleges) {
           const roundMult = round === 2 ? 1.12 : 1.0;
 
           categories.forEach((category) => {
-            let catMult = 1.0;
-            switch (category) {
-              case "UR": catMult = 1.0; break;
-              case "BC": catMult = 1.35; break;
-              case "EBC": catMult = 1.55; break;
-              case "EWS": catMult = 1.45; break;
-              case "SC": catMult = 2.4; break;
-              case "ST": catMult = 2.1; break;
-              case "RCG": catMult = 1.7; break;
-            }
-
-            const closingRank = Math.round(baseRank * branchMult * yearMult * roundMult * catMult);
+            const ratio = categoryRatios[category] || 1.0;
+            const benefit = categoryBenefitMultipliers[category] || 1.0;
+            const closingRank = Math.round((baseRank * branchMult * yearMult * roundMult * benefit) / ratio);
             const openingRank = Math.max(1, Math.round(closingRank * 0.72));
 
             generated.push({

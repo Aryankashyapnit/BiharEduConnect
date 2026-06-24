@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { AuthGate } from "../../components/AuthGate";
+import { convertPercentileToUR, categoryRatios } from "../../data/cutoffs";
 import { 
   Laptop, 
   Plus, 
@@ -130,16 +131,15 @@ export default function ChoiceSimulatorPage() {
   const getEstimatedRank = () => {
     const pctVal = Number(percentileInput);
     if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) return 1000;
-    const factor = (100 - pctVal);
-    const targetRank = Math.round(10 * Math.pow(factor, 1.7) + 1);
-    return Math.max(1, targetRank);
+    return convertPercentileToUR(pctVal);
   };
-
+ 
   const estimatedRank = getEstimatedRank();
-
+ 
   // Helper: Get Closing Cutoff Rank for a choice under chosen Category/Gender
   const getChoiceClosingRank = (choice: Choice) => {
-    if (!cutoffs || cutoffs.length === 0) return 2000;
+    const ratio = categoryRatios[categoryInput] || 1.0;
+    if (!cutoffs || cutoffs.length === 0) return Math.round(2000 / ratio);
     
     // Find matching cutoff row for 2025 (latest), Round 1, selected Category and Gender
     const match = cutoffs.find(
@@ -151,7 +151,7 @@ export default function ChoiceSimulatorPage() {
     );
     
     if (match) return match.closingRank;
-
+ 
     // Fallback general base calculation
     const baseRanks: Record<string, number> = {
       "MIT-MUZAFFARPUR": 240,
@@ -165,18 +165,21 @@ export default function ChoiceSimulatorPage() {
       "GEC-MUNGER": 2250
     };
     const base = baseRanks[choice.collegeCode] || 1500;
-    return base;
+    return Math.round(base / ratio);
   };
-
+ 
   // Helper: Classify a choice relative to estimated rank
   const getChoiceClassification = (choice: Choice) => {
     const closingRank = getChoiceClosingRank(choice);
+    const ratio = categoryRatios[categoryInput] || 1.0;
+    const candidateCategoryRank = Math.round(estimatedRank / ratio);
+    
     // If closing rank is significantly smaller than estimated rank, it's a dream
-    if (closingRank < estimatedRank * 0.85) {
+    if (closingRank < candidateCategoryRank * 0.85) {
       return { label: "Dream", style: "bg-red-500/10 text-red-600 border-red-500/20", icon: "🚀" };
     }
     // If closing rank is near estimated rank, it's realistic
-    if (closingRank <= estimatedRank * 1.35) {
+    if (closingRank <= candidateCategoryRank * 1.35) {
       return { label: "Realistic", style: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: "🎯" };
     }
     // Otherwise, it's a safety backup
@@ -227,13 +230,15 @@ export default function ChoiceSimulatorPage() {
 
     // 3. Blocking Order Check (The critical check requested by user)
     // Checks if a student placed an easy-to-get college (high cutoff rank) above a hard-to-get college (low cutoff rank)
+    const ratio = categoryRatios[categoryInput] || 1.0;
+    const threshold = Math.round(250 / ratio);
     for (let i = 0; i < choices.length; i++) {
       const r1 = getChoiceClosingRank(choices[i]);
       for (let j = i + 1; j < choices.length; j++) {
         const r2 = getChoiceClosingRank(choices[j]);
         // If a choice placed higher (choice i) has a much larger closing rank (meaning it is significantly easier to get)
         // than a choice placed lower (choice j).
-        if (r1 > r2 + 250) {
+        if (r1 > r2 + threshold) {
           blockingErrors.push({
             index1: i,
             index2: j,

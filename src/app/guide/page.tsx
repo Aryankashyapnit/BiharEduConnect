@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { AuthGate } from "../../components/AuthGate";
 import { collegesData } from "../../data/colleges";
-import { getCutoff } from "../../data/cutoffs";
+import { getCutoff, convertPercentileToUR, categoryRatios } from "../../data/cutoffs";
 import { useApp } from "../../context/AppContext";
 
 export default function CounsellingGuide() {
@@ -139,9 +139,7 @@ export default function CounsellingGuide() {
   const [selectedBranch, setSelectedBranch] = useState("");
 
   const calculateStateRank = (pctVal: number) => {
-    const factor = (100 - pctVal);
-    const targetRank = Math.round(10 * Math.pow(factor, 1.7) + 1);
-    return Math.max(1, targetRank);
+    return convertPercentileToUR(pctVal);
   };
 
   const handleAddChoice = () => {
@@ -225,6 +223,8 @@ export default function CounsellingGuide() {
 
   const handleRunAllotment = (roundNum: number) => {
     const rankVal = calculateStateRank(Number(simPercentile) || 90.0);
+    const ratio = categoryRatios[simCategory] || 1.0;
+    const candidateCategoryRank = Math.round(rankVal / ratio);
     
     if (roundNum === 1) {
       setIsSimulatingAllotment(true);
@@ -235,15 +235,15 @@ export default function CounsellingGuide() {
         for (let i = 0; i < simChoices.length; i++) {
           const choice = simChoices[i];
           const cutoff = getCutoff(choice.collegeCode, choice.branchCode, 2025, 1, simCategory, simGender);
-          const closingRank = cutoff?.closingRank || (4500 + i * 400); // fallback cutoff
+          const closingRank = cutoff?.closingRank || Math.round((4500 + i * 400) / ratio); // fallback cutoff
           
-          if (rankVal <= closingRank) {
+          if (candidateCategoryRank <= closingRank) {
             allocated = {
               collegeName: choice.collegeName,
               branchCode: choice.branchCode,
               preferenceIndex: i + 1,
               closingRank: Math.round(closingRank),
-              allotmentRank: rankVal
+              allotmentRank: simCategory === "UR" ? rankVal : candidateCategoryRank
             };
             break;
           }
@@ -260,15 +260,15 @@ export default function CounsellingGuide() {
           const choice = simChoices[i];
           const cutoff = getCutoff(choice.collegeCode, choice.branchCode, 2025, 2, simCategory, simGender);
           // Simulate standard Round 2 cutoff expansion (closing rank drops / relaxes by ~8-12%)
-          const closingRank = (cutoff?.closingRank || (4500 + i * 400)) * 1.10;
+          const closingRank = (cutoff?.closingRank || Math.round((4500 + i * 400) / ratio)) * 1.10;
           
-          if (rankVal <= closingRank) {
+          if (candidateCategoryRank <= closingRank) {
             allocated = {
               collegeName: choice.collegeName,
               branchCode: choice.branchCode,
               preferenceIndex: i + 1,
               closingRank: Math.round(closingRank),
-              allotmentRank: rankVal
+              allotmentRank: simCategory === "UR" ? rankVal : candidateCategoryRank
             };
             break;
           }
@@ -982,11 +982,11 @@ export default function CounsellingGuide() {
                             <span className="font-extrabold text-[#FF9933]">{simCategory}</span>
                           </div>
                           <div className="flex justify-between border-b border-gray-200/50 dark:border-slate-850 pb-2">
-                            <span className="text-gray-400 font-bold">UGEAC Merit Rank:</span>
+                            <span className="text-gray-400 font-bold">{simCategory === "UR" ? "UGEAC UR Rank:" : `UGEAC ${simCategory} Category Rank:`}</span>
                             <span className="font-extrabold text-[#2563EB]">#{allottedSeat.allotmentRank}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-400 font-bold">Historical Cutoff:</span>
+                            <span className="text-gray-400 font-bold">{simCategory === "UR" ? "Historical UR Cutoff:" : `Historical ${simCategory} Cutoff:`}</span>
                             <span className="font-extrabold text-gray-500 dark:text-gray-300">#{allottedSeat.closingRank}</span>
                           </div>
                         </div>

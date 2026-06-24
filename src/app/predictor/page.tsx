@@ -1,8 +1,8 @@
 "use client";
-
+ 
 import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
-import { getCutoff, getEstimatedCutoff } from "../../data/cutoffs";
+import { getCutoff, getEstimatedCutoff, convertPercentileToUR, categoryRatios } from "../../data/cutoffs";
 import { branchNames } from "../../data/colleges";
 import { 
   Compass, 
@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { AuthGate } from "../../components/AuthGate";
-
+ 
 export default function CollegePredictor() {
   const { colleges, savePrediction, savedPredictions, user } = useApp();
-
+ 
   // Form State
   const [inputType, setInputType] = useState<"percentile" | "ugeac_rank" | "bcece_rank">("percentile");
   const [percentile, setPercentile] = useState<number | "">(user?.percentile || "");
@@ -33,13 +33,13 @@ export default function CollegePredictor() {
   const [gender, setGender] = useState("Co-ed");
   const [quota, setQuota] = useState("Home State");
   const [round, setRound] = useState<number>(1);
-
+ 
   // Output State
   const [predictions, setPredictions] = useState<any[]>([]);
   const [hasPredicted, setHasPredicted] = useState(false);
   const [filterChance, setFilterChance] = useState("All");
   const [filterBranch, setFilterBranch] = useState("All");
-
+ 
   const performPrediction = (
     type: "percentile" | "ugeac_rank" | "bcece_rank",
     pct: number | "",
@@ -60,9 +60,7 @@ export default function CollegePredictor() {
         return;
       }
       
-      const factor = (100 - pctVal);
-      estimatedUR = Math.round(10 * Math.pow(factor, 1.7) + 1);
-      estimatedUR = Math.max(1, estimatedUR);
+      estimatedUR = convertPercentileToUR(pctVal);
     } else {
       const rankVal = Number(rk);
       if (isNaN(rankVal) || rankVal <= 0) {
@@ -74,38 +72,22 @@ export default function CollegePredictor() {
       if (type === "bcece_rank") {
         baseRankVal = Math.round(baseRankVal * 1.45); // convert BCECE to equivalent UGEAC rank
       }
-
+ 
       if (rkType === "category" && cat !== "UR") {
         // User entered Category Rank, convert to General UR rank
-        let ratio = 1.0;
-        switch (cat) {
-          case "BC": ratio = 3.5; break;
-          case "EBC": ratio = 2.8; break;
-          case "EWS": ratio = 5.0; break;
-          case "SC": ratio = 6.5; break;
-          case "ST": ratio = 45.0; break;
-          case "RCG": ratio = 15.0; break;
-        }
+        const ratio = categoryRatios[cat] || 1.0;
         estimatedUR = Math.round(baseRankVal * ratio);
       } else {
         // User entered General UR Rank
         estimatedUR = baseRankVal;
       }
     }
-
+ 
     // 2. Convert estimatedUR to targetRank in category units to compare with database category cutoffs
     if (cat === "UR") {
       targetRank = estimatedUR;
     } else {
-      let ratio = 1.0;
-      switch (cat) {
-        case "BC": ratio = 3.5; break;
-        case "EBC": ratio = 2.8; break;
-        case "EWS": ratio = 5.0; break;
-        case "SC": ratio = 6.5; break;
-        case "ST": ratio = 45.0; break;
-        case "RCG": ratio = 15.0; break;
-      }
+      const ratio = categoryRatios[cat] || 1.0;
       targetRank = Math.round(estimatedUR / ratio);
       targetRank = Math.max(1, targetRank);
     }
@@ -228,45 +210,30 @@ export default function CollegePredictor() {
     if (inputType === "percentile") {
       const pctVal = Number(percentile);
       if (pctVal > 0 && pctVal <= 100) {
-        const factor = (100 - pctVal);
-        estUR = Math.round(10 * Math.pow(factor, 1.7) + 1);
+        estUR = convertPercentileToUR(pctVal);
       }
     } else {
       const r = Number(rank);
       if (r > 0) {
         if (rankType === "category" && category !== "UR") {
-          let multiplier = 1.0;
-          switch (category) {
-            case "BC": multiplier = 3.5; break;
-            case "EBC": multiplier = 2.8; break;
-            case "EWS": multiplier = 5.0; break;
-            case "SC": multiplier = 6.5; break;
-            case "ST": multiplier = 45.0; break;
-            case "RCG": multiplier = 15.0; break;
-          }
+          const multiplier = categoryRatios[category] || 1.0;
           estUR = Math.round(r * multiplier);
         } else {
           estUR = r;
         }
       }
     }
-
+ 
     if (estUR === 0) return null;
-
+ 
     let estCatRank = 0;
     let catLabel = "";
-    switch (category) {
-      case "BC": estCatRank = Math.round(estUR / 3.5); catLabel = "BC Rank"; break;
-      case "EBC": estCatRank = Math.round(estUR / 2.8); catLabel = "EBC Rank"; break;
-      case "EWS": estCatRank = Math.round(estUR / 5.0); catLabel = "EWS Rank"; break;
-      case "SC": estCatRank = Math.round(estUR / 6.5); catLabel = "SC Rank"; break;
-      case "ST": estCatRank = Math.round(estUR / 45.0); catLabel = "ST Rank"; break;
-      case "RCG": estCatRank = Math.round(estUR / 15.0); catLabel = "RCG Rank"; break;
-      default: estCatRank = estUR; catLabel = "UR Rank"; break;
-    }
+    const ratio = categoryRatios[category] || 1.0;
+    estCatRank = Math.round(estUR / ratio);
+    catLabel = `${category} Rank`;
     
     const equivUgeacUR = inputType === "bcece_rank" ? Math.round(estUR * 1.45) : estUR;
-
+ 
     return {
       ur: estUR,
       cat: Math.max(1, estCatRank),
@@ -592,7 +559,7 @@ export default function CollegePredictor() {
                   <p className="text-[9px] text-gray-400 mt-1 leading-normal font-medium">
                     {inputType === "bcece_rank"
                       ? "* Equivalent UGEAC UR calculated using historical BCECE vacancy and seat conversion ratios."
-                      : "* Ratios calculated from UGEAC state quotas: BC (~12%), EBC (~18%), SC (~16%), EWS (~10%), ST (~1%), RCG (~3%)."}
+                      : "* Ratios calibrated using real UGEAC state merit samples: BC (2.72), EBC (3.54), SC (12.94), EWS (4.59), ST (45.0), RCG (7.89)."}
                   </p>
                 </div>
               )}
