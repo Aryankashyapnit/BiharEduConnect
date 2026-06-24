@@ -298,7 +298,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setColleges(mappedColleges as College[]);
         }
 
-        // 2. Fetch Cutoffs
+        // 2. Fetch Cutoffs (Commented out to prevent overwriting local calibrated v2025 data with old database cutoffs)
+        /*
         const { data: cutData } = await supabase.from('cutoffs').select('*');
         if (cutData && cutData.length > 0) {
           const mappedCutoffs = cutData.map((d: any) => ({
@@ -309,6 +310,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setCutoffs(mappedCutoffs as Cutoff[]);
           localStorage.setItem("bihareduconnect_cutoffs", JSON.stringify(mappedCutoffs));
         }
+        */
 
         // 3. Fetch Seat Matrix
         const { data: smData } = await supabase.from('seat_matrix').select('*');
