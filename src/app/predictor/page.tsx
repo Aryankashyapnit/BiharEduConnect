@@ -37,7 +37,7 @@ export default function CollegePredictor() {
   // Output State
   const [predictions, setPredictions] = useState<any[]>([]);
   const [hasPredicted, setHasPredicted] = useState(false);
-  const [filterChance, setFilterChance] = useState("All");
+  const [filterChance, setFilterChance] = useState("High");
   const [filterBranch, setFilterBranch] = useState("All");
  
   const performPrediction = (
@@ -138,6 +138,17 @@ export default function CollegePredictor() {
 
     setPredictions(results);
     setHasPredicted(true);
+
+    // Auto-select the tab with predictions
+    const hasHigh = results.some((r) => r.chance === "High");
+    const hasMod = results.some((r) => r.chance === "Moderate");
+    if (hasHigh) {
+      setFilterChance("High");
+    } else if (hasMod) {
+      setFilterChance("Moderate");
+    } else {
+      setFilterChance("Low");
+    }
   };
 
   // URL search parameter parsing effect
@@ -668,26 +679,14 @@ export default function CollegePredictor() {
               <div className="glass-card rounded-2xl p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="text-left">
                   <h3 className="font-extrabold text-slate-800 dark:text-white text-base">
-                    Predictions Found ({filteredPredictions.length})
+                    Showing {filteredPredictions.length} of {predictions.length} Options
                   </h3>
                   <p className="text-[10px] text-gray-450 font-semibold mt-0.5">
-                    Results calculated based on 2025 opening & closing UGEAC rounds.
+                    Results calculated based on 2025 UGEAC rounds.
                   </p>
                 </div>
 
                 <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                  {/* Chance Filter */}
-                  <select
-                    value={filterChance}
-                    onChange={(e) => setFilterChance(e.target.value)}
-                    className="w-full sm:w-auto px-3 py-2 text-xs font-semibold border border-gray-250 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-950/60 dark:text-white cursor-pointer focus:outline-none focus:border-[#FF9933]"
-                  >
-                    <option value="All">All Chances</option>
-                    <option value="High">High Chance</option>
-                    <option value="Moderate">Moderate Chance</option>
-                    <option value="Low">Low Chance</option>
-                  </select>
-
                   {/* Branch Filter */}
                   <select
                     value={filterBranch}
@@ -716,12 +715,64 @@ export default function CollegePredictor() {
                 </div>
               </div>
 
+              {/* TABS CONTAINER */}
+              <div className="flex p-1 bg-slate-100/50 dark:bg-slate-950/60 rounded-2xl border border-gray-250/60 dark:border-slate-800/80 w-full mb-2">
+                <button
+                  type="button"
+                  onClick={() => setFilterChance("High")}
+                  className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
+                    filterChance === "High"
+                      ? "bg-emerald-500 text-white shadow-md"
+                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  🟢 High Chance
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${
+                    filterChance === "High" ? "bg-white/20 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
+                  }`}>
+                    {predictions.filter((p) => p.chance === "High").length}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterChance("Moderate")}
+                  className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
+                    filterChance === "Moderate"
+                      ? "bg-amber-500 text-white shadow-md"
+                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  🟡 Moderate Chance
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${
+                    filterChance === "Moderate" ? "bg-white/20 text-white" : "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
+                  }`}>
+                    {predictions.filter((p) => p.chance === "Moderate").length}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterChance("Low")}
+                  className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
+                    filterChance === "Low"
+                      ? "bg-slate-500 text-white shadow-md"
+                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                >
+                  ⚫ Low Chance
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${
+                    filterChance === "Low" ? "bg-white/20 text-white" : "bg-slate-500/10 text-slate-500 dark:text-slate-400 font-bold"
+                  }`}>
+                    {predictions.filter((p) => p.chance === "Low").length}
+                  </span>
+                </button>
+              </div>
+
               {filteredPredictions.length === 0 ? (
                 <div className="p-12 text-center glass-card border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm">
                   <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                  <h4 className="font-bold text-slate-800 dark:text-white">No Predictions Match Filters</h4>
+                  <h4 className="font-bold text-slate-800 dark:text-white">No Predictions in this tab</h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Try relaxing your filters or select "All Chances" to view remaining options.
+                    Try switching tabs or adjusting branch filters to explore other options.
                   </p>
                 </div>
               ) : (
