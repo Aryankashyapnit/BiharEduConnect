@@ -687,20 +687,6 @@ export default function CollegePredictor() {
                 </div>
 
                 <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                  {/* Branch Filter */}
-                  <select
-                    value={filterBranch}
-                    onChange={(e) => setFilterBranch(e.target.value)}
-                    className="w-full sm:w-auto px-3 py-2 text-xs font-semibold border border-gray-255 dark:border-slate-800 rounded-xl bg-gray-50/50 dark:bg-slate-950/60 dark:text-white cursor-pointer focus:outline-none focus:border-[#FF9933]"
-                  >
-                    <option value="All">All Branches</option>
-                    {uniqueBranches.map((br) => (
-                      <option key={br} value={br}>
-                        {br}
-                      </option>
-                    ))}
-                  </select>
-
                   {/* Export Options */}
                   <div className="w-full sm:w-auto no-print">
                     <button
@@ -716,10 +702,13 @@ export default function CollegePredictor() {
               </div>
 
               {/* TABS CONTAINER */}
-              <div className="flex p-1 bg-slate-100/50 dark:bg-slate-950/60 rounded-2xl border border-gray-250/60 dark:border-slate-800/80 w-full mb-2">
+              <div className="flex p-1 bg-slate-100/50 dark:bg-slate-950/60 rounded-2xl border border-gray-250/60 dark:border-slate-800/80 w-full mb-1">
                 <button
                   type="button"
-                  onClick={() => setFilterChance("High")}
+                  onClick={() => {
+                    setFilterChance("High");
+                    setFilterBranch("All");
+                  }}
                   className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
                     filterChance === "High"
                       ? "bg-emerald-500 text-white shadow-md"
@@ -735,7 +724,10 @@ export default function CollegePredictor() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFilterChance("Moderate")}
+                  onClick={() => {
+                    setFilterChance("Moderate");
+                    setFilterBranch("All");
+                  }}
                   className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
                     filterChance === "Moderate"
                       ? "bg-amber-500 text-white shadow-md"
@@ -751,7 +743,10 @@ export default function CollegePredictor() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFilterChance("Low")}
+                  onClick={() => {
+                    setFilterChance("Low");
+                    setFilterBranch("All");
+                  }}
                   className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
                     filterChance === "Low"
                       ? "bg-slate-500 text-white shadow-md"
@@ -760,12 +755,71 @@ export default function CollegePredictor() {
                 >
                   ⚫ Low Chance
                   <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                    filterChance === "Low" ? "bg-white/20 text-white" : "bg-slate-500/10 text-slate-500 dark:text-slate-400 font-bold"
+                    filterChance === "Low" ? "bg-white/20 text-white" : "bg-slate-550/10 text-slate-500 dark:text-slate-400 font-bold"
                   }`}>
                     {predictions.filter((p) => p.chance === "Low").length}
                   </span>
                 </button>
               </div>
+
+              {/* Branch Sub-Tabs Pill Bar */}
+              {predictions.length > 0 && (
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin flex-nowrap mb-1">
+                  <button
+                    type="button"
+                    onClick={() => setFilterBranch("All")}
+                    className={`px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all duration-300 cursor-pointer ${
+                      filterBranch === "All"
+                        ? "bg-[#2563EB] text-white shadow-sm"
+                        : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    All Branches ({predictions.filter((p) => p.chance === filterChance).length})
+                  </button>
+                  {Array.from(new Set(predictions.filter((p) => p.chance === filterChance).map((p) => p.branchCode))).map((br) => {
+                    const count = predictions.filter((p) => p.chance === filterChance && p.branchCode === br).length;
+                    
+                    // User friendly labels for major branch codes
+                    const getBranchLabel = (code: string) => {
+                      const mapping: Record<string, string> = {
+                        CSE: "Computer Science (CSE)",
+                        "CSE(AI)": "CSE (AI)",
+                        "CSE(AI&ML)": "CSE (AI & ML)",
+                        "CSE (AI &ML)": "CSE (AI & ML)",
+                        "CSE(CYBER SECURITY)": "CSE (Cyber)",
+                        "CSE (CYBER SECURITY)": "CSE (Cyber)",
+                        "CSE(DATA SCIENCE)": "CSE (Data Sci)",
+                        "CSE (DATA SCIENCE)": "CSE (Data Sci)",
+                        "CSE-IOT": "CSE (IoT)",
+                        "CSE (IOT)": "CSE (IoT)",
+                        "CSE(IOT)": "CSE (IoT)",
+                        CE: "Civil",
+                        ME: "Mechanical",
+                        EE: "Electrical",
+                        ECE: "Electronics",
+                        EEE: "Electrical & Electronics",
+                        IT: "IT"
+                      };
+                      return mapping[code] || code;
+                    };
+
+                    return (
+                      <button
+                        key={br}
+                        type="button"
+                        onClick={() => setFilterBranch(br)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all duration-300 cursor-pointer ${
+                          filterBranch === br
+                            ? "bg-[#2563EB] text-white shadow-sm"
+                            : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        {getBranchLabel(br)} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
               {filteredPredictions.length === 0 ? (
                 <div className="p-12 text-center glass-card border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm">
