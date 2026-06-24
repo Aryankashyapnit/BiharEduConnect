@@ -39,14 +39,14 @@ export default function ChoiceSimulatorPage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Personalized Counseling States
-  const [percentileInput, setPercentileInput] = useState<number | "">(85);
+  const [percentileInput, setPercentileInput] = useState<string>("85");
   const [categoryInput, setCategoryInput] = useState("UR");
   const [genderInput, setGenderInput] = useState("Co-ed");
 
   // Sync with user context when loaded
   useEffect(() => {
     if (user && user.percentile) {
-      setPercentileInput(user.percentile);
+      setPercentileInput(user.percentile.toString());
     }
   }, [user]);
 
@@ -539,15 +539,15 @@ export default function ChoiceSimulatorPage() {
                 <div>
                   <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">JEE Main Percentile</label>
                   <input 
-                    type="number" 
-                    step="0.01"
-                    min="0"
-                    max="100"
+                    type="text" 
                     value={percentileInput} 
                     onChange={(e) => {
-                      const val = e.target.value === "" ? "" : parseFloat(e.target.value);
-                      if (val === "" || (!isNaN(val) && val >= 0 && val <= 100)) {
-                        setPercentileInput(val);
+                      const val = e.target.value;
+                      if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                        const num = parseFloat(val);
+                        if (val === "" || (!isNaN(num) && num >= 0 && num <= 100)) {
+                          setPercentileInput(val);
+                        }
                       }
                     }}
                     className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 dark:text-white rounded-xl text-xs font-semibold focus:outline-none"

@@ -103,7 +103,7 @@ export default function CounsellingGuide() {
   // ==========================================
   // UGEAC counselling choice simulator states
   // ==========================================
-  const [simPercentile, setSimPercentile] = useState<number | "">(user?.percentile || 90.0);
+  const [simPercentile, setSimPercentile] = useState<string>(user?.percentile ? user.percentile.toString() : "90.0");
   const [simCategory, setSimCategory] = useState("UR");
   const [simGender, setSimGender] = useState("Co-ed");
   const [simChoices, setSimChoices] = useState<Array<{
@@ -675,14 +675,16 @@ export default function CounsellingGuide() {
                       JEE Main Percentile
                     </label>
                     <input
-                      type="number"
-                      step="0.01"
-                      min="1"
-                      max="100"
+                      type="text"
                       value={simPercentile}
                       onChange={(e) => {
-                        const val = e.target.value === "" ? "" : Number(e.target.value);
-                        setSimPercentile(val);
+                        const val = e.target.value;
+                        if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                          const num = parseFloat(val);
+                          if (val === "" || (!isNaN(num) && num >= 0 && num <= 100)) {
+                            setSimPercentile(val);
+                          }
+                        }
                       }}
                       className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />

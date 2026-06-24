@@ -26,7 +26,7 @@ export default function CollegePredictor() {
  
   // Form State
   const [inputType, setInputType] = useState<"percentile" | "ugeac_rank" | "bcece_rank">("percentile");
-  const [percentile, setPercentile] = useState<number | "">(user?.percentile || "");
+  const [percentile, setPercentile] = useState<string>(user?.percentile ? user.percentile.toString() : "");
   const [rank, setRank] = useState<number | "">("");
   const [rankType, setRankType] = useState<"ur" | "category">("ur");
   const [category, setCategory] = useState("UR");
@@ -42,7 +42,7 @@ export default function CollegePredictor() {
  
   const performPrediction = (
     type: "percentile" | "ugeac_rank" | "bcece_rank",
-    pct: number | "",
+    pct: string | number | "",
     rk: number | "",
     cat: string,
     gen: string,
@@ -464,7 +464,15 @@ export default function CollegePredictor() {
                     type="text"
                     required
                     value={percentile}
-                    onChange={(e) => setPercentile(e.target.value === "" ? "" : Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                        const num = parseFloat(val);
+                        if (val === "" || (!isNaN(num) && num >= 0 && num <= 100)) {
+                          setPercentile(val);
+                        }
+                      }
+                    }}
                     placeholder="e.g. 92.45"
                     className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
                   />
