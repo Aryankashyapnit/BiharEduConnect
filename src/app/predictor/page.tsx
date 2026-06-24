@@ -288,6 +288,33 @@ export default function CollegePredictor() {
     );
   };
 
+  const sortBranchesCustom = (branches: string[]) => {
+    const customOrder: Record<string, number> = {
+      CSE: 1,
+      CE: 3,
+      ECE: 4,
+      EE: 5,
+      EEE: 6,
+      ME: 7
+    };
+
+    const getBranchPriority = (code: string): number => {
+      if (code === "CSE") return 1;
+      if (code.startsWith("CSE") || code.startsWith("ARTIFICIAL")) return 2;
+      if (customOrder[code] !== undefined) return customOrder[code];
+      return 100;
+    };
+
+    return [...branches].sort((a, b) => {
+      const priorityA = getBranchPriority(a);
+      const priorityB = getBranchPriority(b);
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      return a.localeCompare(b);
+    });
+  };
+
   // Filter logic
   const filteredPredictions = predictions.filter((p) => {
     const matchChance = filterChance === "All" || p.chance === filterChance;
@@ -776,7 +803,9 @@ export default function CollegePredictor() {
                   >
                     All Branches ({predictions.filter((p) => p.chance === filterChance).length})
                   </button>
-                  {Array.from(new Set(predictions.filter((p) => p.chance === filterChance).map((p) => p.branchCode))).map((br) => {
+                  {sortBranchesCustom(
+                    Array.from(new Set(predictions.filter((p) => p.chance === filterChance).map((p) => p.branchCode)))
+                  ).map((br) => {
                     const count = predictions.filter((p) => p.chance === filterChance && p.branchCode === br).length;
                     
                     // User friendly labels for major branch codes
