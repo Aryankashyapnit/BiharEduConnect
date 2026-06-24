@@ -234,9 +234,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const storedBlocked = localStorage.getItem("bihareduconnect_blocked_emails");
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
-      const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
-      if (storedCutoffs) {
-        try { setCutoffs(JSON.parse(storedCutoffs)); } catch (e) {}
+      const storedVersion = localStorage.getItem("bihareduconnect_cutoffs_version");
+      if (storedVersion !== "v2025_calibrated_v2") {
+        localStorage.removeItem("bihareduconnect_cutoffs");
+        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_calibrated_v2");
+        setCutoffs(cutoffsData);
+        setTimeout(async () => {
+          const mapped = cutoffsData.map(c => ({
+            college_code: c.collegeCode, branch_code: c.branchCode, year: c.year, round: c.round,
+            category: c.category, gender: c.gender, opening_rank: c.openingRank, closing_rank: c.closingRank
+          }));
+          try {
+            await supabase.from('cutoffs').delete().neq('id', 'dummy');
+            await supabase.from('cutoffs').insert(mapped);
+          } catch (e) {
+            console.error("Migration seed error", e);
+          }
+        }, 1000);
+      } else {
+        const storedCutoffs = localStorage.getItem("bihareduconnect_cutoffs");
+        if (storedCutoffs) {
+          try { setCutoffs(JSON.parse(storedCutoffs)); } catch (e) {}
+        }
       }
 
       const storedSeatMatrix = localStorage.getItem("bihareduconnect_seat_matrix");
