@@ -1,7 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+const isValidUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch (e) {
+    return false;
+  }
+};
+
+if (!supabaseUrl || !isValidUrl(supabaseUrl)) {
+  supabaseUrl = "https://placeholder-project.supabase.co";
+}
+if (!supabaseAnonKey) {
+  supabaseAnonKey = "placeholder-anon-key";
+}
 
 // Log a development-only warning if environment variables are not configured
 if (
