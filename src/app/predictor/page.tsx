@@ -241,7 +241,7 @@ export default function CollegePredictor() {
           let rankToUse = evaluatedUR;
           if (quotaCategory === "RCG" || valid2025.gender === "Female" || valid2024.gender === "Female") {
             rankToUse = evaluatedRCG;
-          } else if (quotaCategory === cat) {
+          } else if (quotaCategory === cat && cat !== "UR") {
             rankToUse = evaluatedCategory;
           }
 
