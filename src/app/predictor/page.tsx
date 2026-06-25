@@ -14,7 +14,7 @@ const getBestCutoffForCategory = (
   round: number,
   category: string,
   candidateGender: string
-): Cutoff => {
+): Cutoff | null => {
   const matches = cutoffsData.filter(
     c =>
       c.collegeCode === collegeCode &&
@@ -25,7 +25,7 @@ const getBestCutoffForCategory = (
   );
 
   if (matches.length === 0) {
-    return getEstimatedCutoff(collegeCode, branchCode, year, round, category, candidateGender);
+    return null;
   }
 
   if (candidateGender === "Female") {
@@ -41,7 +41,7 @@ const getBestCutoffForCategory = (
   } else {
     // A male/co-ed candidate is only eligible for Co-ed (General) seats.
     const coedMatch = matches.find(m => m.gender === "Co-ed");
-    return coedMatch || matches[0];
+    return coedMatch || null;
   }
 };
 
@@ -224,24 +224,38 @@ export default function CollegePredictor() {
           const cutoff2025 = getBestCutoffForCategory(college.code, branchCode, 2025, rnd, quotaCategory, gen);
           const cutoff2024 = getBestCutoffForCategory(college.code, branchCode, 2024, rnd, quotaCategory, gen);
 
+          // Skip if no match exists in either year
+          if (!cutoff2025 && !cutoff2024) return;
+
+          const valid2025 = cutoff2025 || getEstimatedCutoff(college.code, branchCode, 2025, rnd, quotaCategory, gen);
+          const valid2024 = cutoff2024 || getEstimatedCutoff(college.code, branchCode, 2024, rnd, quotaCategory, gen);
+
+          // Extra guard: If candidate is Co-ed, they cannot compete for Female seats
+          if (gen === "Co-ed" && (valid2025.gender === "Female" || valid2024.gender === "Female")) {
+            return;
+          }
+
           let rankToUse = evaluatedUR;
-          if (quotaCategory === "RCG" || cutoff2025.gender === "Female" || cutoff2024.gender === "Female") {
+          if (quotaCategory === "RCG" || valid2025.gender === "Female" || valid2024.gender === "Female") {
             rankToUse = evaluatedRCG;
           } else if (quotaCategory === cat) {
             rankToUse = evaluatedCategory;
           }
 
-          const { chance, chancePercentage } = evaluateChance(rankToUse, cutoff2025, cutoff2024);
+          const { chance, chancePercentage } = evaluateChance(rankToUse, valid2025, valid2024);
 
           quotaPredictions.push({
             quotaCategory,
-            cutoff2025,
-            cutoff2024,
+            cutoff2025: valid2025,
+            cutoff2024: valid2024,
             chance,
             chancePercentage,
             rankUsed: rankToUse
           });
         });
+
+        // If no quota predictions are valid, skip this branch option
+        if (quotaPredictions.length === 0) return;
 
         // Find the best chance among all eligible quotas
         let bestQuotaPred = quotaPredictions[0];
