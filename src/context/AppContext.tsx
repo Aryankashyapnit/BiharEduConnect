@@ -239,9 +239,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
       const storedVersion = localStorage.getItem("bihareduconnect_cutoffs_version");
-      if (storedVersion !== "v2025_official_v1") {
+      if (storedVersion !== "v2025_official_v2") {
         localStorage.removeItem("bihareduconnect_cutoffs");
-        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_official_v1");
+        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_official_v2");
         setCutoffs(cutoffsData);
         setTimeout(async () => {
           const mapped = cutoffsData.map(c => ({

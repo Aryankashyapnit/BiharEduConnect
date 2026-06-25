@@ -1,4 +1,5 @@
 import { collegesData } from "./colleges";
+import official2024Cutoffs from "./cutoffs2024.json";
 import official2025Cutoffs from "./cutoffs2025.json";
 
 export interface Cutoff {
@@ -141,7 +142,7 @@ const generateAllCutoffs = (): Cutoff[] => {
   };
 
   const categories = ["UR", "BC", "EBC", "SC", "ST", "EWS", "RCG"];
-  const years = [2023, 2024];
+  const years = [2023];
   const rounds = [1, 2];
 
   collegesData.forEach((college) => {
@@ -233,8 +234,12 @@ const generateAllCutoffs = (): Cutoff[] => {
   return generated;
 };
 
-// Compile full dynamic database array on startup (combining simulated 2023-2024 with official 2025 cutoffs)
-export const cutoffsData: Cutoff[] = [...generateAllCutoffs(), ...(official2025Cutoffs as Cutoff[])];
+// Compile full dynamic database array on startup (combining simulated 2023 with official 2024 and 2025 cutoffs)
+export const cutoffsData: Cutoff[] = [
+  ...generateAllCutoffs(),
+  ...(official2024Cutoffs as Cutoff[]),
+  ...(official2025Cutoffs as Cutoff[])
+];
 
 // Robust fallback engine in case dynamic modifications in LocalStorage are empty
 export const getEstimatedCutoff = (
