@@ -225,10 +225,10 @@ export default function CollegePredictor() {
           const cutoff2024 = getBestCutoffForCategory(college.code, branchCode, 2024, rnd, quotaCategory, gen);
 
           let rankToUse = evaluatedUR;
-          if (quotaCategory === cat) {
-            rankToUse = evaluatedCategory;
-          } else if (quotaCategory === "RCG") {
+          if (quotaCategory === "RCG" || cutoff2025.gender === "Female" || cutoff2024.gender === "Female") {
             rankToUse = evaluatedRCG;
+          } else if (quotaCategory === cat) {
+            rankToUse = evaluatedCategory;
           }
 
           const { chance, chancePercentage } = evaluateChance(rankToUse, cutoff2025, cutoff2024);
@@ -1011,7 +1011,9 @@ export default function CollegePredictor() {
                                   }`}
                                   title={`Rank used: ${qp.rankUsed} | 2025 Closing: ${qp.cutoff2025.closingRank}`}
                                 >
-                                  <span className="font-extrabold uppercase">{qp.quotaCategory}:</span>
+                                  <span className="font-extrabold uppercase">
+                                    {qp.quotaCategory}{qp.cutoff2025.gender === "Female" ? " (FEMALE)" : ""}:
+                                  </span>
                                   <span>{qp.chance} ({qp.chancePercentage}%)</span>
                                 </span>
                               ))}
