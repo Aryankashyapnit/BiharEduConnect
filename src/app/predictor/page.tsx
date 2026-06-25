@@ -210,8 +210,11 @@ export default function CollegePredictor() {
     if (cat !== "UR") {
       eligibleCategories.push(cat);
     }
-    if (gen === "Female" && evaluatedRCG > 0) {
-      eligibleCategories.push("RCG");
+    // RCG is eligible only for female candidates when category is not UR (or if category is RCG)
+    if (gen === "Female" && cat !== "UR" && evaluatedRCG > 0) {
+      if (!eligibleCategories.includes("RCG")) {
+        eligibleCategories.push("RCG");
+      }
     }
 
     const results: any[] = [];
