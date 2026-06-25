@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useApp } from "../context/AppContext";
 import { College } from "../data/colleges";
+import { CommunityComments } from "../components/CommunityComments";
 import { 
   Compass, 
   TrendingUp, 
@@ -44,7 +45,7 @@ export default function Homepage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   // Onboarding Wizard State
-  const [wizardType, setWizardType] = useState<"percentile" | "ugeac_rank" | "bcece_rank">("percentile");
+  const [wizardType, setWizardType] = useState<"ugeac_rank" | "bcece_rank">("ugeac_rank");
   const [wizardValue, setWizardValue] = useState("");
   const [wizardCategory, setWizardCategory] = useState("UR");
   
@@ -52,7 +53,7 @@ export default function Homepage() {
   const [activeSlide, setActiveSlide] = useState(0);
 
   // Gamified Score Simulator State
-  const [simPercentile, setSimPercentile] = useState(85);
+  const [simRank, setSimRank] = useState(3500);
 
   // B.Tech Branch Pathfinder State
   const [pathfinderTraits, setPathfinderTraits] = useState({
@@ -85,37 +86,37 @@ export default function Homepage() {
   const pathfinderScores = getCompatibilityScores();
   
   // dynamic matching simulation data
-  const getSimulatedOdds = (percentile: number) => {
-    if (percentile >= 95) {
+  const getSimulatedOdds = (rank: number) => {
+    if (rank <= 2000) {
       return {
         level: "Top-Tier Government Engineering Colleges",
         prob: 96,
         badge: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
-        text: "Exceptional score! You are in the top bracket for CSE / ECE at MIT Muzaffarpur and BCE Bhagalpur.",
+        text: "Exceptional rank! You are in the top bracket for CSE / ECE at MIT Muzaffarpur and BCE Bhagalpur.",
         colleges: [
           { name: "MIT Muzaffarpur", branch: "Computer Science & Engg", package: "12.5 LPA" },
           { name: "BCE Bhagalpur", branch: "Computer Science & Engg", package: "10.2 LPA" },
           { name: "NCE Chandi", branch: "Information Technology", package: "7.8 LPA" }
         ]
       };
-    } else if (percentile >= 85) {
+    } else if (rank <= 5000) {
       return {
         level: "Mid-to-High Tier State Universities",
         prob: 88,
         badge: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
-        text: "Very strong score! High probability of securing CSE/ECE in top-middle government colleges.",
+        text: "Very strong rank! High probability of securing CSE/ECE in top-middle government colleges.",
         colleges: [
           { name: "NCE Chandi", branch: "Computer Science & Engg", package: "7.8 LPA" },
           { name: "DCE Darbhanga", branch: "Computer Science & Engg", package: "6.5 LPA" },
           { name: "GCE Gaya", branch: "Electronics & Communication", package: "6.2 LPA" }
         ]
       };
-    } else if (percentile >= 75) {
+    } else if (rank <= 8000) {
       return {
         level: "Established District Colleges",
         prob: 74,
         badge: "bg-amber-500/10 text-amber-500 border border-amber-550/20",
-        text: "Good score! Steady chances for core branches (EE/ECE/ME) at highly active district colleges.",
+        text: "Good rank! Steady chances for core branches (EE/ECE/ME) at highly active district colleges.",
         colleges: [
           { name: "GCE Gaya", branch: "Electrical & Electronics Engg", package: "6.2 LPA" },
           { name: "MCET Motihari", branch: "Computer Science & Engg", package: "5.8 LPA" },
@@ -137,32 +138,9 @@ export default function Homepage() {
     }
   };
 
-  const simResult = getSimulatedOdds(simPercentile);
+  const simResult = getSimulatedOdds(simRank);
 
-  // Chatbot State
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "bot"; text: string }>>([
-    { sender: "bot", text: "Hello Aspirant! 🎓 Welcome to BiharEduConnect. I am your BCECE UGEAC Counselling Assistant. How can I help you today?" }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
 
-  const chatbotQuestions = [
-    { q: "What certificates do I need for verification?", a: "For BCECE UGEAC verification, you need: 1. UGEAC 2026 Rank Card, 2. Part-A & Part-B printed forms, 3. JEE Main score card, 4. Bihar residential domicile certificate (Mandatory), 5. Caste certificate (EBC/BC/SC/ST/EWS) if applicable, and 6. Class 10/12 marksheets with 6 passport size photographs." },
-    { q: "What is the best preference strategy?", a: "The golden rule of preference sheets: Always place your dream colleges (like MIT Muzaffarpur, BCE Bhagalpur) at the very top of your choice list. There is no penalty for listing aspirational choices, and UGEAC processes from top down!" },
-    { q: "How does Round 2 seat upgrade work?", a: "If allocated a lower preference in Round 1, select 'Upgrade: Yes' during physical verification. You secure your current seat while competing risk-free for higher-priority options in Round 2!" },
-    { q: "Can I get CSE with a low JEE rank?", a: "Yes! Newer government engineering colleges in Bihar (like GEC Banka, GEC Madhubani, GEC Jamui) offer B.Tech CSE with more relaxed cutoffs. Make sure to check the Seat Matrix Dashboard for full details!" }
-  ];
-
-  const handleAskQuestion = (questionText: string, answerText: string) => {
-    if (isTyping) return;
-    setChatMessages(prev => [...prev, { sender: "user", text: questionText }]);
-    setIsTyping(true);
-
-    setTimeout(() => {
-      setIsTyping(false);
-      setChatMessages(prev => [...prev, { sender: "bot", text: answerText }]);
-    }, 700);
-  };
 
   React.useEffect(() => {
     const justLoggedOut = sessionStorage.getItem("bihareduconnect_logged_out");
@@ -183,9 +161,9 @@ export default function Homepage() {
   };
 
   const stats = [
-    { value: "38+", label: "Government Colleges", icon: GraduationCap, color: "text-[#FF9933] bg-[#FF9933]/10" },
-    { value: "10,500+", label: "B.Tech Seats", icon: Layers, color: "text-[#138808] bg-[#138808]/10" },
-    { value: "15+", label: "Engg Branches", icon: BookOpen, color: "text-[#2563EB] bg-[#2563EB]/10" },
+    { value: "38+", label: "Government Colleges", icon: GraduationCap, color: "text-[#6366f1] bg-[#6366f1]/10" },
+    { value: "10,500+", label: "B.Tech Seats", icon: Layers, color: "text-[#06b6d4] bg-[#06b6d4]/10" },
+    { value: "15+", label: "Engg Branches", icon: BookOpen, color: "text-[#22d3ee] bg-[#22d3ee]/10" },
     { value: "98.5%", label: "Accuracy Rate", icon: Award, color: "text-amber-500 bg-amber-500/10" }
   ];
 
@@ -195,8 +173,8 @@ export default function Homepage() {
       description: "Enter your category, rank, and gender to identify high-probability engineering colleges and B.Tech specializations in Bihar.",
       href: "/predictor",
       icon: Compass,
-      color: "from-[#FF9933]/20 to-[#FF9933]/5",
-      iconColor: "text-[#FF9933]",
+      color: "from-[#6366f1]/20 to-[#6366f1]/5",
+      iconColor: "text-[#6366f1]",
       actionText: "Predict My College"
     },
     {
@@ -204,8 +182,8 @@ export default function Homepage() {
       description: "Search and compare round-wise historical cutoff closing ranks from preceding UGEAC admissions lists using multi-year trend charts.",
       href: "/cutoffs",
       icon: TrendingUp,
-      color: "from-[#2563EB]/20 to-[#2563EB]/5",
-      iconColor: "text-[#2563EB]",
+      color: "from-[#22d3ee]/20 to-[#22d3ee]/5",
+      iconColor: "text-[#22d3ee]",
       actionText: "Analyze Trends"
     },
     {
@@ -213,8 +191,8 @@ export default function Homepage() {
       description: "Explore category-wise (UR, BC, EBC, SC, ST, EWS, RCG) and branch-wise B.Tech intake statistics across all participating colleges.",
       href: "/seats",
       icon: Layers,
-      color: "from-[#138808]/20 to-[#138808]/5",
-      iconColor: "text-[#138808]",
+      color: "from-[#06b6d4]/20 to-[#06b6d4]/5",
+      iconColor: "text-[#06b6d4]",
       actionText: "Check Seat Matrix"
     },
     {
@@ -232,7 +210,7 @@ export default function Homepage() {
     { date: "13.05.2026", title: "Online Registration Starting Date", status: "Active", badge: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" },
     { date: "05.06.2026 (10.00 p.m.)", title: "Online Registration Closing Date", status: "Upcoming", badge: "bg-blue-500/10 text-blue-500 border border-blue-500/20" },
     { date: "05.06.2026 (11.59 p.m.)", title: "Last date of payment through Debit/Credit Card/Net Banking/UPI with Final submission", status: "Upcoming", badge: "bg-amber-500/10 text-amber-500 border border-amber-500/20" },
-    { date: "06.06.2026", title: "Online Editing of Application Form", status: "Upcoming", badge: "bg-[#FF9933]/10 text-[#FF9933] border border-[#FF9933]/20" },
+    { date: "06.06.2026", title: "Online Editing of Application Form", status: "Upcoming", badge: "bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/20" },
     { date: "08.06.2026", title: "Publication of Merit list of UGEAC-2026", status: "Upcoming", badge: "bg-purple-500/10 text-purple-500 border border-purple-500/20" },
     { date: "Proposed date", title: "Proposed date of Online Counselling", status: "Upcoming", badge: "bg-slate-500/10 text-slate-500 border border-slate-500/20" }
   ];
@@ -277,39 +255,39 @@ export default function Homepage() {
       <div className="bg-slate-900 dark:bg-slate-950 text-white text-[10px] font-black uppercase py-3 overflow-hidden border-b border-white/5 relative z-40 backdrop-blur-md shadow-sm">
         <div className="flex w-full relative">
           <div className="inline-flex whitespace-nowrap animate-marquee gap-10 pr-10">
-            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🔥 UGEAC 2026 Choice Filling Starts Next Week!</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#6366f1] animate-pulse" /> 🔥 UGEAC 2026 Choice Filling Starts Next Week!</span>
             <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-[#2563EB] animate-pulse" /> ⚡ MIT Muzaffarpur Placement Packages hit new record of 12.5 LPA!</span>
+            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-[#22d3ee] animate-pulse" /> ⚡ MIT Muzaffarpur Placement Packages hit new record of 12.5 LPA!</span>
             <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#138808] animate-pulse" /> 📢 Category-wise Seat matrix updated for Round 2 engineering allocations</span>
+            <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#06b6d4] animate-pulse" /> 📢 Category-wise Seat matrix updated for Round 2 engineering allocations</span>
             <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🎓 Dual-claim RCG quota model activated for Girls!</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#6366f1] animate-pulse" /> 🎓 Dual-claim RCG quota model activated for Girls!</span>
             <span className="text-gray-600">|</span>
           </div>
           <div className="inline-flex whitespace-nowrap animate-marquee gap-10 pr-10">
-            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🔥 UGEAC 2026 Choice Filling Starts Next Week!</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#6366f1] animate-pulse" /> 🔥 UGEAC 2026 Choice Filling Starts Next Week!</span>
             <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-[#2563EB] animate-pulse" /> ⚡ MIT Muzaffarpur Placement Packages hit new record of 12.5 LPA!</span>
+            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-[#22d3ee] animate-pulse" /> ⚡ MIT Muzaffarpur Placement Packages hit new record of 12.5 LPA!</span>
             <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#138808] animate-pulse" /> 📢 Category-wise Seat matrix updated for Round 2 engineering allocations</span>
+            <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#06b6d4] animate-pulse" /> 📢 Category-wise Seat matrix updated for Round 2 engineering allocations</span>
             <span className="text-gray-600">|</span>
-            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FF9933] animate-pulse" /> 🎓 Dual-claim RCG quota model activated for Girls!</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#6366f1] animate-pulse" /> 🎓 Dual-claim RCG quota model activated for Girls!</span>
             <span className="text-gray-600">|</span>
           </div>
         </div>
       </div>
 
       {/* 1. HERO SECTION WITH GRADIENT BACKGROUND */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#2563EB]/5 via-white to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 py-16 sm:py-24 transition-colors">
-        <div className="absolute top-0 right-0 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-tr from-[#FF9933]/10 to-[#138808]/10 blur-3xl opacity-60"></div>
-        <div className="absolute bottom-10 left-10 -z-10 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-[#2563EB]/10 to-[#138808]/10 blur-3xl opacity-60"></div>
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#22d3ee]/5 via-white to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 py-16 sm:py-24 transition-colors">
+        <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] bg-gradient-to-tr from-[#6366f1] to-[#06b6d4] bg-glow-blob"></div>
+        <div className="absolute bottom-10 left-10 -z-10 h-[400px] w-[400px] bg-gradient-to-br from-[#22d3ee] to-[#06b6d4] bg-glow-blob" style={{ animationDelay: '5s' }}></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Hero text panel */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FF9933]/10 border border-[#FF9933]/20 text-[#FF9933] text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF9933]" />
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#6366f1]/10 border border-[#6366f1]/20 text-[#6366f1] text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-[#6366f1]" />
                 BCECE UGEAC Counselling 2026
               </div>
 
@@ -329,7 +307,7 @@ export default function Homepage() {
                 <Link
                   href="/predictor"
                   onClick={(e) => handleGuardClick(e, "/predictor")}
-                  className="px-6 py-3.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-extrabold rounded-xl text-sm flex items-center gap-1.5 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(255,153,51,0.5)] active:scale-95 cursor-pointer btn-premium group relative overflow-hidden"
+                  className="px-6 py-3.5 bg-gradient-to-r from-[#6366f1] to-[#06b6d4] text-white font-extrabold rounded-xl text-sm flex items-center gap-1.5 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(255,153,51,0.5)] active:scale-95 cursor-pointer btn-premium group relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                   Predict My College
@@ -338,14 +316,14 @@ export default function Homepage() {
                 <Link
                   href="/cutoffs"
                   onClick={(e) => handleGuardClick(e, "/cutoffs")}
-                  className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-slate-800 dark:text-gray-200 font-extrabold rounded-xl text-sm transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1"
+                  className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-slate-800 dark:text-gray-200 font-extrabold rounded-xl text-sm transition-all duration-300 cursor-pointer shadow-sm hover-magnetic"
                 >
                   Check Cutoffs
                 </Link>
                 <Link
                   href="/guide"
                   onClick={(e) => handleGuardClick(e, "/guide")}
-                  className="px-6 py-3.5 text-[#2563EB] dark:text-[#FF9933] hover:text-[#1d4ed8] dark:hover:text-[#ff8800] font-bold text-sm hover:underline cursor-pointer transition-colors"
+                  className="px-6 py-3.5 text-[#22d3ee] dark:text-[#6366f1] hover:text-[#06b6d4] dark:hover:text-[#4f46e5] font-bold text-sm hover:underline cursor-pointer transition-colors"
                 >
                   Counselling Guide ➔
                 </Link>
@@ -356,7 +334,7 @@ export default function Homepage() {
             <div className="lg:col-span-5 relative flex items-center justify-center lg:justify-end">
               <div className="w-full max-w-sm rounded-3xl glass-card p-6 shadow-2xl relative animate-float">
                 {/* Decorative glowing gradient borders */}
-                <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#FF9933] via-[#2563EB] to-[#138808] opacity-25 blur-sm"></div>
+                <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#6366f1] via-[#22d3ee] to-[#06b6d4] opacity-25 blur-sm"></div>
 
                 <div className="flex items-center justify-between mb-4 border-b border-gray-100 dark:border-slate-850 pb-3">
                   <div className="flex items-center gap-2">
@@ -381,10 +359,10 @@ export default function Homepage() {
                   <div className="space-y-2 pt-2 border-t border-dashed border-gray-150 dark:border-slate-800">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest block font-extrabold">Best Predicted Result</span>
                     
-                    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#138808]/10 via-white to-white dark:from-[#138808]/10 dark:via-slate-900 dark:to-slate-900 border border-[#138808]/20 flex items-center justify-between gap-2 shadow-sm">
+                    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#06b6d4]/10 via-white to-white dark:from-[#06b6d4]/10 dark:via-slate-900 dark:to-slate-900 border border-[#06b6d4]/20 flex items-center justify-between gap-2 shadow-sm">
                       <div>
                         <h4 className="text-xs font-extrabold text-slate-855 dark:text-gray-100">MIT Muzaffarpur</h4>
-                        <span className="text-[10px] text-[#FF9933] font-semibold">B.Tech in CSE</span>
+                        <span className="text-[10px] text-[#6366f1] font-semibold">B.Tech in CSE</span>
                       </div>
                       <div className="text-right">
                         <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-full text-[9px] font-bold">
@@ -394,10 +372,10 @@ export default function Homepage() {
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#2563EB]/10 via-white to-white dark:from-[#2563EB]/10 dark:via-slate-900 dark:to-slate-900 border border-[#2563EB]/20 flex items-center justify-between gap-2 shadow-sm">
+                    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#22d3ee]/10 via-white to-white dark:from-[#22d3ee]/10 dark:via-slate-900 dark:to-slate-900 border border-[#22d3ee]/20 flex items-center justify-between gap-2 shadow-sm">
                       <div>
                         <h4 className="text-xs font-extrabold text-slate-855 dark:text-gray-100">BCE Bhagalpur</h4>
-                        <span className="text-[10px] text-[#FF9933] font-semibold">B.Tech in ECE</span>
+                        <span className="text-[10px] text-[#6366f1] font-semibold">B.Tech in ECE</span>
                       </div>
                       <div className="text-right">
                         <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-full text-[9px] font-bold">
@@ -439,12 +417,12 @@ export default function Homepage() {
       {/* Gamified Admissions Odds Simulator Slider Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
         <div className="glass-card hover-lift rounded-3xl p-6 sm:p-8 border border-gray-150 dark:border-slate-800 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-[#2563EB]/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#22d3ee]/5 rounded-full blur-2xl pointer-events-none" />
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left side: Interactive slider controls */}
             <div className="lg:col-span-6 space-y-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#138808]/10 text-[#138808] text-[10px] font-black uppercase tracking-wider border border-[#138808]/20 animate-pulse">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#06b6d4]/10 text-[#06b6d4] text-[10px] font-black uppercase tracking-wider border border-[#06b6d4]/20 animate-pulse">
                 <Sparkles className="w-3.5 h-3.5" />
                 Gamified Rank Simulator
               </div>
@@ -452,31 +430,31 @@ export default function Homepage() {
                 Simulate Your <span className="gradient-text-premium font-black">College Probability</span>
               </h2>
               <p className="text-xs text-gray-550 dark:text-gray-400 font-bold leading-relaxed">
-                Drag the score slider to simulate your JEE Percentile score in real-time. Witness your calculated admissions probabilities and recommended institutions update instantly!
+                Drag the score slider to simulate your UGEAC Rank in real-time. Witness your calculated admissions probabilities and recommended institutions update instantly!
               </p>
 
               {/* Slider Controller */}
               <div className="space-y-4 pt-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-extrabold text-slate-800 dark:text-gray-200 uppercase tracking-wider text-[10px]">JEE Percentile Score</span>
-                  <span className="px-3 py-1 rounded-lg bg-[#2563EB]/15 text-[#2563EB] dark:text-[#60a5fa] font-black text-sm">
-                    {simPercentile}%
+                  <span className="font-extrabold text-slate-800 dark:text-gray-200 uppercase tracking-wider text-[10px]">UGEAC Bihar Rank</span>
+                  <span className="px-3 py-1 rounded-lg bg-[#22d3ee]/15 text-[#22d3ee] dark:text-[#60a5fa] font-black text-sm">
+                    Rank #{simRank}
                   </span>
                 </div>
                 <input
                   type="range"
-                  min="55"
-                  max="99"
-                  step="1"
-                  value={simPercentile}
-                  onChange={(e) => setSimPercentile(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-205 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2563EB] focus:outline-none transition-all"
+                  min="500"
+                  max="12000"
+                  step="100"
+                  value={simRank}
+                  onChange={(e) => setSimRank(Number(e.target.value))}
+                  className="w-full h-2.5 bg-slate-205 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#22d3ee] focus:outline-none transition-all"
                 />
                 <div className="flex justify-between text-[9px] text-gray-400 font-extrabold uppercase">
-                  <span>55% Percentile</span>
-                  <span>75% Good</span>
-                  <span>90% Very Strong</span>
-                  <span>99% Outstanding</span>
+                  <span>#500 Top-Tier</span>
+                  <span>#3000 Very Strong</span>
+                  <span>#7000 Good</span>
+                  <span>#12000 Moderate</span>
                 </div>
               </div>
             </div>
@@ -497,11 +475,11 @@ export default function Homepage() {
                 <div className="space-y-2 text-left">
                   <span className="text-[9px] text-gray-450 dark:text-gray-550 font-black uppercase tracking-wider block">Suggested Top-3 Allocations</span>
                   {simResult.colleges.map((col, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-gray-200/20 dark:border-slate-800 shadow-sm hover:border-[#2563EB]/30 transition-colors">
+                    <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-gray-200/20 dark:border-slate-800 shadow-sm hover:border-[#22d3ee]/30 transition-colors">
                       <span className="font-extrabold text-slate-805 dark:text-gray-200">{col.name}</span>
                       <div className="text-right flex items-center gap-2">
-                        <span className="text-[10px] text-[#FF9933] font-black">{col.branch}</span>
-                        <span className="px-1.5 py-0.2 bg-[#138808]/10 text-[#138808] dark:text-[#22c55e] rounded text-[8px] font-black">{col.package}</span>
+                        <span className="text-[10px] text-[#6366f1] font-black">{col.branch}</span>
+                        <span className="px-1.5 py-0.2 bg-[#06b6d4]/10 text-[#06b6d4] dark:text-[#22c55e] rounded text-[8px] font-black">{col.package}</span>
                       </div>
                     </div>
                   ))}
@@ -514,7 +492,7 @@ export default function Homepage() {
                   <span className="text-3xl font-black text-slate-850 dark:text-white leading-none">
                     {simResult.prob}%
                   </span>
-                  <span className="text-[8px] text-[#138808] dark:text-[#22c55e] font-black uppercase tracking-wider mt-1">Odds</span>
+                  <span className="text-[8px] text-[#06b6d4] dark:text-[#22c55e] font-black uppercase tracking-wider mt-1">Odds</span>
                 </div>
                 {/* Dynamic SVG Gauge */}
                 <svg className="w-full h-full transform -rotate-90">
@@ -539,9 +517,9 @@ export default function Homepage() {
                   />
                   <defs>
                     <linearGradient id="gradientDial" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#FF9933" />
-                      <stop offset="50%" stopColor="#2563EB" />
-                      <stop offset="100%" stopColor="#138808" />
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="50%" stopColor="#22d3ee" />
+                      <stop offset="100%" stopColor="#06b6d4" />
                     </linearGradient>
                   </defs>
                 </svg>
@@ -553,7 +531,7 @@ export default function Homepage() {
 
       {/* 2.5 INTERACTIVE ADMISSION WIZARD & COUNSELLING SECRETS BLOCK */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[300px] w-[500px] rounded-full bg-gradient-to-r from-[#FF9933]/5 to-[#138808]/5 blur-3xl opacity-50"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[500px] w-[600px] bg-gradient-to-r from-[#6366f1] to-[#06b6d4] bg-glow-blob" style={{ animationDelay: '3s' }}></div>
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
@@ -562,15 +540,15 @@ export default function Homepage() {
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent -z-10"></div>
             
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-extrabold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#22d3ee]/10 text-[#22d3ee] text-[10px] font-extrabold uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
                 Admission Strategy Wizard
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-snug">
                 Prefill Your Admissions Odds!
               </h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl">
-                Enter your test ranks or percentiles below. Our interactive helper will configure the prediction engines instantly to Suggest suggested government colleges in Bihar.
+              <p className="text-xs text-gray-550 dark:text-gray-400 leading-relaxed max-w-xl">
+                Enter your test ranks below. Our interactive helper will configure the prediction engines instantly to Suggest suggested government colleges in Bihar.
               </p>
 
               {/* Form elements */}
@@ -579,7 +557,7 @@ export default function Homepage() {
                 <div className="col-span-1 sm:col-span-2">
                   <label className="block text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-1.5">Score Merit Type</label>
                   <div className="flex p-0.5 bg-slate-100/50 dark:bg-slate-950/60 rounded-xl border border-gray-200 dark:border-slate-850 w-full">
-                    {["percentile", "ugeac_rank", "bcece_rank"].map((t) => (
+                    {["ugeac_rank", "bcece_rank"].map((t) => (
                       <button
                         key={t}
                         type="button"
@@ -589,11 +567,11 @@ export default function Homepage() {
                         }}
                         className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 cursor-pointer ${
                           wizardType === t
-                            ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
+                            ? "bg-white dark:bg-slate-850 text-[#22d3ee] dark:text-[#6366f1] shadow-sm"
                             : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
                         }`}
                       >
-                        {t === "percentile" ? "JEE Percentile" : t === "ugeac_rank" ? "UGEAC Rank" : "BCECE Rank"}
+                        {t === "ugeac_rank" ? "UGEAC Rank" : "BCECE Rank"}
                       </button>
                     ))}
                   </div>
@@ -605,7 +583,7 @@ export default function Homepage() {
                   <select
                     value={wizardCategory}
                     onChange={(e) => setWizardCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-gray-250 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9933] cursor-pointer"
+                    className="w-full px-3.5 py-2.5 border border-gray-250 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl text-xs font-semibold focus:outline-none cursor-pointer premium-input"
                   >
                     <option value="UR">Unreserved (UR)</option>
                     <option value="BC">Backward Class (BC)</option>
@@ -620,14 +598,14 @@ export default function Homepage() {
                 {/* 3. Score input value */}
                 <div>
                   <label className="block text-[9px] font-extrabold text-gray-400 uppercase tracking-widest mb-1.5">
-                    {wizardType === "percentile" ? "JEE Percentile Score" : `${wizardType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Value`}
+                    {`${wizardType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Value`}
                   </label>
                   <input
                     type="text"
                     value={wizardValue}
                     onChange={(e) => setWizardValue(e.target.value)}
-                    placeholder={wizardType === "percentile" ? "e.g. 91.50" : "e.g. 1450"}
-                    className="w-full px-3.5 py-2.5 border border-gray-250 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933]"
+                    placeholder="e.g. 1450"
+                    className="w-full px-3.5 py-2.5 border border-gray-250 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl text-xs font-semibold focus:outline-none premium-input"
                   />
                 </div>
               </div>
@@ -637,16 +615,12 @@ export default function Homepage() {
               <button
                 onClick={(e) => {
                   if (!wizardValue.trim()) {
-                    alert("Please enter a valid rank or percentile score first.");
+                    alert("Please enter a valid rank first.");
                     return;
                   }
                   const numVal = Number(wizardValue);
                   if (isNaN(numVal) || numVal <= 0) {
-                    alert("Please enter a valid positive number.");
-                    return;
-                  }
-                  if (wizardType === "percentile" && numVal > 100) {
-                    alert("Percentile cannot exceed 100.");
+                    alert("Please enter a valid positive rank number.");
                     return;
                   }
 
@@ -660,13 +634,11 @@ export default function Homepage() {
                     }
                   };
 
-                  const queryPath = wizardType === "percentile"
-                    ? `/predictor?percentile=${wizardValue}&category=${wizardCategory}&type=percentile`
-                    : `/predictor?rank=${wizardValue}&category=${wizardCategory}&type=${wizardType}`;
+                  const queryPath = `/predictor?rank=${wizardValue}&category=${wizardCategory}&type=${wizardType}`;
 
                   guardCheck(queryPath);
                 }}
-                className="w-full py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-xl font-bold hover:shadow-lg shadow-[#138808]/15 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer btn-premium"
+                className="w-full py-3 bg-gradient-to-r from-[#6366f1] to-[#06b6d4] text-white rounded-xl font-bold hover:shadow-lg shadow-[#06b6d4]/15 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer btn-premium"
               >
                 Calculate My Admissions Odds
                 <ArrowRight className="w-4.5 h-4.5" />
@@ -676,11 +648,11 @@ export default function Homepage() {
 
           {/* Right panel: Strategy Advice Carousel (5 cols) */}
           <div className="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 border border-gray-150 dark:border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FF9933]/5 via-transparent to-transparent -z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#6366f1]/5 via-transparent to-transparent -z-10"></div>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#138808]/10 text-[#138808] text-[10px] font-extrabold uppercase tracking-wider">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#06b6d4]/10 text-[#06b6d4] text-[10px] font-extrabold uppercase tracking-wider">
                   <Award className="w-3.5 h-3.5" />
                   Counselling Expert Advice
                 </div>
@@ -690,7 +662,7 @@ export default function Homepage() {
                       key={idx}
                       onClick={() => setActiveSlide(idx)}
                       className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                        activeSlide === idx ? "w-4.5 bg-[#FF9933]" : "w-1.5 bg-gray-250 dark:bg-slate-800"
+                        activeSlide === idx ? "w-4.5 bg-[#6366f1]" : "w-1.5 bg-gray-250 dark:bg-slate-800"
                       }`}
                     />
                   ))}
@@ -763,7 +735,7 @@ export default function Homepage() {
                 onClick={() => {
                   setActiveSlide((prev) => (prev + 1) % 4);
                 }}
-                className="text-xs text-[#2563EB] dark:text-[#FF9933] font-bold hover:underline cursor-pointer"
+                className="text-xs text-[#22d3ee] dark:text-[#6366f1] font-bold hover:underline cursor-pointer"
               >
                 Next Secret Tip ➔
               </button>
@@ -791,7 +763,7 @@ export default function Homepage() {
             return (
               <div
                 key={i}
-                className={`glass-card rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/10 border border-gray-150 dark:border-slate-800 flex flex-col justify-between group transition-all duration-500 transform hover:-translate-y-2 relative overflow-hidden ${neonBorderClass}`}
+                className={`glass-card rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-[#22d3ee]/10 border border-gray-150 dark:border-slate-800 flex flex-col justify-between group transition-all duration-500 transform hover:-translate-y-2 relative overflow-hidden ${neonBorderClass}`}
               >
                 {/* Decorative hover gradient block */}
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feat.color} rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-2xl`} />
@@ -800,7 +772,7 @@ export default function Homepage() {
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feat.color} flex items-center justify-center mb-6 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500`}>
                     <Icon className={`w-7 h-7 ${feat.iconColor}`} />
                   </div>
-                  <h3 className="text-xl font-extrabold text-slate-850 dark:text-white group-hover:text-[#2563EB] dark:group-hover:text-[#FF9933] transition-colors mb-3">
+                  <h3 className="text-xl font-extrabold text-slate-850 dark:text-white group-hover:text-[#22d3ee] dark:group-hover:text-[#6366f1] transition-colors mb-3">
                     {feat.title}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8">
@@ -829,7 +801,7 @@ export default function Homepage() {
                        {/* Updates Notice Board */}
             <div className="lg:col-span-7 glass-card rounded-2xl p-6 shadow-sm">
               <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-6 pb-3 border-b border-gray-100 dark:border-slate-850">
-                <Calendar className="w-5 h-5 text-[#FF9933]" />
+                <Calendar className="w-5 h-5 text-[#6366f1]" />
                 Latest Admission Notification Board
               </h2>
  
@@ -860,7 +832,7 @@ export default function Homepage() {
             <div className="lg:col-span-5 space-y-6">
               <div className="glass-card rounded-2xl p-6 shadow-sm">
                 <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4 border-b border-gray-100 dark:border-slate-850 pb-2">
-                  <FileText className="w-5 h-5 text-[#138808]" />
+                  <FileText className="w-5 h-5 text-[#06b6d4]" />
                   Verification Documents Reminder
                 </h2>
                 <p className="text-xs text-gray-500 leading-relaxed mb-4">
@@ -875,7 +847,7 @@ export default function Homepage() {
                     "Class 10 & 12 passing certificate/marksheets"
                   ].map((doc, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300">
-                      <span className="h-4 w-4 bg-[#138808]/15 border border-[#138808]/30 rounded-full flex items-center justify-center shrink-0 text-[10px] text-[#138808] font-bold mt-0.5">
+                      <span className="h-4 w-4 bg-[#06b6d4]/15 border border-[#06b6d4]/30 rounded-full flex items-center justify-center shrink-0 text-[10px] text-[#06b6d4] font-bold mt-0.5">
                         {i + 1}
                       </span>
                       <span>{doc}</span>
@@ -886,7 +858,7 @@ export default function Homepage() {
                   <Link
                     href="/guide"
                     onClick={(e) => handleGuardClick(e, "/guide")}
-                    className="w-full py-2.5 bg-[#2563EB] hover:bg-[#2563EB]/90 text-white font-bold rounded-xl text-xs text-center uppercase tracking-wider block transition-colors cursor-pointer"
+                    className="w-full py-2.5 bg-[#22d3ee] hover:bg-[#22d3ee]/90 text-white font-bold rounded-xl text-xs text-center uppercase tracking-wider block transition-colors cursor-pointer"
                   >
                     View Step-by-Step Guide
                   </Link>
@@ -918,19 +890,19 @@ export default function Homepage() {
               quote: "The College Predictor is remarkably precise. I secured CSE at MIT Muzaffarpur exactly as suggested based on my UGEAC merit rank. The cutoff trend lines helped me order my choices perfectly.",
               student: "Abhishek Sahni",
               college: "MIT Muzaffarpur (B.Tech CSE - 2025)",
-              color: "border-[#FF9933]/25 bg-[#FF9933]/5"
+              color: "border-[#6366f1]/25 bg-[#6366f1]/5"
             },
             {
               quote: "Choice filling order is what makes or breaks seat allocations. Following the mega-menu tips on BiharEduConnect, I listed BCE Bhagalpur CSE above local ones and got allocated R1. Best portal ever!",
               student: "Priya Kumari",
               college: "BCE Bhagalpur (B.Tech CSE - 2025)",
-              color: "border-[#2563EB]/25 bg-[#2563EB]/5"
+              color: "border-[#22d3ee]/25 bg-[#22d3ee]/5"
             },
             {
               quote: "The interactive seat matrix gave me a clear perspective of category distribution splits. The built-in AI assistant solved all of my doubts about residential certificates instantly. Highly recommended!",
               student: "Rahul Kumar",
               college: "GCE Gaya (B.Tech EEE - 2025)",
-              color: "border-[#138808]/25 bg-[#138808]/5"
+              color: "border-[#06b6d4]/25 bg-[#06b6d4]/5"
             }
           ].map((test, i) => (
             <div
@@ -954,7 +926,7 @@ export default function Homepage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white flex items-center justify-center gap-1.5">
-              <HelpCircle className="w-6 h-6 text-[#2563EB]" />
+              <HelpCircle className="w-6 h-6 text-[#22d3ee]" />
               Frequently Asked Questions
             </h2>
             <p className="text-xs text-gray-400 mt-1">
@@ -993,14 +965,14 @@ export default function Homepage() {
 
       {/* 6.3 B.TECH BRANCH PATHFINDER & COMPATIBILITY ANALYZER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-l from-[#2563EB]/10 to-transparent blur-3xl opacity-50"></div>
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-l from-[#22d3ee]/10 to-transparent blur-3xl opacity-50"></div>
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#138808]/10 text-[#138808] text-xs font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#06b6d4]/10 text-[#06b6d4] text-xs font-bold uppercase tracking-wider mb-3">
             <Compass className="w-3.5 h-3.5" />
             Branch Selection Helper
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
-            B.Tech Branch <span className="bg-gradient-to-r from-[#2563EB] to-[#138808] bg-clip-text text-transparent">Pathfinder</span>
+            B.Tech Branch <span className="bg-gradient-to-r from-[#22d3ee] to-[#06b6d4] bg-clip-text text-transparent">Pathfinder</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
             Confused about which engineering branch fits you best? Select your interests below and let our real-time engine calculate your ideal career compatibility across core streams.
@@ -1010,9 +982,9 @@ export default function Homepage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Panel: Traits Checklist & Live Compatibility */}
           <div className="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-150 dark:border-slate-800 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF9933]/10 rounded-bl-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#6366f1]/10 rounded-bl-full pointer-events-none" />
             <h3 className="text-lg font-black text-slate-800 dark:text-white mb-5 flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-[#FF9933]" /> Your Core Interests
+              <UserCheck className="w-5 h-5 text-[#6366f1]" /> Your Core Interests
             </h3>
             <div className="space-y-3 mb-8">
               {[
@@ -1022,12 +994,12 @@ export default function Homepage() {
                 { id: "govJobs", label: "I primarily want a Government/PSU Job", icon: Award, color: "emerald" },
                 { id: "mathLogic", label: "I am very strong at complex Mathematics", icon: Cog, color: "indigo" },
               ].map((trait) => (
-                <label key={trait.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-800 hover:border-[#2563EB]/40 bg-white/50 dark:bg-slate-900/40 cursor-pointer transition-colors group">
+                <label key={trait.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-slate-800 hover:border-[#22d3ee]/40 bg-white/50 dark:bg-slate-900/40 cursor-pointer transition-colors group">
                   <input
                     type="checkbox"
                     checked={(pathfinderTraits as any)[trait.id]}
                     onChange={(e) => setPathfinderTraits({ ...pathfinderTraits, [trait.id]: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300 text-[#2563EB] focus:ring-[#2563EB]"
+                    className="w-4 h-4 rounded border-gray-300 text-[#22d3ee] focus:ring-[#22d3ee]"
                   />
                   <trait.icon className={`w-4 h-4 text-gray-400 group-hover:text-${trait.color}-500 transition-colors`} />
                   <span className="text-xs font-bold text-slate-700 dark:text-gray-300 select-none">{trait.label}</span>
@@ -1039,9 +1011,9 @@ export default function Homepage() {
               <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Live Compatibility Match</h4>
               <div className="space-y-4">
                 {[
-                  { key: "CSE", label: "Computer Science", score: pathfinderScores.CSE, color: "bg-[#2563EB]" },
-                  { key: "ECE", label: "Electronics & Comm", score: pathfinderScores.ECE, color: "bg-[#FF9933]" },
-                  { key: "CE", label: "Civil Engineering", score: pathfinderScores.CE, color: "bg-[#138808]" },
+                  { key: "CSE", label: "Computer Science", score: pathfinderScores.CSE, color: "bg-[#22d3ee]" },
+                  { key: "ECE", label: "Electronics & Comm", score: pathfinderScores.ECE, color: "bg-[#6366f1]" },
+                  { key: "CE", label: "Civil Engineering", score: pathfinderScores.CE, color: "bg-[#06b6d4]" },
                   { key: "ME", label: "Mechanical Engg", score: pathfinderScores.ME, color: "bg-purple-500" },
                   { key: "EE", label: "Electrical Engg", score: pathfinderScores.EE, color: "bg-red-500" },
                 ].sort((a, b) => b.score - a.score).map((branch) => (
@@ -1090,10 +1062,10 @@ export default function Homepage() {
                 <div className="space-y-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-black text-[#2563EB]">Computer Science & Engineering</h3>
+                      <h3 className="text-xl font-black text-[#22d3ee]">Computer Science & Engineering</h3>
                       <p className="text-xs text-gray-500 font-semibold mt-1">Focuses on software dev, AI/ML, logic, and networking.</p>
                     </div>
-                    <span className="px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] font-black text-xs shrink-0 text-center">
+                    <span className="px-3 py-1 rounded-lg bg-[#22d3ee]/10 text-[#22d3ee] font-black text-xs shrink-0 text-center">
                       Top Package<br/><span className="text-lg">~12.5L</span>
                     </span>
                   </div>
@@ -1117,7 +1089,7 @@ export default function Homepage() {
                         { yr: "Y4", title: "AI/ML, Projects & Placements", desc: "Specialization and campus hiring." },
                       ].map((item, i) => (
                         <div key={i} className="flex gap-4 relative">
-                          <div className="w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div className="w-6 h-6 rounded-full bg-[#22d3ee] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
                           <div>
                             <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
                             <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
@@ -1132,10 +1104,10 @@ export default function Homepage() {
                 <div className="space-y-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-black text-[#FF9933]">Electronics & Communication</h3>
+                      <h3 className="text-xl font-black text-[#6366f1]">Electronics & Communication</h3>
                       <p className="text-xs text-gray-500 font-semibold mt-1">Bridging hardware circuits with software programming.</p>
                     </div>
-                    <span className="px-3 py-1 rounded-lg bg-[#FF9933]/10 text-[#FF9933] font-black text-xs shrink-0 text-center">
+                    <span className="px-3 py-1 rounded-lg bg-[#6366f1]/10 text-[#6366f1] font-black text-xs shrink-0 text-center">
                       Top Package<br/><span className="text-lg">~9.5L</span>
                     </span>
                   </div>
@@ -1159,7 +1131,7 @@ export default function Homepage() {
                         { yr: "Y4", title: "VLSI, Projects & Placements", desc: "Chip design and specialized hardware." },
                       ].map((item, i) => (
                         <div key={i} className="flex gap-4 relative">
-                          <div className="w-6 h-6 rounded-full bg-[#FF9933] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div className="w-6 h-6 rounded-full bg-[#6366f1] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
                           <div>
                             <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
                             <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
@@ -1174,10 +1146,10 @@ export default function Homepage() {
                 <div className="space-y-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-black text-[#138808]">Civil Engineering</h3>
+                      <h3 className="text-xl font-black text-[#06b6d4]">Civil Engineering</h3>
                       <p className="text-xs text-gray-500 font-semibold mt-1">Infrastructure, construction, and urban planning.</p>
                     </div>
-                    <span className="px-3 py-1 rounded-lg bg-[#138808]/10 text-[#138808] font-black text-xs shrink-0 text-center">
+                    <span className="px-3 py-1 rounded-lg bg-[#06b6d4]/10 text-[#06b6d4] font-black text-xs shrink-0 text-center">
                       Govt Scope<br/><span className="text-lg">Very High</span>
                     </span>
                   </div>
@@ -1188,7 +1160,7 @@ export default function Homepage() {
                     </div>
                     <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800">
                       <span className="text-[9px] text-gray-400 font-black uppercase block mb-1">Govt. Job Prospects</span>
-                      <p className="text-xs font-bold text-[#138808] dark:text-[#22c55e]">Exceptional (PWD, BPSC, CPWD)</p>
+                      <p className="text-xs font-bold text-[#06b6d4] dark:text-[#22c55e]">Exceptional (PWD, BPSC, CPWD)</p>
                     </div>
                   </div>
                   <div>
@@ -1201,7 +1173,7 @@ export default function Homepage() {
                         { yr: "Y4", title: "Transport & Environment", desc: "Highway engineering and project execution." },
                       ].map((item, i) => (
                         <div key={i} className="flex gap-4 relative">
-                          <div className="w-6 h-6 rounded-full bg-[#138808] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
+                          <div className="w-6 h-6 rounded-full bg-[#06b6d4] text-white flex items-center justify-center text-[9px] font-black shrink-0 relative z-10 shadow-sm border-2 border-white dark:border-slate-950">{item.yr}</div>
                           <div>
                             <h5 className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</h5>
                             <p className="text-[10px] text-gray-500 mt-0.5">{item.desc}</p>
@@ -1307,12 +1279,12 @@ export default function Homepage() {
           
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF9933]/10 text-[#FF9933] text-xs font-bold uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#6366f1]/10 text-[#6366f1] text-xs font-bold uppercase tracking-wider mb-3">
               <GraduationCap className="w-3.5 h-3.5" />
               Our Mission & Vision
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">
-              About <span className="bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808] bg-clip-text text-transparent">BiharEduConnect</span>
+              About <span className="bg-gradient-to-r from-[#6366f1] via-[#22d3ee] to-[#06b6d4] bg-clip-text text-transparent">BiharEduConnect</span>
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
               Empowering engineering aspirants of Bihar with advanced prediction systems and interactive guides for a seamless admissions journey.
@@ -1332,8 +1304,8 @@ export default function Homepage() {
               <p className="text-sm text-gray-650 dark:text-gray-400 leading-relaxed">
                 <strong>BiharEduConnect</strong> was conceived as a comprehensive, independent candidate helper to resolve this information gap. By building dynamic, client-side indexers and predictor tools, we provide students with instant, accurate insights regarding B.Tech vacancies, hostel fees, and branch scopes across Bihar's 38 government engineering colleges.
               </p>
-              <div className="p-4 bg-[#138808]/5 border border-[#138808]/20 rounded-2xl flex gap-3">
-                <CheckCircle className="w-6 h-6 text-[#138808] shrink-0 mt-0.5" />
+              <div className="p-4 bg-[#06b6d4]/5 border border-[#06b6d4]/20 rounded-2xl flex gap-3">
+                <CheckCircle className="w-6 h-6 text-[#06b6d4] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 dark:text-gray-150">BCECEB Compliant Guidance</h4>
                   <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal mt-0.5">
@@ -1346,12 +1318,12 @@ export default function Homepage() {
             {/* Right side graphics panel */}
             <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
               <div className="w-full max-w-sm rounded-3xl glass-card p-6 shadow-xl relative animate-float">
-                <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#FF9933] via-[#2563EB] to-[#138808] opacity-20 blur-sm"></div>
+                <div className="absolute -inset-0.5 -z-10 rounded-[26px] bg-gradient-to-tr from-[#6366f1] via-[#22d3ee] to-[#06b6d4] opacity-20 blur-sm"></div>
                 
                 <div className="space-y-6 text-left">
                   {/* Mission block */}
                   <div className="flex gap-4">
-                    <div className="p-3 bg-[#FF9933]/15 text-[#FF9933] rounded-xl shrink-0 h-11 w-11 flex items-center justify-center font-bold">
+                    <div className="p-3 bg-[#6366f1]/15 text-[#6366f1] rounded-xl shrink-0 h-11 w-11 flex items-center justify-center font-bold">
                       <Award className="w-5 h-5" />
                     </div>
                     <div>
@@ -1364,7 +1336,7 @@ export default function Homepage() {
 
                   {/* Vision block */}
                   <div className="flex gap-4">
-                    <div className="p-3 bg-[#138808]/15 text-[#138808] rounded-xl shrink-0 h-11 w-11 flex items-center justify-center font-bold">
+                    <div className="p-3 bg-[#06b6d4]/15 text-[#06b6d4] rounded-xl shrink-0 h-11 w-11 flex items-center justify-center font-bold">
                       <Sparkles className="w-5 h-5" />
                     </div>
                     <div>
@@ -1383,7 +1355,7 @@ export default function Homepage() {
           <div className="mb-16">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <h3 className="text-2xl font-extrabold text-slate-800 dark:text-white flex items-center justify-center gap-1.5">
-                <Users className="w-6 h-6 text-[#2563EB]" />
+                <Users className="w-6 h-6 text-[#22d3ee]" />
                 Meet Our Founders
               </h3>
               <p className="text-xs text-gray-450 dark:text-gray-400 mt-1.5">
@@ -1397,15 +1369,15 @@ export default function Homepage() {
                   name: "ARYAN SINGH KASHYAP",
                   role: "Founder",
                   college: "National Institute of Technology, Agartala (NIT Agartala)",
-                  color: "border-[#FF9933]/30 bg-gradient-to-br from-[#FF9933]/5 to-transparent",
-                  badgeColor: "bg-[#FF9933]/10 text-[#FF9933]"
+                  color: "border-[#6366f1]/30 bg-gradient-to-br from-[#6366f1]/5 to-transparent",
+                  badgeColor: "bg-[#6366f1]/10 text-[#6366f1]"
                 },
                 {
                   name: "KUMAR PANDAV",
                   role: "Co-founder",
                   college: "Government Engineering College, Banka (GEC Banka)",
-                  color: "border-[#2563EB]/30 bg-gradient-to-br from-[#2563EB]/5 to-transparent",
-                  badgeColor: "bg-[#2563EB]/10 text-[#2563EB]"
+                  color: "border-[#22d3ee]/30 bg-gradient-to-br from-[#22d3ee]/5 to-transparent",
+                  badgeColor: "bg-[#22d3ee]/10 text-[#22d3ee]"
                 }
               ].map((f, i) => (
                 <div
@@ -1423,7 +1395,7 @@ export default function Homepage() {
                       {f.name}
                     </h4>
                     <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#138808] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#06b6d4] shrink-0" />
                       {f.college}
                     </p>
                   </div>
@@ -1444,19 +1416,19 @@ export default function Homepage() {
                   title: "Data Transparency",
                   description: "We compile real-world round-by-round BCECE cutoff closing ranks to ensure candidates have accurate information before finalizing choice entries.",
                   icon: TrendingUp,
-                  color: "text-[#2563EB] bg-[#2563EB]/10 border-[#2563EB]/20"
+                  color: "text-[#22d3ee] bg-[#22d3ee]/10 border-[#22d3ee]/20"
                 },
                 {
                   title: "Student-First Design",
                   description: "Our mobile-first predictor calculators and checklists are built intentionally for candidates across all of Bihar's rural and urban sectors.",
                   icon: Compass,
-                  color: "text-[#FF9933] bg-[#FF9933]/10 border-[#FF9933]/20"
+                  color: "text-[#6366f1] bg-[#6366f1]/10 border-[#6366f1]/20"
                 },
                 {
                   title: "Counselling Clarity",
                   description: "Demystifying complex seat reservation categories (BC, EBC, EWS, RCG) and nodal verification guidelines to avoid accidental application rejections.",
                   icon: Layers,
-                  color: "text-[#138808] bg-[#138808]/10 border-[#138808]/20"
+                  color: "text-[#06b6d4] bg-[#06b6d4]/10 border-[#06b6d4]/20"
                 }
               ].map((v, i) => {
                 const Icon = v.icon;
@@ -1478,97 +1450,12 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* Fixed Interactive Expandable Counseling AI Assistant Chatbot */}
-      {/* Chat Drawer Window */}
-      {chatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[450px] rounded-3xl glass-card border border-gray-250 dark:border-slate-850 shadow-2xl flex flex-col overflow-hidden animate-fade-in backdrop-blur-xl">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9933] via-[#2563EB] to-[#138808]" />
-          {/* Header */}
-          <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-b border-gray-200/50 dark:border-slate-800/60 flex items-center justify-between backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] flex items-center justify-center text-white text-xs font-black shadow-inner">
-                <Sparkles className="w-4.5 h-4.5 text-white animate-pulse" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-slate-850 dark:text-gray-150">Counselling Assistant</h4>
-                <span className="text-[9px] text-emerald-500 font-extrabold flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  Active Help Node
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => setChatOpen(false)}
-              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-905 rounded-lg text-gray-405 hover:text-slate-800 dark:hover:text-white cursor-pointer transition-colors"
-            >
-              <X className="w-4.5 h-4.5" />
-            </button>
-          </div>
+      {/* Community Discussion Section */}
+      <section className="px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 max-w-5xl mx-auto pb-4">
+        <CommunityComments pageId="home" title="Community Discussion" />
+      </section>
 
-          {/* Chat Body messages area */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/20 dark:bg-slate-950/10">
-            {chatMessages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div className={`max-w-[85%] p-3 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${
-                  msg.sender === "user"
-                    ? "bg-[#2563EB] text-white rounded-tr-none"
-                    : "bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-gray-200 rounded-tl-none border border-gray-150 dark:border-slate-850"
-                }`}>
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="p-3 rounded-2xl rounded-tl-none bg-slate-50 dark:bg-slate-900 text-gray-400 border border-gray-150 dark:border-slate-850 text-xs font-semibold flex items-center gap-1.5 animate-pulse">
-                  <span className="animate-bounce">●</span>
-                  <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>●</span>
-                  <span className="animate-bounce" style={{ animationDelay: "0.4s" }}>●</span>
-                  <span className="text-[10px] text-gray-400 font-bold ml-1 uppercase tracking-wider">Thinking...</span>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Chat Footer preset questions drawer */}
-          <div className="p-4 bg-slate-50/70 dark:bg-slate-950/80 border-t border-gray-200/50 dark:border-slate-800/60 space-y-2 backdrop-blur-md">
-            <span className="text-[9px] text-gray-400 dark:text-gray-550 font-black uppercase tracking-wider block">Ask preset counseling questions</span>
-            <div className="flex flex-wrap gap-1.5">
-              {chatbotQuestions.map((q, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleAskQuestion(q.q, q.a)}
-                  disabled={isTyping}
-                  className="px-2.5 py-1.5 rounded-lg bg-white/80 dark:bg-slate-900/80 text-[10px] text-slate-750 dark:text-gray-300 font-extrabold border border-gray-200 dark:border-slate-800 hover:border-[#2563EB] hover:text-[#2563EB] dark:hover:text-[#60a5fa] disabled:opacity-50 transition-all duration-300 cursor-pointer shadow-sm"
-                >
-                  {q.q}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Toggle Expand Bubble Button */}
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] hover:shadow-2xl text-white shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group btn-premium border border-white/10"
-      >
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF9933] to-[#138808] animate-ping opacity-25 group-hover:opacity-40" />
-        <div className="relative w-6 h-6 flex items-center justify-center">
-          {chatOpen ? (
-            <X className="w-6 h-6 text-white transition-transform duration-300 rotate-90" />
-          ) : (
-            <>
-              <MessageSquare className="w-6 h-6 text-white group-hover:rotate-6 transition-transform relative z-10" />
-              <Sparkles className="w-3.5 h-3.5 absolute -top-1 -right-1 text-white animate-pulse relative z-10" />
-            </>
-          )}
-        </div>
-      </button>
 
     </div>
   );

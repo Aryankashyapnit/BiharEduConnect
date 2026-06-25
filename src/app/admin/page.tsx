@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { College } from "../../data/colleges";
+import { convertPercentileToUR, convertURToPercentile } from "../../data/cutoffs";
 import { AuthGate } from "../../components/AuthGate";
 import { db } from "../../lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
@@ -135,7 +136,7 @@ export default function AdminDashboard() {
   const [activeCandidateFilter, setActiveCandidateFilter] = useState<"standard" | "demo">("standard");
   const [studentFormName, setStudentFormName] = useState("");
   const [studentFormEmail, setStudentFormEmail] = useState("");
-  const [studentFormPercentile, setStudentFormPercentile] = useState<number>(90.0);
+  const [studentFormPercentile, setStudentFormPercentile] = useState<number>(2364); // UGEAC General Rank (internally percentile, default 2364 rank maps to 81.0 percentile)
   const [studentFormPassword, setStudentFormPassword] = useState("");
   const [isEditingStudent, setIsEditingStudent] = useState(false);
   const [editingStudentEmail, setEditingStudentEmail] = useState<string | null>(null);
@@ -182,12 +183,13 @@ export default function AdminDashboard() {
       showNotification("❌ Please fill all fields.");
       return;
     }
-    const res = registerUser(studentFormName, studentFormEmail, studentFormPercentile, studentFormPassword);
+    const pctVal = convertURToPercentile(studentFormPercentile);
+    const res = registerUser(studentFormName, studentFormEmail, pctVal, studentFormPassword);
     if (res.success) {
       showNotification(`✓ Registered candidate ${studentFormName} successfully!`);
       setStudentFormName("");
       setStudentFormEmail("");
-      setStudentFormPercentile(90.0);
+      setStudentFormPercentile(2364);
       setStudentFormPassword("");
     } else {
       showNotification(`❌ Error: ${res.error || "Failed to register student."}`);
@@ -201,10 +203,11 @@ export default function AdminDashboard() {
       showNotification("❌ Please fill all fields.");
       return;
     }
+    const pctVal = convertURToPercentile(studentFormPercentile);
     const updated = {
       name: studentFormName.trim(),
       email: studentFormEmail.trim(),
-      percentile: studentFormPercentile,
+      percentile: pctVal,
       password: studentFormPassword.trim()
     };
     const res = updateRegisteredUser(editingStudentEmail, updated);
@@ -214,7 +217,7 @@ export default function AdminDashboard() {
       setEditingStudentEmail(null);
       setStudentFormName("");
       setStudentFormEmail("");
-      setStudentFormPercentile(90.0);
+      setStudentFormPercentile(2364);
       setStudentFormPassword("");
     } else {
       showNotification(`❌ Error: ${res.error || "Failed to update details."}`);
@@ -226,7 +229,7 @@ export default function AdminDashboard() {
     setEditingStudentEmail(stud.email);
     setStudentFormName(stud.name);
     setStudentFormEmail(stud.email);
-    setStudentFormPercentile(stud.percentile);
+    setStudentFormPercentile(Math.round(convertPercentileToUR(stud.percentile)));
     setStudentFormPassword(stud.password || "");
   };
 
@@ -2091,16 +2094,14 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] text-gray-500 dark:text-gray-400 font-extrabold uppercase tracking-wide mb-1.5">JEE Main Percentile</label>
+                        <label className="block text-[10px] text-gray-500 dark:text-gray-400 font-extrabold uppercase tracking-wide mb-1.5">UGEAC General Rank</label>
                         <input
                           type="number"
-                          step="0.0001"
-                          min="0"
-                          max="100"
+                          min="1"
                           required
                           value={studentFormPercentile}
                           onChange={(e) => setStudentFormPercentile(Number(e.target.value))}
-                          placeholder="e.g. 92.54"
+                          placeholder="e.g. 4500"
                           className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-slate-850 rounded-xl bg-gray-50 dark:bg-slate-950 dark:text-white focus:outline-none focus:border-amber-500"
                         />
                       </div>
@@ -2135,7 +2136,7 @@ export default function AdminDashboard() {
                           setEditingStudentEmail(null);
                           setStudentFormName("");
                           setStudentFormEmail("");
-                          setStudentFormPercentile(90.0);
+                          setStudentFormPercentile(2364);
                           setStudentFormPassword("");
                         }}
                         className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-extrabold uppercase tracking-wider cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-750 transition-colors"
@@ -2239,7 +2240,7 @@ export default function AdminDashboard() {
                                   )}
                                 </div>
                                 <span className="text-[10px] text-gray-550 dark:text-gray-400 block truncate">{stud.email}</span>
-                                <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">Percentile: {stud.percentile}%</span>
+                                <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">UGEAC Rank: #{Math.round(convertPercentileToUR(stud.percentile))}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -2381,7 +2382,7 @@ export default function AdminDashboard() {
                               <span className="font-extrabold text-xs leading-none truncate block">{session.studentName}</span>
                             </div>
                             <span className="text-[9px] text-gray-400 block truncate mt-1">{session.studentEmail}</span>
-                            <span className="text-[8px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">JEEM: {session.percentile}%</span>
+                            <span className="text-[8px] text-[#2563EB] dark:text-[#FF9933] font-bold block mt-0.5">UGEAC Rank: #{Math.round(convertPercentileToUR(session.percentile))}</span>
                           </div>
                           <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0 ml-1" />
                         </button>
@@ -2405,7 +2406,7 @@ export default function AdminDashboard() {
                           <div className="bg-slate-100 dark:bg-slate-900 px-4 py-3 border-b border-gray-155 dark:border-slate-800 text-left flex items-center justify-between">
                             <div className="min-w-0">
                               <h4 className="text-xs font-bold text-slate-800 dark:text-white leading-tight truncate">{session.studentName}</h4>
-                              <span className="text-[9px] text-gray-450 block truncate">{session.studentEmail} &bull; JEE: {session.percentile}%</span>
+                              <span className="text-[9px] text-gray-450 block truncate">{session.studentEmail} &bull; UGEAC Rank: #{Math.round(convertPercentileToUR(session.percentile))}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="text-[9px] bg-slate-200 dark:bg-slate-800 text-gray-600 dark:text-gray-350 px-2 py-1 rounded font-extrabold uppercase shrink-0">
@@ -2476,7 +2477,7 @@ export default function AdminDashboard() {
                     </span>
                   </h3>
                   <p className="text-[10px] text-gray-400 mt-0.5">
-                    Tracks exactly who loaded the portal, their candidate credentials, JEE percentile, and aggregate visits count.
+                    Tracks exactly who loaded the portal, their candidate credentials, UGEAC General Rank, and aggregate visits count.
                   </p>
                 </div>
                 
@@ -2513,7 +2514,7 @@ export default function AdminDashboard() {
                     <tr className="bg-slate-50 dark:bg-slate-950 text-gray-500 dark:text-gray-400 font-extrabold uppercase text-[9px] tracking-wider border-b border-gray-100 dark:border-slate-850">
                       <th className="p-3.5">Visitor Identity</th>
                       <th className="p-3.5">Email Address</th>
-                      <th className="p-3.5">JEE Main Pct</th>
+                      <th className="p-3.5">UGEAC Rank (Est.)</th>
                       <th className="p-3.5 text-center">Time Spent</th>
                       <th className="p-3.5 text-center">Platform Visits</th>
                       <th className="p-3.5 text-right">Last Visit Timestamp</th>
@@ -2566,7 +2567,7 @@ export default function AdminDashboard() {
                           </td>
                           <td className="p-3.5 text-gray-500 dark:text-gray-450 font-semibold">{log.email}</td>
                           <td className="p-3.5 font-extrabold text-[#2563EB] dark:text-[#FF9933]">
-                            {log.percentile !== undefined ? `${log.percentile.toFixed(2)}%` : "N/A"}
+                            {log.percentile !== undefined ? `#${Math.round(convertPercentileToUR(log.percentile))}` : "N/A"}
                           </td>
                           <td className="p-3.5 text-center">
                             <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 font-black text-[10px]">

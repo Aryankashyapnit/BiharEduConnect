@@ -81,7 +81,7 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
           </button>
           
           <p className="text-[10px] text-gray-400 font-semibold leading-relaxed">
-            Guests can log in instantly with their name and percentile using a Demo Account. No OTP required!
+            Guests can log in instantly with their name and rank using a Demo Account. No OTP required!
           </p>
         </div>
       </div>

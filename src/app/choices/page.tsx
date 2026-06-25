@@ -39,14 +39,14 @@ export default function ChoiceSimulatorPage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Personalized Counseling States
-  const [percentileInput, setPercentileInput] = useState<string>("85");
+  const [rankInput, setRankInput] = useState<string>("5000");
   const [categoryInput, setCategoryInput] = useState("UR");
   const [genderInput, setGenderInput] = useState("Co-ed");
 
   // Sync with user context when loaded
   useEffect(() => {
     if (user && user.percentile) {
-      setPercentileInput(user.percentile.toString());
+      setRankInput(Math.round(convertPercentileToUR(user.percentile)).toString());
     }
   }, [user]);
 
@@ -127,11 +127,11 @@ export default function ChoiceSimulatorPage() {
     saveToLocalStorage(updated);
   };
 
-  // Helper: Estimate UGEAC Rank from Percentile
+  // Helper: Get UGEAC Rank
   const getEstimatedRank = () => {
-    const pctVal = Number(percentileInput);
-    if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) return 1000;
-    return convertPercentileToUR(pctVal);
+    const rVal = Number(rankInput);
+    if (isNaN(rVal) || rVal <= 0) return 5000;
+    return rVal;
   };
  
   const estimatedRank = getEstimatedRank();
@@ -537,19 +537,17 @@ export default function ChoiceSimulatorPage() {
               
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">JEE Main Percentile</label>
+                  <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">UGEAC General Rank</label>
                   <input 
                     type="text" 
-                    value={percentileInput} 
+                    value={rankInput} 
                     onChange={(e) => {
                       const val = e.target.value;
-                      if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
-                        const num = parseFloat(val);
-                        if (val === "" || (!isNaN(num) && num >= 0 && num <= 100)) {
-                          setPercentileInput(val);
-                        }
+                      if (val === "" || /^[0-9]*$/.test(val)) {
+                        setRankInput(val);
                       }
                     }}
+                    placeholder="e.g. 5000"
                     className="w-full px-2.5 py-1.5 border border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 dark:text-white rounded-xl text-xs font-semibold focus:outline-none"
                   />
                 </div>
@@ -569,11 +567,6 @@ export default function ChoiceSimulatorPage() {
                     <option value="RCG">RCG (Girls Quota)</option>
                   </select>
                 </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-[#2563EB]/5 rounded-2xl flex items-center justify-between border border-[#2563EB]/10">
-                <div className="text-[10px] font-bold text-gray-500">Estimated State Merit Rank:</div>
-                <div className="text-sm font-black text-[#2563EB]">UGEAC Rank #{estimatedRank}</div>
               </div>
             </div>
 

@@ -35,16 +35,17 @@ export const collegesData: College[] = [
     "description": "Muzaffarpur Institute of Technology (MIT) is a premier state government engineering college under UGEAC, renowned for its rich academic heritage, sprawling campus, and excellent laboratory infrastructures.",
     "campusSize": "60 Acres",
     "branches": [
-      "CSE",
-      "IT",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "LEATHER TECHNOLOGY",
-      "CHEMICAL ENGG.",
-      "BIOMEDICAL & ROBOTIC ENGG."
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "IT",
+        "CSE",
+        "LEATHER TECHNOLOGY",
+        "CHEMICAL ENGG.",
+        "MC",
+        "BIOMEDICAL & ROBOTIC ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -69,12 +70,12 @@ export const collegesData: College[] = [
     "description": "Bhagalpur College of Engineering (BCE) is one of the oldest state engineering colleges in Bihar. It has a strong legacy of producing exceptional civil, mechanical, electrical, and computer science engineers.",
     "campusSize": "50 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE"
-    ],
+        "ME",
+        "CE",
+        "EE",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -99,11 +100,12 @@ export const collegesData: College[] = [
     "description": "Gaya College of Engineering (GCE) provides excellent technical education, backed by highly qualified faculty members and state-of-the-art computational facilities in southern Bihar.",
     "campusSize": "42 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "ME",
-      "CE"
-    ],
+        "CSE",
+        "EEE",
+        "ME",
+        "MC",
+        "CE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -128,13 +130,13 @@ export const collegesData: College[] = [
     "description": "Nalanda College of Engineering (NCE) is located in Chandi near the historic ruins of Nalanda. The institution emphasizes research, discipline, and outstanding technical expertise.",
     "campusSize": "38 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "ME",
-      "CE",
-      "ARTIFICIAL INTELLIGENCE & MACHINE LEARN",
-      "AERONAUTICAL ENGG."
-    ],
+        "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+        "EEE",
+        "ME",
+        "CE",
+        "CSE",
+        "AERONAUTICAL ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -159,13 +161,13 @@ export const collegesData: College[] = [
     "description": "Darbhanga College of Engineering (DCE) serves as a major hub of technical excellence in North Bihar, offering cutting-edge B.Tech programs in diverse fields of engineering.",
     "campusSize": "40 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "ME",
-      "CE",
-      "CSE (CYBER SECURITY)",
-      "FIRE TECHNOLOGY & SAFETY"
-    ],
+        "CSE",
+        "EEE",
+        "ME",
+        "MC",
+        "CE",
+        "FIRE TECHNOLOGY & SAFETY"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -190,13 +192,13 @@ export const collegesData: College[] = [
     "description": "Located in the Patna metropolitan region, Bakhtiyarpur College of Engineering (BCE Patna) boasts state-of-the-art campus buildings, superb transit links, and strong placement tie-ups.",
     "campusSize": "25 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "ME",
-      "CE",
-      "CSE-IOT",
-      "FIRE TECHNOLOGY & SAFETY"
-    ],
+        "CE",
+        "EEE",
+        "ME",
+        "MC",
+        "CSE",
+        "FIRE TECHNOLOGY & SAFETY"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -221,13 +223,11 @@ export const collegesData: College[] = [
     "description": "Motihari College of Engineering (MCE) is a premier engineering college situated in Champaran, promoting quality technical education and local entrepreneurial development.",
     "campusSize": "35 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "ME",
-      "CE",
-      "CE (COMPUTER APPLICATION )",
-      "CSE(AI)"
-    ],
+        "CSE",
+        "EEE",
+        "ME",
+        "CE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -252,12 +252,13 @@ export const collegesData: College[] = [
     "description": "LNJPIT Chapra is state-of-the-art government institution focused on enhancing core technical competencies, located on the banks of River Ganga, Chapra.",
     "campusSize": "40 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "FPP",
-      "ME",
-      "CE"
-    ],
+        "CSE",
+        "EEE",
+        "ME",
+        "MC",
+        "CE",
+        "FPP"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -282,13 +283,13 @@ export const collegesData: College[] = [
     "description": "Named after the historic Shershah Suri, SCE Sasaram provides a vibrant learning environment with advanced labs, technical fests, and digital classrooms.",
     "campusSize": "30 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "EE(VLSI)",
-      "ME",
-      "CE",
-      "MINING ENGG."
-    ],
+        "CE",
+        "CSE",
+        "EEE",
+        "ME",
+        "EE(VLSI)",
+        "MINING ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -313,13 +314,12 @@ export const collegesData: College[] = [
     "description": "Located in the industrial capital of Bihar, RRSDCE Begusarai has an edge in industrial internship linkages, chemical engineering interfaces, and computational sciences.",
     "campusSize": "28 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "ME",
-      "CE",
-      "CHEMICAL ENGINEERING",
-      "CSE(DATA SCIENCE)"
-    ],
+        "CE",
+        "CSE",
+        "EEE",
+        "ME",
+        "CHEMICAL ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -344,13 +344,11 @@ export const collegesData: College[] = [
     "description": "SIT Sitamarhi is dedicated to producing highly qualified engineers with high ethics and strong professional expertise, catering to students in northern Bihar.",
     "campusSize": "32 Acres",
     "branches": [
-      "CSE",
-      "EE",
-      "ME",
-      "CE",
-      "CE(COMPUTER APPLICATION)",
-      "CSE(AI&ML)"
-    ],
+        "CE",
+        "CSE",
+        "EE",
+        "ME"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -375,14 +373,12 @@ export const collegesData: College[] = [
     "description": "BPMCE Madhepura is named after the legendary visionary B.P. Mandal. The institute boasts spacious research labs and computer clusters.",
     "campusSize": "36 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "CSE(AI&ML)",
-      "ME",
-      "CE",
-      "CE(COMPUTER APPLICATION)",
-      "3D ANIMATION & GRAPHICS"
-    ],
+        "CE",
+        "CSE",
+        "EEE",
+        "ME",
+        "3D ANIMATION & GRAPHICS"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -407,13 +403,13 @@ export const collegesData: College[] = [
     "description": "KEC Katihar is situated in eastern Bihar. It emphasizes hands-on projects, industry visits, and rigorous core engineering skill developments.",
     "campusSize": "34 Acres",
     "branches": [
-      "CSE",
-      "EEE",
-      "EE(VLSI)",
-      "ME",
-      "CE",
-      "MECHANICAL &SMART MANUFACTURING"
-    ],
+        "CE",
+        "CSE",
+        "EEE",
+        "ME",
+        "MECHANICAL &SMART MANUFACTURING",
+        "EE(VLSI)"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -438,14 +434,14 @@ export const collegesData: College[] = [
     "description": "PCE Purnea is a fast-growing government institute in the Seemanchal region, offering first-rate academic support and vibrant technological fests.",
     "campusSize": "30 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "MECHATRONICS ENGG.",
-      "CSE(AI)"
-    ],
+        "CE",
+        "EE",
+        "ME",
+        "MC",
+        "ECE",
+        "CSE",
+        "MECHATRONICS ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -470,13 +466,11 @@ export const collegesData: College[] = [
     "description": "Saharsa College of Engineering is dedicated to providing high-quality engineering skills and technological leadership across northern Bihar.",
     "campusSize": "32 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(DATA SCIENCE)"
-    ],
+        "CE",
+        "EE",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -501,13 +495,13 @@ export const collegesData: College[] = [
     "description": "SCE Supaul focuses on modern research labs, interactive computational hubs, and strong core engineering foundations.",
     "campusSize": "28 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(AI)"
-    ],
+        "CE",
+        "EE",
+        "ME",
+        "MC",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -532,13 +526,12 @@ export const collegesData: College[] = [
     "description": "GEC Banka provides top-tier engineering facilities under UGEAC, designed to support local developmental needs and nationwide industry placement.",
     "campusSize": "26 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(IOT)"
-    ],
+        "CE",
+        "EE",
+        "ME",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -563,15 +556,13 @@ export const collegesData: College[] = [
     "description": "GEC Vaishali is situated in the historic city of Vaishali, promoting core engineering specializations alongside computational science pathways.",
     "campusSize": "30 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(IOT)",
-      "FOOD TECHNOLOGY AND MANAGEMENT",
-      "ECE(ACT)"
-    ],
+        "CE",
+        "EE",
+        "ME",
+        "MC",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -596,13 +587,12 @@ export const collegesData: College[] = [
     "description": "GEC Arwal focuses on building practical skill sets through interactive lab cycles, specialized technical seminars, and mock coding rounds.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE",
-      "ROBOTIC AND AUTOMATION",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(DATA SCIENCE)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "CSE",
+        "ROBOTIC AND AUTOMATION"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -627,13 +617,13 @@ export const collegesData: College[] = [
     "description": "GEC Bhojpur provides premium learning support with smart classrooms, advanced workshops, and exceptional transit routes in western Bihar.",
     "campusSize": "22 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "ELECTRONICS AND INSTRUMENTATION ENGG."
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "CSE",
+        "ELECTRONICS AND INSTRUMENTATION ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -658,12 +648,11 @@ export const collegesData: College[] = [
     "description": "GEC Buxar is committed to training industry-ready engineers in civil, computer science, electrical, and mechanical disciplines.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE"
-    ],
+        "CE",
+        "EE",
+        "CSE",
+        "ECE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -688,13 +677,13 @@ export const collegesData: College[] = [
     "description": "GEC Gopalganj offers superb infrastructure and dedicated academic panels to prepare engineers for global opportunities under UGEAC.",
     "campusSize": "22 Acres",
     "branches": [
-      "CSE(IOT&CYBER SECURITY INCLUDING BLOCK CHAIN TECHNOLOGY)",
-      "EE(VLSI)",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(AI)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "CSE",
+        "AERONAUTICAL ENGG.",
+        "EE(VLSI)"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -719,14 +708,12 @@ export const collegesData: College[] = [
     "description": "GEC Jamui features a state-of-the-art campus designed for technological excellence, complete with sports areas and digital libraries.",
     "campusSize": "24 Acres",
     "branches": [
-      "CSE(IOT)",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE (AI &ML)",
-      "CSE (DATA SCIENCE)"
-    ],
+        "CE",
+        "EE",
+        "ME",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -751,13 +738,12 @@ export const collegesData: College[] = [
     "description": "Located near the scenic Kaimur hills, GEC Kaimur fosters advanced technical knowledge, coding competencies, and physical workshop cycles.",
     "campusSize": "21 Acres",
     "branches": [
-      "CSE(CYBER SECURITY)",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(NETWORKS)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -782,12 +768,11 @@ export const collegesData: College[] = [
     "description": "GEC Khagaria provides superb academic exposure with highly experienced lecturers, advanced computer rooms, and core labs.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE(IOT)",
-      "CSE(AI&ML)",
-      "EE",
-      "ME",
-      "CE"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -812,12 +797,11 @@ export const collegesData: College[] = [
     "description": "GEC Lakhisarai is established to empower technological growth, delivering hands-on instruction in diverse fields of engineering.",
     "campusSize": "21 Acres",
     "branches": [
-      "CSE(AI)",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(DATA SCIENCE)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -842,12 +826,11 @@ export const collegesData: College[] = [
     "description": "GEC Madhubani boasts custom-built laboratories, advanced digital library networks, and placement support for all technical students.",
     "campusSize": "22 Acres",
     "branches": [
-      "CSE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE (IOT)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -872,12 +855,12 @@ export const collegesData: College[] = [
     "description": "GEC Nawada supports academic depth through hands-on project fests, industrial seminars, and strong coding preparation cycles.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE"
-    ],
+        "CE",
+        "ME",
+        "MC",
+        "EE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -902,13 +885,11 @@ export const collegesData: College[] = [
     "description": "GEC Samastipur provides excellent technical exposure, outstanding laboratories, and placement training to achieve high industry readiness.",
     "campusSize": "23 Acres",
     "branches": [
-      "CSE(CYBER SECURITY)",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(AI&ML)"
-    ],
+        "CE",
+        "ME",
+        "CSE",
+        "ECE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -933,13 +914,13 @@ export const collegesData: College[] = [
     "description": "GEC Sheikhpura emphasizes practical lab practices, high-quality technical education, and industry-oriented internship tie-ups.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "MECHATRONICS ENGG."
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "CSE",
+        "MECHATRONICS ENGG."
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -964,13 +945,12 @@ export const collegesData: College[] = [
     "description": "GEC Sheohar offers top B.Tech courses with advanced laboratory gear, digital classrooms, and excellent student transit support.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE(DATA SCIENCE)",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CE(COMPUTER APPLICATION)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -995,14 +975,13 @@ export const collegesData: College[] = [
     "description": "GEC West Champaran Bettiah fosters advanced coding skills, industrial seminar programs, and comprehensive mechanical-civil workshop cycles.",
     "campusSize": "22 Acres",
     "branches": [
-      "CSE(CYBER SECURITY)",
-      "EE(VLSI)",
-      "ECE",
-      "ME",
-      "CE",
-      "CSE",
-      "EE"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "EE(VLSI)",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -1027,13 +1006,12 @@ export const collegesData: College[] = [
     "description": "GEC Aurangabad boasts premium academic libraries, digital computation hubs, and exceptional placement records in southern Bihar.",
     "campusSize": "23 Acres",
     "branches": [
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(DATA SCIENCE)",
-      "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING"
-    ],
+        "CE",
+        "EE",
+        "ECE",
+        "CSE",
+        "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -1058,13 +1036,12 @@ export const collegesData: College[] = [
     "description": "GEC Kishanganj provides first-class instruction, premium laboratories, and placement training to achieve high industry readiness.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(AI&ML)"
-    ],
+        "CE",
+        "ME",
+        "EE",
+        "ECE",
+        "CSE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -1089,13 +1066,11 @@ export const collegesData: College[] = [
     "description": "GEC Siwan features fully equipped research labs, modern computational clusters, and superb placement cells under UGEAC.",
     "campusSize": "24 Acres",
     "branches": [
-      "CSE",
-      "EE(VLSI)",
-      "EE",
-      "ME",
-      "CE",
-      "CSE(IOT)"
-    ],
+        "ME",
+        "EE",
+        "CSE",
+        "EE(VLSI)"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -1151,12 +1126,12 @@ export const collegesData: College[] = [
     "description": "GEC Jehanabad is committed to training industry-ready engineers in civil, computer science, electrical, and mechanical disciplines.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE(CYBER SECURITY)",
-      "ECE",
-      "EE",
-      "ME",
-      "CE"
-    ],
+        "CE",
+        "ME",
+        "ECE",
+        "CSE",
+        "EE"
+      ],
     "recruits": [
       "TCS",
       "Wipro",
@@ -1199,6 +1174,7 @@ export const collegesData: College[] = [
 
 export const branchNames: Record<string, string> = {
   CSE: "Computer Science & Engineering",
+  MC: "Mathematics and Computing",
   IT: "Information Technology",
   ECE: "Electronics & Communication Engineering",
   EE: "Electrical Engineering",

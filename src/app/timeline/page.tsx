@@ -96,8 +96,10 @@ export default function CounsellingTimelinePage() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
                     {ev.event.toLowerCase().includes("registration")
                       ? "Candidates register successfully on the BCECE board portal, pay the UGEAC counselling registration fees, and upload active JEE Main score records."
-                      : ev.event.toLowerCase().includes("merit")
+                      : ev.event.toLowerCase().includes("merit") || ev.event.toLowerCase().includes("rank card")
                       ? "BCECE releases provisional state rank merit lists mapping candidate percentiles to state ranks. Download UGEAC Rank cards prior to choices priority listing."
+                      : ev.event.toLowerCase().includes("seat matrix")
+                      ? "Official seat availability structure across all government engineering colleges categorized by branch and reservation criteria."
                       : ev.event.toLowerCase().includes("choice")
                       ? "Candidates priority prioritized list of Bihar B.Tech government colleges selection branches is submitted and secured via OTP verification protocols."
                       : ev.event.toLowerCase().includes("allotment")

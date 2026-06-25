@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import { useRouter } from "next/navigation";
+import { convertURToPercentile } from "../data/cutoffs";
 import { 
   X, 
   Lock, 
@@ -176,22 +177,24 @@ export const AuthModal: React.FC = () => {
     setSuccessMsg("");
 
     const nameVal = demoName.trim();
-    const pctStr = demoPercentile.trim();
+    const rankStr = demoPercentile.trim(); // we keep state variable name to avoid editing state hooks unnecessarily
 
     if (!nameVal) {
       setErrorMsg("Please enter your name");
       return;
     }
-    if (!pctStr) {
-      setErrorMsg("Please enter your JEE Main percentile");
+    if (!rankStr) {
+      setErrorMsg("Please enter your UGEAC General Rank");
       return;
     }
 
-    const pctVal = Number(pctStr);
-    if (isNaN(pctVal) || pctVal < 0 || pctVal > 100) {
-      setErrorMsg("Please enter a valid JEE Main percentile between 0 and 100");
+    const rankVal = Number(rankStr);
+    if (isNaN(rankVal) || rankVal <= 0) {
+      setErrorMsg("Please enter a valid rank number");
       return;
     }
+
+    const pctVal = convertURToPercentile(rankVal);
 
     setIsSubmitting(true);
 
@@ -471,14 +474,14 @@ export const AuthModal: React.FC = () => {
 
               <div>
                 <label className="block text-slate-700 dark:text-slate-300 text-xs font-bold mb-1.5">
-                  JEE Main Percentile <span className="text-red-500">*</span>
+                  UGEAC General Rank <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={demoPercentile}
                   onChange={(e) => setDemoPercentile(e.target.value)}
-                  placeholder="e.g. 92.45"
+                  placeholder="e.g. 4500"
                   className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 dark:text-white rounded-xl focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 font-semibold transition-all duration-200 placeholder-slate-400"
                 />
               </div>

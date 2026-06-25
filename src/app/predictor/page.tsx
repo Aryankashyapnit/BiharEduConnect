@@ -1,5 +1,6 @@
 "use client";
- 
+
+import { CommunityComments } from "../../components/CommunityComments";
 import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { getCutoff, getEstimatedCutoff, convertPercentileToUR, categoryRatios } from "../../data/cutoffs";
@@ -25,9 +26,9 @@ export default function CollegePredictor() {
   const { colleges, savePrediction, savedPredictions, user } = useApp();
  
   // Form State
-  const [inputType, setInputType] = useState<"percentile" | "ugeac_rank" | "bcece_rank">("percentile");
-  const [percentile, setPercentile] = useState<string>(user?.percentile ? user.percentile.toString() : "");
-  const [rank, setRank] = useState<number | "">("");
+  const [inputType, setInputType] = useState<"ugeac_rank" | "bcece_rank" | "percentile">("ugeac_rank");
+  const [percentile, setPercentile] = useState<string>("");
+  const [rank, setRank] = useState<number | "">(user?.percentile ? Math.round(convertPercentileToUR(user.percentile)) : "");
   const [rankType, setRankType] = useState<"ur" | "category">("ur");
   const [category, setCategory] = useState("UR");
   const [gender, setGender] = useState("Co-ed");
@@ -103,16 +104,24 @@ export default function CollegePredictor() {
         let chancePercentage = 10;
 
         const closing2025 = cutoff2025.closingRank;
-        
-        if (targetRank <= closing2025 * 0.85) {
+        const closing2024 = cutoff2024.closingRank;
+
+        const minClosing = Math.min(closing2025, closing2024);
+        const avgClosing = Math.round((closing2025 + closing2024) / 2);
+        const maxClosing = Math.max(closing2025, closing2024);
+
+        if (targetRank <= minClosing * 0.95) {
           chance = "High";
-          chancePercentage = Math.min(98, Math.round(98 - (targetRank / closing2025) * 15));
-        } else if (targetRank <= closing2025 * 1.12) {
+          chancePercentage = Math.min(98, Math.round(98 - (targetRank / avgClosing) * 12));
+        } else if (targetRank <= avgClosing * 1.05) {
           chance = "Moderate";
-          chancePercentage = Math.round(75 - ((targetRank - closing2025 * 0.85) / (closing2025 * 0.27)) * 25);
+          chancePercentage = Math.round(75 - ((targetRank - minClosing * 0.95) / (avgClosing * 1.05 - minClosing * 0.95 + 1)) * 20);
+        } else if (targetRank <= maxClosing * 1.15) {
+          chance = "Low";
+          chancePercentage = Math.max(15, Math.round(45 - ((targetRank - avgClosing * 1.05) / (maxClosing * 1.15 - avgClosing * 1.05 + 1)) * 25));
         } else {
           chance = "Low";
-          chancePercentage = Math.max(8, Math.round(40 - (targetRank / closing2025) * 15));
+          chancePercentage = Math.max(5, Math.round(15 - (targetRank / maxClosing) * 5));
         }
 
         results.push({
@@ -172,15 +181,20 @@ export default function CollegePredictor() {
       let initRound = round;
       let initRankType = rankType;
 
-      if (t === "percentile" || t === "ugeac_rank" || t === "bcece_rank") {
+      if (t === "percentile") {
+        setInputType("ugeac_rank");
+        initType = "ugeac_rank";
+        initialized = true;
+      } else if (t === "ugeac_rank" || t === "bcece_rank") {
         setInputType(t);
         initType = t;
         initialized = true;
       }
       if (p) {
         const pNum = Number(p);
-        setPercentile(pNum);
-        initPercentile = pNum;
+        const equivalentRank = convertPercentileToUR(pNum);
+        setRank(equivalentRank);
+        initRank = equivalentRank;
         initialized = true;
       }
       if (r) {
@@ -406,13 +420,13 @@ export default function CollegePredictor() {
             <div>
               <span className="text-[9px] text-gray-450 block font-bold uppercase">Input Merit Type</span>
               <strong className="text-slate-800 font-extrabold">
-                {inputType === "percentile" ? "JEE Percentile" : inputType === "ugeac_rank" ? "UGEAC State Rank" : "BCECE State Rank"}
+                {inputType === "ugeac_rank" ? "UGEAC State Rank" : "BCECE State Rank"}
               </strong>
             </div>
             <div>
-              <span className="text-[9px] text-gray-455 block font-bold uppercase">Entered Score/Rank</span>
+              <span className="text-[9px] text-gray-455 block font-bold uppercase">Entered Rank</span>
               <strong className="text-slate-800 font-extrabold">
-                {inputType === "percentile" ? `${percentile}%` : rank}
+                {rank}
               </strong>
             </div>
             <div>
@@ -455,26 +469,15 @@ export default function CollegePredictor() {
             </h2>
 
             <form onSubmit={handlePredict} className="space-y-4">
-              {/* 1. Percentile / Rank Selector Tab */}
+              {/* 1. Rank Selector Tab */}
               <div className="flex p-0.5 bg-slate-100/50 dark:bg-slate-950/60 rounded-xl border border-gray-250/60 dark:border-slate-800/80 mb-3 w-full">
-                <button
-                  type="button"
-                  onClick={() => setInputType("percentile")}
-                  className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
-                    inputType === "percentile"
-                      ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-md border-b-2 border-transparent"
-                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  JEE Percentile
-                </button>
                 <button
                   type="button"
                   onClick={() => setInputType("ugeac_rank")}
                   className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
                     inputType === "ugeac_rank"
                       ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-md border-b-2 border-transparent"
-                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                      : "text-gray-550 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
                   UGEAC Rank
@@ -485,98 +488,71 @@ export default function CollegePredictor() {
                   className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
                     inputType === "bcece_rank"
                       ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-md border-b-2 border-transparent"
-                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
+                      : "text-gray-550 hover:text-slate-800 dark:hover:text-white"
                   }`}
                 >
                   BCECE Rank
                 </button>
               </div>
 
-              {/* 2. Conditionally Rendered Input Field */}
-              {inputType === "percentile" ? (
+              {/* 2. Rank Input Fields */}
+              <div className="space-y-3.5">
+                <div>
+                  <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5 flex justify-between items-center">
+                    <span>{inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Type</span>
+                    {category === "UR" && (
+                      <span className="text-[9px] text-[#2563EB] font-bold lowercase tracking-wider bg-[#2563EB]/10 px-2 py-0.5 rounded">
+                        Category is UR
+                      </span>
+                    )}
+                  </label>
+                  <div className="flex p-0.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800/80 mb-1 w-full">
+                    <button
+                      type="button"
+                      onClick={() => setRankType("ur")}
+                      className={`flex-1 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer ${
+                        rankType === "ur"
+                          ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
+                          : "text-gray-400 hover:text-slate-700"
+                      }`}
+                    >
+                      UR (General) Rank
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (category !== "UR") setRankType("category");
+                      }}
+                      className={`flex-1 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                        rankType === "category" && category !== "UR"
+                          ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
+                          : "text-gray-400 hover:text-slate-700"
+                      }`}
+                      disabled={category === "UR"}
+                      title={category === "UR" ? "Select a reservation category first to enter Category Rank" : ""}
+                    >
+                      Category Rank
+                    </button>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                    JEE Main Percentile <span className="text-red-500">*</span>
+                    {rankType === "category" && category !== "UR" 
+                      ? `${category} Category ${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank` 
+                      : `${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} General (UR) Rank`} <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     required
-                    value={percentile}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
-                        const num = parseFloat(val);
-                        if (val === "" || (!isNaN(num) && num >= 0 && num <= 100)) {
-                          setPercentile(val);
-                        }
-                      }
-                    }}
-                    placeholder="e.g. 92.45"
+                    min="1"
+                    value={rank}
+                    onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder={rankType === "category" && category !== "UR" ? "e.g. 350" : "e.g. 1500"}
                     className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
                   />
-                  <p className="text-[9px] text-gray-450 dark:text-gray-500 mt-1.5 leading-relaxed font-medium">
-                    Enter your percentile. The system will automatically estimate your UGEAC State Merit Rank using a high-precision curve model!
-                  </p>
                 </div>
-              ) : (
-                <div className="space-y-3.5">
-                  <div>
-                    <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5 flex justify-between items-center">
-                      <span>{inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Type</span>
-                      {category === "UR" && (
-                        <span className="text-[9px] text-[#2563EB] font-bold lowercase tracking-wider bg-[#2563EB]/10 px-2 py-0.5 rounded">
-                          Category is UR
-                        </span>
-                      )}
-                    </label>
-                    <div className="flex p-0.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800/80 mb-1 w-full">
-                      <button
-                        type="button"
-                        onClick={() => setRankType("ur")}
-                        className={`flex-1 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer ${
-                          rankType === "ur"
-                            ? "bg-white dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
-                            : "text-gray-400 hover:text-slate-700"
-                        }`}
-                      >
-                        UR (General) Rank
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (category !== "UR") setRankType("category");
-                        }}
-                        className={`flex-1 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                          rankType === "category" && category !== "UR"
-                            ? "bg-white dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
-                            : "text-gray-400 hover:text-slate-700"
-                        }`}
-                        disabled={category === "UR"}
-                        title={category === "UR" ? "Select a reservation category first to enter Category Rank" : ""}
-                      >
-                        Category Rank
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                      {rankType === "category" && category !== "UR" 
-                        ? `${category} Category ${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank` 
-                        : `${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} General (UR) Rank`} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      value={rank}
-                      onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
-                      placeholder={rankType === "category" && category !== "UR" ? "e.g. 350" : "e.g. 1500"}
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
-                    />
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* 2.5 Real-time dynamic rank estimator preview panel */}
               {uiRanks && (
@@ -709,7 +685,7 @@ export default function CollegePredictor() {
                     Showing {filteredPredictions.length} of {predictions.length} Options
                   </h3>
                   <p className="text-[10px] text-gray-450 font-semibold mt-0.5">
-                    Results calculated based on 2025 UGEAC rounds.
+                    Results calculated based on multi-year 2024 & 2025 UGEAC rounds.
                   </p>
                 </div>
 
@@ -955,7 +931,13 @@ export default function CollegePredictor() {
           )}
         </div>
       </div>
+
+      {/* Community Discussion */}
+      <div className="px-4 sm:px-6 md:px-8 max-w-5xl mx-auto">
+        <CommunityComments pageId="predictor" title="Predictor Discussion" />
+      </div>
     </div>
   </AuthGate>
 );
 }
+

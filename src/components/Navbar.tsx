@@ -56,18 +56,18 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link 
               href={user ? (user.isAdmin ? "/admin" : "/dashboard") : "/"} 
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2 group hover-magnetic"
             >
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF9933] to-[#138808] text-white shadow-md shadow-[#FF9933]/10 transform transition-transform group-hover:scale-105 duration-300">
+              <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6366f1] to-[#06b6d4] text-white shadow-md shadow-[#6366f1]/10 transform transition-transform group-hover:scale-105 duration-300">
                 <GraduationCap className="w-6 h-6" />
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2563EB] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#2563EB]"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22d3ee] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#22d3ee]"></span>
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white group-hover:text-[#FF9933] transition-colors duration-200">
-                  Bihar<span className="text-[#FF9933]">Edu</span><span className="text-[#138808]">Connect</span>
+                <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white group-hover:text-[#6366f1] transition-colors duration-200">
+                  Bihar<span className="text-[#6366f1]">Edu</span><span className="text-[#06b6d4]">Connect</span>
                 </span>
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium tracking-wide -mt-1">
                   UGEAC / BCECE counselling
@@ -78,7 +78,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Navigation Links */}
           {user && !user.isAdmin && !isAdminRoute && (
-            <nav className="hidden lg:flex items-center p-1 space-x-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl ml-8 mr-4">
+            <nav className="hidden lg:flex items-center p-1 space-x-0.5 xl:space-x-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl mx-auto">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link.href);
@@ -86,14 +86,14 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all duration-250 transform active:scale-[0.96] cursor-pointer group ${
+                    className={`relative flex items-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg text-[11px] xl:text-[13px] font-bold tracking-wide transition-all duration-250 transform active:scale-[0.96] cursor-pointer group hover-magnetic ${
                       active
-                        ? "text-[#2563EB] dark:text-[#FF9933] bg-white dark:bg-slate-900 shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-slate-200/50 dark:border-slate-700/50"
-                        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
+                        ? "text-[#22d3ee] dark:text-[#6366f1] bg-white dark:bg-slate-900 shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-slate-200/50 dark:border-slate-700/50"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50 hover-underline-anim"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-transform duration-250 group-hover:scale-[1.12] ${active ? "text-[#2563EB] dark:text-[#FF9933]" : "text-slate-400 dark:text-slate-500"}`} />
-                    <span>{link.label}</span>
+                    <Icon className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 transition-transform duration-250 group-hover:scale-[1.12] ${active ? "text-[#22d3ee] dark:text-[#6366f1]" : "text-slate-400 dark:text-slate-500"}`} />
+                    <span className="whitespace-nowrap">{link.label}</span>
                   </Link>
                 );
               })}
@@ -110,7 +110,7 @@ export const Navbar: React.FC = () => {
                 {/* Dark Mode Toggle */}
                 <button
                   onClick={toggleDarkMode}
-                  className="p-2 text-gray-500 hover:text-[#2563EB] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
+                  className="p-2 text-gray-500 hover:text-[#22d3ee] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
                   aria-label="Toggle theme"
                 >
                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -134,7 +134,7 @@ export const Navbar: React.FC = () => {
                 {/* Sleek Profile Link Button */}
                 <Link
                   href={user.isAdmin ? "/admin" : "/dashboard"}
-                  className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#2563EB]/10 to-[#1d4ed8]/10 dark:from-slate-800 dark:to-slate-900 hover:from-[#2563EB] hover:to-[#1d4ed8] text-[#2563EB] dark:text-[#FF9933] hover:text-white dark:hover:text-white text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border border-[#2563EB]/15 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transform active:scale-95 cursor-pointer group"
+                  className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-[#22d3ee]/10 to-[#06b6d4]/10 dark:from-slate-800 dark:to-slate-900 hover:from-[#22d3ee] hover:to-[#06b6d4] text-[#22d3ee] dark:text-[#6366f1] hover:text-white dark:hover:text-white text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border border-[#22d3ee]/15 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transform active:scale-95 cursor-pointer group"
                   title={user.isAdmin ? "Admin Panel" : "My Profile / Dashboard"}
                 >
                   <img 
@@ -150,7 +150,7 @@ export const Navbar: React.FC = () => {
                 {/* Dark Mode Toggle */}
                 <button
                   onClick={toggleDarkMode}
-                  className="p-2 text-gray-500 hover:text-[#2563EB] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
+                  className="p-2 text-gray-500 hover:text-[#22d3ee] dark:text-gray-400 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors duration-200 cursor-pointer"
                   aria-label="Toggle theme"
                 >
                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -159,7 +159,7 @@ export const Navbar: React.FC = () => {
                 {/* Sign In Button */}
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-4.5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9933] to-[#138808] text-white text-xs font-extrabold uppercase tracking-wider shadow-sm hover:shadow-lg shadow-[#FF9933]/15 hover:from-[#ff8800] hover:to-[#0f7c05] cursor-pointer transform hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+                  className="px-4.5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#06b6d4] text-white text-xs font-extrabold uppercase tracking-wider shadow-sm hover:shadow-lg shadow-[#6366f1]/15 hover:from-[#4f46e5] hover:to-[#0891b2] cursor-pointer transform hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
                 >
                   Sign In
                 </button>
@@ -171,7 +171,7 @@ export const Navbar: React.FC = () => {
           <div className="flex lg:hidden items-center space-x-2">
             <button
               onClick={toggleDarkMode}
-              className="p-2 text-gray-500 hover:text-[#2563EB] dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg cursor-pointer"
+              className="p-2 text-gray-500 hover:text-[#22d3ee] dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg cursor-pointer"
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -197,9 +197,9 @@ export const Navbar: React.FC = () => {
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-bold text-[#FF9933] hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-bold text-[#6366f1] hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   >
-                    <User className="w-5 h-5 text-[#FF9933]" />
+                    <User className="w-5 h-5 text-[#6366f1]" />
                     Candidate Dashboard
                   </Link>
                   {navLinks.map((link) => {
@@ -212,11 +212,11 @@ export const Navbar: React.FC = () => {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-all duration-200 ${
                           active
-                            ? "bg-slate-100 dark:bg-slate-800 text-[#2563EB] dark:text-[#FF9933]"
+                            ? "bg-slate-100 dark:bg-slate-800 text-[#22d3ee] dark:text-[#6366f1]"
                             : "text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900"
                         }`}
                       >
-                        <Icon className={`w-5 h-5 ${active ? "text-[#2563EB]" : "text-gray-400"}`} />
+                        <Icon className={`w-5 h-5 ${active ? "text-[#22d3ee]" : "text-gray-400"}`} />
                         {link.label}
                       </Link>
                     );
@@ -243,12 +243,12 @@ export const Navbar: React.FC = () => {
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-xs text-[#2563EB] dark:text-[#FF9933] font-bold border border-[#2563EB]/20 px-2.5 py-1.5 rounded-md"
+                    className="flex items-center gap-2 text-xs text-[#22d3ee] dark:text-[#6366f1] font-bold border border-[#22d3ee]/20 px-2.5 py-1.5 rounded-md"
                   >
                     <img 
                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.avatarSeed || user?.name || 'User'}&backgroundColor=c0aede`} 
                       alt="Avatar" 
-                      className="w-5 h-5 rounded-full border border-[#2563EB]/30 shadow-sm"
+                      className="w-5 h-5 rounded-full border border-[#22d3ee]/30 shadow-sm"
                     />
                     MY PROFILE
                   </Link>
@@ -263,7 +263,7 @@ export const Navbar: React.FC = () => {
                   setShowAuthModal(true);
                   setMobileMenuOpen(false);
                 }}
-                className="w-full py-2.5 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white font-bold rounded-lg text-xs uppercase cursor-pointer"
+                className="w-full py-2.5 bg-gradient-to-r from-[#6366f1] to-[#06b6d4] text-white font-bold rounded-lg text-xs uppercase cursor-pointer"
               >
                 Sign In
               </button>

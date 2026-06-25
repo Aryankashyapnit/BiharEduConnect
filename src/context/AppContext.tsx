@@ -142,12 +142,16 @@ const defaultBulkFiles: BulkFile[] = [
 ];
 
 const defaultTimelineEvents: TimelineEvent[] = [
-  { id: 1, event: "Online Registration Starting Date", date: "13.05.2026", status: "Active" },
-  { id: 2, event: "Online Registration Closing Date", date: "05.06.2026 (10.00 p.m.)", status: "Upcoming" },
-  { id: 3, event: "Last date of payment through Debit Card/ Credit Card/ Net Banking/ UPI with Final submission of the online Application Form by Registered candidate", date: "05.06.2026 (11.59 p.m.)", status: "Upcoming" },
-  { id: 4, event: "Online Editing of Application Form", date: "06.06.2026", status: "Upcoming" },
-  { id: 5, event: "Publication of Merit list of UGEAC-2026", date: "08.06.2026", status: "Upcoming" },
-  { id: 6, event: "Proposed date of Online Counselling", date: "Proposed date of Online Counselling", status: "Upcoming" }
+  { id: 1, event: "Publication of Rank Card on Board's Website", date: "23.06.2026", status: "Done" },
+  { id: 2, event: "Seat Matrix posting on website", date: "23.06.2026", status: "Done" },
+  { id: 3, event: "Starting date of Online Choice filling for Seat Allotment", date: "26.06.2026", status: "Upcoming" },
+  { id: 4, event: "Last date of Online Choice filling for seat allotment & locking", date: "01.07.2026", status: "Upcoming" },
+  { id: 5, event: "Publication of Round-1 Seat Allotment Result", date: "04.07.2026", status: "Upcoming" },
+  { id: 6, event: "Downloading of Allotment order (1st Round)", date: "04.07.2026 to 09.07.2026", status: "Upcoming" },
+  { id: 7, event: "Documents Verification and Admission (1st Round)", date: "07.07.2026 to 09.07.2026", status: "Upcoming" },
+  { id: 8, event: "2nd Round Provisional Seat Allotment Result publication date", date: "17.07.2026", status: "Upcoming" },
+  { id: 9, event: "Downloading of Allotment order (2nd Round)", date: "17.07.2026 to 21.07.2026", status: "Upcoming" },
+  { id: 10, event: "Documents Verification and Admission (2nd Round)", date: "20.07.2026 to 21.07.2026", status: "Upcoming" }
 ];
 
 const defaultGuideSteps: GuideStep[] = [
@@ -235,9 +239,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (storedBlocked) setBlockedEmails(JSON.parse(storedBlocked));
 
       const storedVersion = localStorage.getItem("bihareduconnect_cutoffs_version");
-      if (storedVersion !== "v2025_calibrated_v3") {
+      if (storedVersion !== "v2025_official_v1") {
         localStorage.removeItem("bihareduconnect_cutoffs");
-        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_calibrated_v3");
+        localStorage.setItem("bihareduconnect_cutoffs_version", "v2025_official_v1");
         setCutoffs(cutoffsData);
         setTimeout(async () => {
           const mapped = cutoffsData.map(c => ({

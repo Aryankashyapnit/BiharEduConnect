@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
+import { convertPercentileToUR } from "../../data/cutoffs";
 import { 
   Bookmark, 
   TrendingUp, 
@@ -568,10 +569,10 @@ export default function StudentDashboard() {
                   <div className="grid grid-cols-1 gap-2 pt-2">
                     <div className="flex justify-between items-center p-3 rounded-lg bg-gray-50/50 dark:bg-slate-900/30 border border-gray-150/40 dark:border-slate-800/40 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors">
                       <span className="font-extrabold uppercase tracking-widest text-[10px] text-gray-500 flex items-center gap-1.5">
-                        <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" /> JEE Percentile
+                        <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" /> UGEAC General Rank (Est.)
                       </span>
                       <span className="font-black text-slate-800 dark:text-gray-100 bg-white dark:bg-slate-950 px-2.5 py-1 rounded-md border border-gray-200 dark:border-slate-800 shadow-sm text-xs">
-                        {user.percentile !== undefined ? `${user.percentile.toFixed(2)}%` : "N/A"}
+                        {user.percentile !== undefined ? `#${Math.round(convertPercentileToUR(user.percentile))}` : "N/A"}
                       </span>
                     </div>
                     

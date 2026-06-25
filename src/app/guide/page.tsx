@@ -103,7 +103,7 @@ export default function CounsellingGuide() {
   // ==========================================
   // UGEAC counselling choice simulator states
   // ==========================================
-  const [simPercentile, setSimPercentile] = useState<string>(user?.percentile ? user.percentile.toString() : "90.0");
+  const [simRank, setSimRank] = useState<string>(user?.percentile ? Math.round(convertPercentileToUR(user.percentile)).toString() : "5000");
   const [simCategory, setSimCategory] = useState("UR");
   const [simGender, setSimGender] = useState("Co-ed");
   const [simChoices, setSimChoices] = useState<Array<{
@@ -138,8 +138,9 @@ export default function CounsellingGuide() {
   const [selectedCollegeId, setSelectedCollegeId] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
 
-  const calculateStateRank = (pctVal: number) => {
-    return convertPercentileToUR(pctVal);
+  const calculateStateRank = (rankValStr: string) => {
+    const val = Number(rankValStr);
+    return isNaN(val) || val <= 0 ? 5000 : val;
   };
 
   const handleAddChoice = () => {
@@ -222,7 +223,7 @@ export default function CounsellingGuide() {
   };
 
   const handleRunAllotment = (roundNum: number) => {
-    const rankVal = calculateStateRank(Number(simPercentile) || 90.0);
+    const rankVal = calculateStateRank(simRank);
     const ratio = categoryRatios[simCategory] || 1.0;
     const candidateCategoryRank = Math.round(rankVal / ratio);
     
@@ -672,25 +673,20 @@ export default function CounsellingGuide() {
                 <div className="space-y-3">
                   <div>
                     <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">
-                      JEE Main Percentile
+                      UGEAC General Rank
                     </label>
                     <input
                       type="text"
-                      value={simPercentile}
+                      value={simRank}
                       onChange={(e) => {
                         const val = e.target.value;
-                        if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
-                          const num = parseFloat(val);
-                          if (val === "" || (!isNaN(num) && num >= 0 && num <= 100)) {
-                            setSimPercentile(val);
-                          }
+                        if (val === "" || /^[0-9]*$/.test(val)) {
+                          setSimRank(val);
                         }
                       }}
+                      placeholder="e.g. 5000"
                       className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-extrabold text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
-                    <span className="text-[9px] text-gray-400 font-bold mt-1 block">
-                      Estimated UGEAC Bihar Rank: <strong className="text-[#2563EB]">#{calculateStateRank(Number(simPercentile) || 90.0)}</strong>
-                    </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -945,7 +941,7 @@ export default function CounsellingGuide() {
                       </span>
                     </div>
                     <p className="text-[11px] text-gray-400 max-w-[285px] mx-auto leading-relaxed">
-                      Matching your calculated UGEAC rank <strong className="text-slate-800 dark:text-white">#{calculateStateRank(Number(simPercentile) || 90.0)}</strong> against historical college cutoffs...
+                      Matching your UGEAC rank <strong className="text-slate-800 dark:text-white">#{calculateStateRank(simRank)}</strong> against historical college cutoffs...
                     </p>
                   </div>
                 ) : (
@@ -1133,7 +1129,7 @@ export default function CounsellingGuide() {
                             Round 1 Seat: Not Allotted
                           </h4>
                           <p className="text-[10px] text-gray-400 mt-1 max-w-[240px] mx-auto leading-normal">
-                            No seat allocated in Round 1. Your State Merit Rank <strong>#{calculateStateRank(Number(simPercentile) || 90.0)}</strong> is higher than closing cutoffs of your added choices.
+                            No seat allocated in Round 1. Your State Merit Rank <strong>#{calculateStateRank(simRank)}</strong> is higher than closing cutoffs of your added choices.
                           </p>
                         </div>
 
