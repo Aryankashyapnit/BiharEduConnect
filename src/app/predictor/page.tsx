@@ -3,8 +3,76 @@
 import { CommunityComments } from "../../components/CommunityComments";
 import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
-import { getCutoff, getEstimatedCutoff, convertPercentileToUR, categoryRatios } from "../../data/cutoffs";
+import { getCutoff, getEstimatedCutoff, convertPercentileToUR, categoryRatios, cutoffsData, Cutoff } from "../../data/cutoffs";
 import { branchNames } from "../../data/colleges";
+
+// Helper function to find the best cutoff for a given category and candidate's gender pool
+const getBestCutoffForCategory = (
+  collegeCode: string,
+  branchCode: string,
+  year: number,
+  round: number,
+  category: string,
+  candidateGender: string
+): Cutoff => {
+  const matches = cutoffsData.filter(
+    c =>
+      c.collegeCode === collegeCode &&
+      c.branchCode === branchCode &&
+      c.year === year &&
+      c.round === round &&
+      c.category === category
+  );
+
+  if (matches.length === 0) {
+    return getEstimatedCutoff(collegeCode, branchCode, year, round, category, candidateGender);
+  }
+
+  if (candidateGender === "Female") {
+    // A female candidate is eligible for both Female seats and Co-ed (General) seats.
+    // We choose the one with the highest closing rank (easier to get, i.e. better chance).
+    let best = matches[0];
+    for (const m of matches) {
+      if (m.closingRank > best.closingRank) {
+        best = m;
+      }
+    }
+    return best;
+  } else {
+    // A male/co-ed candidate is only eligible for Co-ed (General) seats.
+    const coedMatch = matches.find(m => m.gender === "Co-ed");
+    return coedMatch || matches[0];
+  }
+};
+
+// Helper function to evaluate admission chance based on rank and cutoffs
+const evaluateChance = (rankVal: number, cutoff2025: Cutoff, cutoff2024: Cutoff) => {
+  let chance: "High" | "Moderate" | "Low" = "Low";
+  let chancePercentage = 10;
+
+  const closing2025 = cutoff2025.closingRank;
+  const closing2024 = cutoff2024.closingRank;
+
+  const minClosing = Math.min(closing2025, closing2024);
+  const avgClosing = Math.round((closing2025 + closing2024) / 2);
+  const maxClosing = Math.max(closing2025, closing2024);
+
+  if (rankVal <= minClosing * 0.95) {
+    chance = "High";
+    chancePercentage = Math.min(98, Math.round(98 - (rankVal / avgClosing) * 12));
+  } else if (rankVal <= avgClosing * 1.05) {
+    chance = "Moderate";
+    chancePercentage = Math.round(75 - ((rankVal - minClosing * 0.95) / (avgClosing * 1.05 - minClosing * 0.95 + 1)) * 20);
+  } else if (rankVal <= maxClosing * 1.15) {
+    chance = "Low";
+    chancePercentage = Math.max(15, Math.round(45 - ((rankVal - avgClosing * 1.05) / (maxClosing * 1.15 - avgClosing * 1.05 + 1)) * 25));
+  } else {
+    chance = "Low";
+    chancePercentage = Math.max(5, Math.round(15 - (rankVal / maxClosing) * 5));
+  }
+
+  return { chance, chancePercentage };
+};
 import { 
   Compass, 
   HelpCircle, 
@@ -28,12 +96,47 @@ export default function CollegePredictor() {
   // Form State
   const [inputType, setInputType] = useState<"ugeac_rank" | "bcece_rank" | "percentile">("ugeac_rank");
   const [percentile, setPercentile] = useState<string>("");
-  const [rank, setRank] = useState<number | "">(user?.percentile ? Math.round(convertPercentileToUR(user.percentile)) : "");
-  const [rankType, setRankType] = useState<"ur" | "category">("ur");
+  const [urRank, setUrRank] = useState<number | "">(user?.percentile ? Math.round(convertPercentileToUR(user.percentile)) : "");
+  const [categoryRank, setCategoryRank] = useState<number | "">("");
+  const [rcgRank, setRcgRank] = useState<number | "">("");
   const [category, setCategory] = useState("UR");
   const [gender, setGender] = useState("Co-ed");
   const [quota, setQuota] = useState("Home State");
   const [round, setRound] = useState<number>(1);
+
+  // Helper functions to auto-estimate and sync ranks
+  const handleUrRankChange = (val: number | "") => {
+    setUrRank(val);
+    if (val !== "") {
+      if (category !== "UR") {
+        setCategoryRank(Math.round(val / (categoryRatios[category] || 1.0)));
+      }
+      if (gender === "Female") {
+        setRcgRank(Math.round(val / (categoryRatios["RCG"] || 1.0)));
+      }
+    } else {
+      setCategoryRank("");
+      setRcgRank("");
+    }
+  };
+
+  const handleCategoryChange = (newCat: string) => {
+    setCategory(newCat);
+    if (urRank !== "" && newCat !== "UR") {
+      setCategoryRank(Math.round(Number(urRank) / (categoryRatios[newCat] || 1.0)));
+    } else {
+      setCategoryRank("");
+    }
+  };
+
+  const handleGenderChange = (newGender: string) => {
+    setGender(newGender);
+    if (newGender === "Female" && urRank !== "") {
+      setRcgRank(Math.round(Number(urRank) / (categoryRatios["RCG"] || 1.0)));
+    } else {
+      setRcgRank("");
+    }
+  };
  
   // Output State
   const [predictions, setPredictions] = useState<any[]>([]);
@@ -44,95 +147,129 @@ export default function CollegePredictor() {
   const performPrediction = (
     type: "percentile" | "ugeac_rank" | "bcece_rank",
     pct: string | number | "",
-    rk: number | "",
+    urRk: number | "",
+    catRk: number | "",
+    rcgRk: number | "",
     cat: string,
     gen: string,
-    rnd: number,
-    rkType: "ur" | "category"
+    rnd: number
   ) => {
-    let targetRank = 0;
-    let estimatedUR = 0;
-    
-    // 1. Calculate General UR rank first
+    let evaluatedUR = 0;
+    let evaluatedCategory = 0;
+    let evaluatedRCG = 0;
+
     if (type === "percentile") {
       const pctVal = Number(pct);
       if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) {
         alert("Please enter a valid percentile between 0 and 100");
         return;
       }
-      
-      estimatedUR = convertPercentileToUR(pctVal);
+      evaluatedUR = convertPercentileToUR(pctVal);
+      if (cat !== "UR") {
+        evaluatedCategory = Math.round(evaluatedUR / (categoryRatios[cat] || 1.0));
+      }
+      evaluatedRCG = Math.round(evaluatedUR / (categoryRatios["RCG"] || 1.0));
     } else {
-      const rankVal = Number(rk);
-      if (isNaN(rankVal) || rankVal <= 0) {
-        alert("Please enter a valid rank number");
+      const urVal = Number(urRk);
+      if (isNaN(urVal) || urVal <= 0) {
+        alert("Please enter a valid General UR rank");
         return;
       }
-      
-      let baseRankVal = rankVal;
-      if (type === "bcece_rank") {
-        baseRankVal = Math.round(baseRankVal * 1.45); // convert BCECE to equivalent UGEAC rank
+      evaluatedUR = urVal;
+
+      if (cat !== "UR") {
+        const catVal = Number(catRk);
+        if (isNaN(catVal) || catVal <= 0) {
+          alert(`Please enter a valid ${cat} Category rank`);
+          return;
+        }
+        evaluatedCategory = catVal;
       }
- 
-      if (rkType === "category" && cat !== "UR") {
-        // User entered Category Rank, convert to General UR rank
-        const ratio = categoryRatios[cat] || 1.0;
-        estimatedUR = Math.round(baseRankVal * ratio);
-      } else {
-        // User entered General UR Rank
-        estimatedUR = baseRankVal;
+
+      if (gen === "Female" && rcgRk !== "") {
+        const rcgVal = Number(rcgRk);
+        if (!isNaN(rcgVal) && rcgVal > 0) {
+          evaluatedRCG = rcgVal;
+        }
+      }
+
+      // Convert BCECE to UGEAC equivalents
+      if (type === "bcece_rank") {
+        evaluatedUR = Math.round(evaluatedUR * 1.45);
+        if (cat !== "UR") {
+          evaluatedCategory = Math.round(evaluatedCategory * 1.45);
+        }
+        if (evaluatedRCG > 0) {
+          evaluatedRCG = Math.round(evaluatedRCG * 1.45);
+        }
       }
     }
- 
-    // 2. Convert estimatedUR to targetRank in category units to compare with database category cutoffs
-    if (cat === "UR") {
-      targetRank = estimatedUR;
-    } else {
-      const ratio = categoryRatios[cat] || 1.0;
-      targetRank = Math.round(estimatedUR / ratio);
-      targetRank = Math.max(1, targetRank);
+
+    // Determine eligible categories
+    const eligibleCategories = ["UR"];
+    if (cat !== "UR") {
+      eligibleCategories.push(cat);
+    }
+    if (gen === "Female" && evaluatedRCG > 0) {
+      eligibleCategories.push("RCG");
     }
 
     const results: any[] = [];
 
     colleges.forEach((college) => {
       college.branches.forEach((branchCode) => {
-        const cutoff2025 = getCutoff(college.code, branchCode, 2025, rnd, cat, gen);
-        const cutoff2024 = getCutoff(college.code, branchCode, 2024, rnd, cat, gen);
+        const quotaPredictions: any[] = [];
 
-        let chance: "High" | "Moderate" | "Low" = "Low";
-        let chancePercentage = 10;
+        eligibleCategories.forEach((quotaCategory) => {
+          const cutoff2025 = getBestCutoffForCategory(college.code, branchCode, 2025, rnd, quotaCategory, gen);
+          const cutoff2024 = getBestCutoffForCategory(college.code, branchCode, 2024, rnd, quotaCategory, gen);
 
-        const closing2025 = cutoff2025.closingRank;
-        const closing2024 = cutoff2024.closingRank;
+          let rankToUse = evaluatedUR;
+          if (quotaCategory === cat) {
+            rankToUse = evaluatedCategory;
+          } else if (quotaCategory === "RCG") {
+            rankToUse = evaluatedRCG;
+          }
 
-        const minClosing = Math.min(closing2025, closing2024);
-        const avgClosing = Math.round((closing2025 + closing2024) / 2);
-        const maxClosing = Math.max(closing2025, closing2024);
+          const { chance, chancePercentage } = evaluateChance(rankToUse, cutoff2025, cutoff2024);
 
-        if (targetRank <= minClosing * 0.95) {
-          chance = "High";
-          chancePercentage = Math.min(98, Math.round(98 - (targetRank / avgClosing) * 12));
-        } else if (targetRank <= avgClosing * 1.05) {
-          chance = "Moderate";
-          chancePercentage = Math.round(75 - ((targetRank - minClosing * 0.95) / (avgClosing * 1.05 - minClosing * 0.95 + 1)) * 20);
-        } else if (targetRank <= maxClosing * 1.15) {
-          chance = "Low";
-          chancePercentage = Math.max(15, Math.round(45 - ((targetRank - avgClosing * 1.05) / (maxClosing * 1.15 - avgClosing * 1.05 + 1)) * 25));
-        } else {
-          chance = "Low";
-          chancePercentage = Math.max(5, Math.round(15 - (targetRank / maxClosing) * 5));
-        }
+          quotaPredictions.push({
+            quotaCategory,
+            cutoff2025,
+            cutoff2024,
+            chance,
+            chancePercentage,
+            rankUsed: rankToUse
+          });
+        });
+
+        // Find the best chance among all eligible quotas
+        let bestQuotaPred = quotaPredictions[0];
+        const chancePriority: Record<string, number> = { High: 3, Moderate: 2, Low: 1 };
+
+        quotaPredictions.forEach((pred) => {
+          const currentBestPriority = chancePriority[bestQuotaPred.chance];
+          const newPriority = chancePriority[pred.chance];
+          if (newPriority > currentBestPriority) {
+            bestQuotaPred = pred;
+          } else if (newPriority === currentBestPriority) {
+            if (pred.chancePercentage > bestQuotaPred.chancePercentage) {
+              bestQuotaPred = pred;
+            }
+          }
+        });
 
         results.push({
           college,
           branchCode,
           branchName: branchNames[branchCode] || branchCode,
-          cutoff2025,
-          cutoff2024,
-          chance,
-          chancePercentage,
-          rankEntered: targetRank
+          chance: bestQuotaPred.chance,
+          chancePercentage: bestQuotaPred.chancePercentage,
+          cutoff2025: bestQuotaPred.cutoff2025,
+          cutoff2024: bestQuotaPred.cutoff2024,
+          rankEntered: bestQuotaPred.rankUsed,
+          quotaCategory: bestQuotaPred.quotaCategory,
+          quotaPredictions
         });
       });
     });
@@ -175,11 +312,12 @@ export default function CollegePredictor() {
       let initialized = false;
       let initType = inputType;
       let initPercentile = percentile;
-      let initRank = rank;
+      let initUrRank: number | "" = "";
+      let initCategoryRank: number | "" = "";
+      let initRcgRank: number | "" = "";
       let initCategory = category;
       let initGender = gender;
       let initRound = round;
-      let initRankType = rankType;
 
       if (t === "percentile") {
         setInputType("ugeac_rank");
@@ -193,15 +331,34 @@ export default function CollegePredictor() {
       if (p) {
         const pNum = Number(p);
         const equivalentRank = convertPercentileToUR(pNum);
-        setRank(equivalentRank);
-        initRank = equivalentRank;
+        initUrRank = equivalentRank;
         initialized = true;
       }
       if (r) {
         const rNum = Number(r);
-        setRank(rNum);
-        initRank = rNum;
         initialized = true;
+
+        if (c) {
+          initCategory = c;
+        }
+        if (g) {
+          initGender = g;
+        }
+
+        // Determine which ranks to set based on rankType and category
+        if (rt === "category" && initCategory !== "UR") {
+          initCategoryRank = rNum;
+          initUrRank = Math.round(rNum * (categoryRatios[initCategory] || 1.0));
+        } else {
+          initUrRank = rNum;
+          if (initCategory !== "UR") {
+            initCategoryRank = Math.round(rNum / (categoryRatios[initCategory] || 1.0));
+          }
+        }
+
+        if (initGender === "Female") {
+          initRcgRank = Math.round(Number(initUrRank) / (categoryRatios["RCG"] || 1.0));
+        }
       }
       if (c) {
         setCategory(c);
@@ -216,14 +373,24 @@ export default function CollegePredictor() {
         setRound(rd);
         initRound = rd;
       }
-      if (rt === "ur" || rt === "category") {
-        setRankType(rt);
-        initRankType = rt;
-      }
+
+      // Sync state variables
+      if (initUrRank !== "") setUrRank(initUrRank);
+      if (initCategoryRank !== "") setCategoryRank(initCategoryRank);
+      if (initRcgRank !== "") setRcgRank(initRcgRank);
 
       if (initialized && colleges.length > 0) {
         setTimeout(() => {
-          performPrediction(initType, initPercentile, initRank, initCategory, initGender, initRound, initRankType);
+          performPrediction(
+            initType,
+            initPercentile,
+            initUrRank,
+            initCategoryRank,
+            initRcgRank,
+            initCategory,
+            initGender,
+            initRound
+          );
         }, 150);
       }
     }
@@ -238,31 +405,17 @@ export default function CollegePredictor() {
         estUR = convertPercentileToUR(pctVal);
       }
     } else {
-      const r = Number(rank);
-      if (r > 0) {
-        if (rankType === "category" && category !== "UR") {
-          const multiplier = categoryRatios[category] || 1.0;
-          estUR = Math.round(r * multiplier);
-        } else {
-          estUR = r;
-        }
-      }
+      estUR = urRank !== "" ? Number(urRank) : 0;
     }
  
     if (estUR === 0) return null;
  
-    let estCatRank = 0;
-    let catLabel = "";
-    const ratio = categoryRatios[category] || 1.0;
-    estCatRank = Math.round(estUR / ratio);
-    catLabel = `${category} Rank`;
-    
     const equivUgeacUR = inputType === "bcece_rank" ? Math.round(estUR * 1.45) : estUR;
  
     return {
       ur: estUR,
-      cat: Math.max(1, estCatRank),
-      label: catLabel,
+      categoryRank: categoryRank !== "" ? Number(categoryRank) : Math.max(1, Math.round(estUR / (categoryRatios[category] || 1.0))),
+      rcgRank: rcgRank !== "" ? Number(rcgRank) : Math.max(1, Math.round(estUR / (categoryRatios["RCG"] || 1.0))),
       equivUgeac: equivUgeacUR
     };
   };
@@ -281,9 +434,9 @@ export default function CollegePredictor() {
 
   const handlePredict = (e: React.FormEvent) => {
     e.preventDefault();
-    performPrediction(inputType, percentile, rank, category, gender, round, rankType);
+    performPrediction(inputType, percentile, urRank, categoryRank, rcgRank, category, gender, round);
   };
-
+ 
   const handleSave = (pred: any) => {
     savePrediction({
       collegeName: pred.college.name,
@@ -295,10 +448,10 @@ export default function CollegePredictor() {
       chance: pred.chance
     });
   };
-
+ 
   const isBookmarked = (collegeCode: string, branchCode: string) => {
     return savedPredictions.some(
-      (p) => p.collegeCode === collegeCode && p.branchCode === branchCode && p.rank === rank
+      (p) => p.collegeCode === collegeCode && p.branchCode === branchCode && p.rank === urRank
     );
   };
 
@@ -418,27 +571,29 @@ export default function CollegePredictor() {
           {/* User Parameters Summary Box */}
           <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl grid grid-cols-4 gap-4 text-xs">
             <div>
-              <span className="text-[9px] text-gray-450 block font-bold uppercase">Input Merit Type</span>
+              <span className="text-[9px] text-gray-455 block font-bold uppercase">Input Merit Type</span>
               <strong className="text-slate-800 font-extrabold">
                 {inputType === "ugeac_rank" ? "UGEAC State Rank" : "BCECE State Rank"}
               </strong>
             </div>
             <div>
-              <span className="text-[9px] text-gray-455 block font-bold uppercase">Entered Rank</span>
+              <span className="text-[9px] text-gray-455 block font-bold uppercase">General UR Rank</span>
               <strong className="text-slate-800 font-extrabold">
-                {rank}
+                {urRank}
               </strong>
             </div>
             <div>
               <span className="text-[9px] text-gray-455 block font-bold uppercase">Reservation Category</span>
               <strong className="text-slate-800 font-extrabold">{category}</strong>
             </div>
-            <div>
-              <span className="text-[9px] text-gray-455 block font-bold uppercase">Estimated UR Rank</span>
-              <strong className="text-slate-800 font-extrabold">
-                {uiRanks ? `~${uiRanks.ur.toLocaleString("en-IN")}` : "N/A"}
-              </strong>
-            </div>
+            {category !== "UR" && (
+              <div>
+                <span className="text-[9px] text-gray-455 block font-bold uppercase">{category} Rank</span>
+                <strong className="text-slate-800 font-extrabold">
+                  {categoryRank}
+                </strong>
+              </div>
+            )}
           </div>
         </div>
       {/* Page Header */}
@@ -469,118 +624,97 @@ export default function CollegePredictor() {
             </h2>
 
             <form onSubmit={handlePredict} className="space-y-4">
-              {/* 1. Rank Selector Tab */}
-              <div className="flex p-0.5 bg-slate-100/50 dark:bg-slate-950/60 rounded-xl border border-gray-250/60 dark:border-slate-800/80 mb-3 w-full">
-                <button
-                  type="button"
-                  onClick={() => setInputType("ugeac_rank")}
-                  className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
-                    inputType === "ugeac_rank"
-                      ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-md border-b-2 border-transparent"
-                      : "text-gray-550 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  UGEAC Rank
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInputType("bcece_rank")}
-                  className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-300 cursor-pointer ${
-                    inputType === "bcece_rank"
-                      ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-md border-b-2 border-transparent"
-                      : "text-gray-550 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  BCECE Rank
-                </button>
-              </div>
-
               {/* 2. Rank Input Fields */}
               <div className="space-y-3.5">
                 <div>
-                  <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5 flex justify-between items-center">
-                    <span>{inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank Type</span>
-                    {category === "UR" && (
-                      <span className="text-[9px] text-[#2563EB] font-bold lowercase tracking-wider bg-[#2563EB]/10 px-2 py-0.5 rounded">
-                        Category is UR
-                      </span>
-                    )}
-                  </label>
-                  <div className="flex p-0.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800/80 mb-1 w-full">
-                    <button
-                      type="button"
-                      onClick={() => setRankType("ur")}
-                      className={`flex-1 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer ${
-                        rankType === "ur"
-                          ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
-                          : "text-gray-400 hover:text-slate-700"
-                      }`}
-                    >
-                      UR (General) Rank
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (category !== "UR") setRankType("category");
-                      }}
-                      className={`flex-1 py-1.5 text-[11px] rounded-lg font-bold transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                        rankType === "category" && category !== "UR"
-                          ? "bg-white dark:bg-slate-850 text-[#2563EB] dark:text-[#FF9933] shadow-sm"
-                          : "text-gray-400 hover:text-slate-700"
-                      }`}
-                      disabled={category === "UR"}
-                      title={category === "UR" ? "Select a reservation category first to enter Category Rank" : ""}
-                    >
-                      Category Rank
-                    </button>
-                  </div>
-                </div>
-
-                <div>
                   <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                    {rankType === "category" && category !== "UR" 
-                      ? `${category} Category ${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} Rank` 
-                      : `${inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} General (UR) Rank`} <span className="text-red-500">*</span>
+                    {inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} General (UR) Rank <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     required
                     min="1"
-                    value={rank}
-                    onChange={(e) => setRank(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder={rankType === "category" && category !== "UR" ? "e.g. 350" : "e.g. 1500"}
+                    value={urRank}
+                    onChange={(e) => handleUrRankChange(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="e.g. 1500"
                     className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
                   />
                 </div>
+
+                {category !== "UR" && (
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
+                      {category} Category Rank <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      value={categoryRank}
+                      onChange={(e) => setCategoryRank(e.target.value === "" ? "" : Number(e.target.value))}
+                      placeholder="e.g. 350"
+                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
+                    />
+                  </div>
+                )}
+
+                {gender === "Female" && (
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5 flex justify-between">
+                      <span>RCG Rank (Female Rank)</span>
+                      <span className="text-[9px] text-[#138808] font-bold">Optional</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={rcgRank}
+                      onChange={(e) => setRcgRank(e.target.value === "" ? "" : Number(e.target.value))}
+                      placeholder="e.g. 500"
+                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* 2.5 Real-time dynamic rank estimator preview panel */}
               {uiRanks && (
                 <div className="p-3.5 bg-gradient-to-br from-blue-500/5 to-[#138808]/5 border border-[#2563EB]/15 dark:border-slate-800/80 rounded-2xl space-y-2.5 text-left transition-all duration-300 shadow-inner">
                   <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-extrabold uppercase tracking-widest block flex items-center gap-1">
-                    🎯 Real-time Rank Estimations
+                    🎯 Rank Profile Summary
                   </span>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
                       <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
-                        {inputType === "bcece_rank" ? "BCECE UR Rank" : "Estimated UR Rank"}
+                        General (UR)
                       </span>
-                      <strong className="text-sm font-black text-slate-800 dark:text-white mt-0.5 block">
-                        ~{uiRanks.ur.toLocaleString("en-IN")}
+                      <strong className="text-xs font-black text-slate-800 dark:text-white mt-0.5 block">
+                        {uiRanks.ur.toLocaleString("en-IN")}
                       </strong>
                     </div>
-                    <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
-                      <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
-                        {inputType === "bcece_rank" ? "Equivalent UGEAC UR" : uiRanks.label}
-                      </span>
-                      <strong className="text-sm font-black text-slate-800 dark:text-white mt-0.5 block">
-                        ~{(inputType === "bcece_rank" ? uiRanks.equivUgeac : uiRanks.cat).toLocaleString("en-IN")}
-                      </strong>
-                    </div>
+                    {category !== "UR" && (
+                      <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
+                        <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
+                          {category} Rank
+                        </span>
+                        <strong className="text-xs font-black text-slate-800 dark:text-white mt-0.5 block">
+                          {uiRanks.categoryRank.toLocaleString("en-IN")}
+                        </strong>
+                      </div>
+                    )}
+                    {gender === "Female" && (
+                      <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
+                        <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
+                          RCG Rank
+                        </span>
+                        <strong className="text-xs font-black text-slate-800 dark:text-white mt-0.5 block">
+                          {uiRanks.rcgRank.toLocaleString("en-IN")}
+                        </strong>
+                      </div>
+                    )}
                   </div>
                   <p className="text-[9px] text-gray-400 mt-1 leading-normal font-medium">
                     {inputType === "bcece_rank"
-                      ? "* Equivalent UGEAC UR calculated using historical BCECE vacancy and seat conversion ratios."
+                      ? "* Equivalent UGEAC ranks calculated using historical BCECE vacancy and seat conversion ratios."
                       : "* Ratios calibrated using real UGEAC state merit samples: BC (2.72), EBC (3.54), SC (12.94), EWS (4.59), ST (45.0), RCG (7.89)."}
                   </p>
                 </div>
@@ -593,7 +727,7 @@ export default function CollegePredictor() {
                 </label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold cursor-pointer text-xs"
                 >
                   {categories.map((cat) => (
@@ -614,7 +748,7 @@ export default function CollegePredictor() {
                     <button
                       key={g}
                       type="button"
-                      onClick={() => setGender(g)}
+                      onClick={() => handleGenderChange(g)}
                       className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
                         gender === g
                           ? "bg-[#2563EB] border-[#2563EB] text-white shadow-md shadow-blue-500/10"
@@ -865,15 +999,32 @@ export default function CollegePredictor() {
                             <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
                               Branch: <span className="text-[#FF9933]">{pred.branchName} ({pred.branchCode})</span>
                             </p>
+                            {/* Quota Predictions Chip list */}
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {pred.quotaPredictions?.map((qp: any, qIdx: number) => (
+                                <span
+                                  key={qIdx}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${
+                                    qp.quotaCategory === pred.quotaCategory 
+                                      ? "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/25" 
+                                      : "bg-slate-50 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-800"
+                                  }`}
+                                  title={`Rank used: ${qp.rankUsed} | 2025 Closing: ${qp.cutoff2025.closingRank}`}
+                                >
+                                  <span className="font-extrabold uppercase">{qp.quotaCategory}:</span>
+                                  <span>{qp.chance} ({qp.chancePercentage}%)</span>
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
-
+ 
                         {/* Cutoffs & Probability Details */}
                         <div className="flex flex-wrap items-center gap-4 sm:gap-6 self-stretch md:self-auto justify-between md:justify-end shrink-0 border-t border-dashed border-gray-150 dark:border-slate-800 pt-3 md:pt-0 md:border-0 mt-2 md:mt-0">
                           {/* Historical cutoffs */}
                           <div className="text-left md:text-right space-y-1">
                             <div className="text-[9px] text-gray-400 uppercase tracking-wider font-extrabold">
-                              Closing Cutoff Ranks
+                              Closing Cutoffs ({pred.quotaCategory})
                             </div>
                             <div className="flex gap-3 text-xs font-bold text-slate-700 dark:text-gray-300">
                               <span>2025: <strong className="text-slate-900 dark:text-white">{pred.cutoff2025.closingRank}</strong></span>
