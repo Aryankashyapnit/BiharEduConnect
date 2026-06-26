@@ -18,7 +18,74 @@ function getCollegesData() {
   if (arrayString.endsWith(";")) {
     arrayString = arrayString.slice(0, -1).trim();
   }
-  return eval(arrayString); // Use eval since it has JS object layout, not pure JSON
+  const colleges = eval(arrayString); // Use eval since it has JS object layout, not pure JSON
+
+  const codes = colleges.map(c => c.code);
+  if (!codes.includes("WIT-DARBHANGA")) {
+    colleges.push({
+      id: "wit-darbhanga",
+      name: "Dr. APJ Abdul Kalam Women's Institute of Technology, Darbhanga",
+      code: "WIT-DARBHANGA",
+      location: "Darbhanga",
+      established: 2012,
+      nirf: null,
+      averagePackage: 3.5,
+      highestPackage: 8.0,
+      tuitionFee: 40000,
+      hostelAvailable: true,
+      hostelFee: 15000,
+      website: "https://www.witlnmu.ac.in",
+      description: "Dr. APJ Abdul Kalam Women's Institute of Technology (WIT) is a premier women-only engineering institute under Lalit Narayan Mithila University, Darbhanga.",
+      campusSize: "10 Acres",
+      branches: ["CSE", "IT", "BI"],
+      recruits: ["TCS", "Wipro", "Infosys"],
+      image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=600"
+    });
+  }
+  if (!codes.includes("CIPET-PATNA")) {
+    colleges.push({
+      id: "cipet-patna",
+      name: "Central Institute of Petrochemicals Engineering & Technology (CIPET), Bihta, Patna",
+      code: "CIPET-PATNA",
+      location: "Patna",
+      established: 1994,
+      nirf: null,
+      averagePackage: 3.6,
+      highestPackage: 7.2,
+      tuitionFee: 45000,
+      hostelAvailable: true,
+      hostelFee: 18000,
+      website: "https://www.cipet.gov.in",
+      description: "CIPET: IPT Patna is a premier central government institute offering B.Tech programs in Plastics Technology and Petrochemical Engineering.",
+      campusSize: "15 Acres",
+      branches: ["PLASTIC", "PETROCHEMICAL", "ME"],
+      recruits: ["Reliance", "Supreme", "IPCL", "TCS"],
+      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600"
+    });
+  }
+  if (!codes.includes("SGIDT-PATNA")) {
+    colleges.push({
+      id: "sgidt-patna",
+      name: "Sanjay Gandhi Institute of Dairy Technology (SGIDT), Patna",
+      code: "SGIDT-PATNA",
+      location: "Patna",
+      established: 1980,
+      nirf: null,
+      averagePackage: 4.5,
+      highestPackage: 9.0,
+      tuitionFee: 15000,
+      hostelAvailable: true,
+      hostelFee: 12000,
+      website: "https://www.basu.org.in",
+      description: "Sanjay Gandhi Institute of Dairy Technology (SGIDT) is a constituent college of Bihar Animal Sciences University, Patna, offering Dairy Technology education.",
+      campusSize: "12 Acres",
+      branches: ["DT"],
+      recruits: ["Amul", "Sudha", "Mother Dairy", "Nestle"],
+      image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?auto=format&fit=crop&w=600"
+    });
+  }
+
+  return colleges;
 }
 
 // Mapping of PDF Institute names to college codes (supporting 2024 and 2025 variants)
@@ -62,7 +129,10 @@ const collegeNameMap = {
   "S.I.T. SITAMARHI": "SIT-SITAMARHI",
   "SAHARSA COLLEGE OF ENGG.": "SCE-SAHARSA",
   "SHRI PHANISHWAR NATH RENU ENGG. COLLEGE, ARARIA": "SPNREC-ARARIA",
-  "SUPAUL ENGG. COLLEGE, SUPAUL": "SCE-SUPAUL"
+  "SUPAUL ENGG. COLLEGE, SUPAUL": "SCE-SUPAUL",
+  "S.G.I.D.T. PATNA": "SGIDT-PATNA",
+  "CIPET:IPT, BIHTA, PATNA": "CIPET-PATNA",
+  "DR. APJ ABDUL KALAM WOMENS INST. OF TECH.": "WIT-DARBHANGA"
 };
 
 // Maps course names to frontend branch codes based on college branches list
@@ -132,6 +202,18 @@ function mapBranch(college, courseName) {
   if (course.includes("3-D") || course.includes("3D") || course.includes("ANIMATION")) {
     if (branches.includes("3D ANIMATION & GRAPHICS")) return "3D ANIMATION & GRAPHICS";
   }
+  if (course.includes("BIOINFORMATICS")) {
+    if (branches.includes("BI")) return "BI";
+  }
+  if (course.includes("PLASTIC") || course.includes("POLYMER")) {
+    if (branches.includes("PLASTIC")) return "PLASTIC";
+  }
+  if (course.includes("PETROCHEMICAL")) {
+    if (branches.includes("PETROCHEMICAL")) return "PETROCHEMICAL";
+  }
+  if (course.includes("DAIRY")) {
+    if (branches.includes("DT")) return "DT";
+  }
 
   // Handle specializations of CSE like IoT, Cyber Security, AI, Data Science, Networks
   if (course.includes("INTERNET OF THINGS") || course.includes("IOT")) {
@@ -187,7 +269,6 @@ function parseYearFile(year, rawFileName, outputJsonName) {
   const middleRegex = /^([\s\S]+?)\s+(Female|General)\s+([A-Z0-9-]+)$/i;
 
   let accumulatedText = "";
-  let currentInstitute = "";
 
   lines.forEach((line, index) => {
     const trimmed = line.trim();
@@ -201,29 +282,36 @@ function parseYearFile(year, rawFileName, outputJsonName) {
     const numericParts = parts.filter(s => /^\d+$/.test(s)).map(Number);
     
     if (numericParts.length >= 2) {
-      // This line has ranks! We can parse it.
-      const openingRank = numericParts[numericParts.length - 2];
-      const closingRank = numericParts[numericParts.length - 1];
+      // Form the full row text by combining any accumulated text
+      const fullRowText = (accumulatedText + " " + trimmed).trim();
+      accumulatedText = "";
 
-      // Remove the numeric parts from the array
-      const nonNumericParts = parts.filter(s => !/^\d+$/.test(s));
+      const rowParts = fullRowText.split("\t").map(s => s.trim());
+      const rowNumericParts = rowParts.filter(s => /^\d+$/.test(s)).map(Number);
+      const rowNonNumericParts = rowParts.filter(s => !/^\d+$/.test(s));
 
-      let inst = nonNumericParts[0];
-      let middleText = nonNumericParts.slice(1).join(" ").trim();
+      const openingRank = rowNumericParts[rowNumericParts.length - 2];
+      const closingRank = rowNumericParts[rowNumericParts.length - 1];
 
-      if (currentInstitute && !collegeNameMap[inst]) {
-        // If current institute is set and inst is a fragment of the course name
-        middleText = (accumulatedText + " " + inst + " " + middleText).trim();
-        inst = currentInstitute;
-      } else if (accumulatedText) {
-        middleText = (accumulatedText + " " + middleText).trim();
+      // Find which college name key in collegeNameMap is a prefix of the first part
+      const firstPart = rowNonNumericParts[0];
+      const cleanFirstPart = firstPart
+        .replace(/^--\s*\d+\s*of\s*\d+\s*--\s*/i, "")
+        .replace(/RANK\s+UR\s+CLOSING\s+RANK\s+CAT\s+OPENING\s+RANK\s+CAT\s+CLOSING\s+RANK/i, "")
+        .trim();
+      let collegeCode = null;
+      let matchedKey = null;
+
+      // Longest prefix match
+      const sortedKeys = Object.keys(collegeNameMap).sort((a, b) => b.length - a.length);
+      for (const key of sortedKeys) {
+        if (cleanFirstPart.startsWith(key)) {
+          collegeCode = collegeNameMap[key];
+          matchedKey = key;
+          break;
+        }
       }
 
-      // Reset accumulators
-      accumulatedText = "";
-      currentInstitute = "";
-
-      const collegeCode = collegeNameMap[inst];
       if (!collegeCode) {
         skippedCount++;
         return;
@@ -234,6 +322,12 @@ function parseYearFile(year, rawFileName, outputJsonName) {
         skippedCount++;
         return;
       }
+
+      // Rest of the row is the course and category info
+      // We strip the matched college name from the clean first part, and join with the rest
+      const remainingFirstPart = cleanFirstPart.slice(matchedKey.length).trim();
+      const middleTextParts = [remainingFirstPart, ...rowNonNumericParts.slice(1)];
+      const middleText = middleTextParts.filter(Boolean).join(" ").trim();
 
       const match = middleRegex.exec(middleText);
       if (!match) {
@@ -283,12 +377,7 @@ function parseYearFile(year, rawFileName, outputJsonName) {
       parsedCount++;
     } else {
       // No ranks! This is a fragment.
-      if (collegeNameMap[trimmed]) {
-        currentInstitute = trimmed;
-        accumulatedText = "";
-      } else {
-        accumulatedText = (accumulatedText + " " + trimmed).trim();
-      }
+      accumulatedText = (accumulatedText + " " + trimmed).trim();
     }
   });
 

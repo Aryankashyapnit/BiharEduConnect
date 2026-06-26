@@ -1169,10 +1169,95 @@ export const collegesData: College[] = [
       "Collabera"
     ],
     "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600"
+  },
+  {
+    "id": "wit-darbhanga",
+    "name": "Dr. APJ Abdul Kalam Women's Institute of Technology, Darbhanga",
+    "code": "WIT-DARBHANGA",
+    "location": "Darbhanga",
+    "established": 2012,
+    "nirf": null,
+    "averagePackage": 3.5,
+    "highestPackage": 8.0,
+    "tuitionFee": 40000,
+    "hostelAvailable": true,
+    "hostelFee": 15000,
+    "website": "https://www.witlnmu.ac.in",
+    "description": "Dr. APJ Abdul Kalam Women's Institute of Technology (WIT) is a premier women-only engineering institute under Lalit Narayan Mithila University, Darbhanga.",
+    "campusSize": "10 Acres",
+    "branches": [
+      "CSE",
+      "IT",
+      "BI"
+    ],
+    "recruits": [
+      "TCS",
+      "Wipro",
+      "Infosys"
+    ],
+    "image": "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=600"
+  },
+  {
+    "id": "cipet-patna",
+    "name": "Central Institute of Petrochemicals Engineering & Technology (CIPET), Bihta, Patna",
+    "code": "CIPET-PATNA",
+    "location": "Patna",
+    "established": 1994,
+    "nirf": null,
+    "averagePackage": 3.6,
+    "highestPackage": 7.2,
+    "tuitionFee": 45000,
+    "hostelAvailable": true,
+    "hostelFee": 18000,
+    "website": "https://www.cipet.gov.in",
+    "description": "CIPET: IPT Patna is a premier central government institute offering B.Tech programs in Plastics Technology and Petrochemical Engineering.",
+    "campusSize": "15 Acres",
+    "branches": [
+      "PLASTIC",
+      "PETROCHEMICAL",
+      "ME"
+    ],
+    "recruits": [
+      "Reliance",
+      "Supreme",
+      "IPCL",
+      "TCS"
+    ],
+    "image": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600"
+  },
+  {
+    "id": "sgidt-patna",
+    "name": "Sanjay Gandhi Institute of Dairy Technology (SGIDT), Patna",
+    "code": "SGIDT-PATNA",
+    "location": "Patna",
+    "established": 1980,
+    "nirf": null,
+    "averagePackage": 4.5,
+    "highestPackage": 9.0,
+    "tuitionFee": 15000,
+    "hostelAvailable": true,
+    "hostelFee": 12000,
+    "website": "https://www.basu.org.in",
+    "description": "Sanjay Gandhi Institute of Dairy Technology (SGIDT) is a constituent college of Bihar Animal Sciences University, Patna, offering Dairy Technology education.",
+    "campusSize": "12 Acres",
+    "branches": [
+      "DT"
+    ],
+    "recruits": [
+      "Amul",
+      "Sudha",
+      "Mother Dairy",
+      "Nestle"
+    ],
+    "image": "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?auto=format&fit=crop&w=600"
   }
 ];
 
 export const branchNames: Record<string, string> = {
+  DT: "Dairy Technology",
+  PLASTIC: "Plastic Technology",
+  PETROCHEMICAL: "Petrochemical Engineering",
+  BI: "Bioinformatics",
   CSE: "Computer Science & Engineering",
   MC: "Mathematics and Computing",
   IT: "Information Technology",
