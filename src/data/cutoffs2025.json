@@ -46,7 +46,7 @@
   {
     "id": "c-2025-10005",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -57,7 +57,7 @@
   {
     "id": "c-2025-10006",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -178,7 +178,7 @@
   {
     "id": "c-2025-10017",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -189,7 +189,7 @@
   {
     "id": "c-2025-10018",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -354,7 +354,7 @@
   {
     "id": "c-2025-10033",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -365,7 +365,7 @@
   {
     "id": "c-2025-10034",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -464,7 +464,7 @@
   {
     "id": "c-2025-10043",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -475,7 +475,7 @@
   {
     "id": "c-2025-10044",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -552,7 +552,7 @@
   {
     "id": "c-2025-10051",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -563,7 +563,7 @@
   {
     "id": "c-2025-10052",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -684,7 +684,7 @@
   {
     "id": "c-2025-10063",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -695,7 +695,7 @@
   {
     "id": "c-2025-10064",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -772,7 +772,7 @@
   {
     "id": "c-2025-10071",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -783,7 +783,7 @@
   {
     "id": "c-2025-10072",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -882,7 +882,7 @@
   {
     "id": "c-2025-10081",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -893,7 +893,7 @@
   {
     "id": "c-2025-10082",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -970,7 +970,7 @@
   {
     "id": "c-2025-10089",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -981,7 +981,7 @@
   {
     "id": "c-2025-10090",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -1080,7 +1080,7 @@
   {
     "id": "c-2025-10099",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -1091,7 +1091,7 @@
   {
     "id": "c-2025-10100",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -1300,7 +1300,7 @@
   {
     "id": "c-2025-10119",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -1311,7 +1311,7 @@
   {
     "id": "c-2025-10120",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -1366,7 +1366,7 @@
   {
     "id": "c-2025-10125",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -1377,7 +1377,7 @@
   {
     "id": "c-2025-10126",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -1454,7 +1454,7 @@
   {
     "id": "c-2025-10133",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -1465,7 +1465,7 @@
   {
     "id": "c-2025-10134",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -1608,7 +1608,7 @@
   {
     "id": "c-2025-10147",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -1619,7 +1619,7 @@
   {
     "id": "c-2025-10148",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -1718,7 +1718,7 @@
   {
     "id": "c-2025-10157",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -1729,7 +1729,7 @@
   {
     "id": "c-2025-10158",
     "collegeCode": "BCE-BAKHTIYARPUR",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -5524,7 +5524,7 @@
   {
     "id": "c-2025-10503",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -5535,7 +5535,7 @@
   {
     "id": "c-2025-10504",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -5634,7 +5634,7 @@
   {
     "id": "c-2025-10513",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -5645,7 +5645,7 @@
   {
     "id": "c-2025-10514",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -5722,7 +5722,7 @@
   {
     "id": "c-2025-10521",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "ST",
@@ -5733,7 +5733,7 @@
   {
     "id": "c-2025-10522",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "ST",
@@ -5788,7 +5788,7 @@
   {
     "id": "c-2025-10527",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -5799,7 +5799,7 @@
   {
     "id": "c-2025-10528",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -5876,7 +5876,7 @@
   {
     "id": "c-2025-10535",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -5887,7 +5887,7 @@
   {
     "id": "c-2025-10536",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -5942,7 +5942,7 @@
   {
     "id": "c-2025-10541",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -5953,7 +5953,7 @@
   {
     "id": "c-2025-10542",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -6052,7 +6052,7 @@
   {
     "id": "c-2025-10551",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -6063,7 +6063,7 @@
   {
     "id": "c-2025-10552",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -6140,7 +6140,7 @@
   {
     "id": "c-2025-10559",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -6151,7 +6151,7 @@
   {
     "id": "c-2025-10560",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -6228,7 +6228,7 @@
   {
     "id": "c-2025-10567",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -6239,7 +6239,7 @@
   {
     "id": "c-2025-10568",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -6338,7 +6338,7 @@
   {
     "id": "c-2025-10577",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -6349,7 +6349,7 @@
   {
     "id": "c-2025-10578",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -6404,7 +6404,7 @@
   {
     "id": "c-2025-10583",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -6415,7 +6415,7 @@
   {
     "id": "c-2025-10584",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -6558,7 +6558,7 @@
   {
     "id": "c-2025-10597",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -6569,7 +6569,7 @@
   {
     "id": "c-2025-10598",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -6690,7 +6690,7 @@
   {
     "id": "c-2025-10609",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -6701,7 +6701,7 @@
   {
     "id": "c-2025-10610",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -6778,7 +6778,7 @@
   {
     "id": "c-2025-10617",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -6789,7 +6789,7 @@
   {
     "id": "c-2025-10618",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -6910,7 +6910,7 @@
   {
     "id": "c-2025-10629",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -6921,7 +6921,7 @@
   {
     "id": "c-2025-10630",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -6998,7 +6998,7 @@
   {
     "id": "c-2025-10637",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -7009,7 +7009,7 @@
   {
     "id": "c-2025-10638",
     "collegeCode": "DCE-DARBHANGA",
-    "branchCode": "MC",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -8692,7 +8692,7 @@
   {
     "id": "c-2025-10791",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -8703,7 +8703,7 @@
   {
     "id": "c-2025-10792",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -8802,7 +8802,7 @@
   {
     "id": "c-2025-10801",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -8813,7 +8813,7 @@
   {
     "id": "c-2025-10802",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -8934,7 +8934,7 @@
   {
     "id": "c-2025-10813",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -8945,7 +8945,7 @@
   {
     "id": "c-2025-10814",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -8978,7 +8978,7 @@
   {
     "id": "c-2025-10817",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -8989,7 +8989,7 @@
   {
     "id": "c-2025-10818",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -9044,7 +9044,7 @@
   {
     "id": "c-2025-10823",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -9055,7 +9055,7 @@
   {
     "id": "c-2025-10824",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -9110,7 +9110,7 @@
   {
     "id": "c-2025-10829",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -9121,7 +9121,7 @@
   {
     "id": "c-2025-10830",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -9242,7 +9242,7 @@
   {
     "id": "c-2025-10841",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -9253,7 +9253,7 @@
   {
     "id": "c-2025-10842",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -9396,7 +9396,7 @@
   {
     "id": "c-2025-10855",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -9407,7 +9407,7 @@
   {
     "id": "c-2025-10856",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -9462,7 +9462,7 @@
   {
     "id": "c-2025-10861",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -9473,7 +9473,7 @@
   {
     "id": "c-2025-10862",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -9594,7 +9594,7 @@
   {
     "id": "c-2025-10873",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -9605,7 +9605,7 @@
   {
     "id": "c-2025-10874",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -9660,7 +9660,7 @@
   {
     "id": "c-2025-10879",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -9671,7 +9671,7 @@
   {
     "id": "c-2025-10880",
     "collegeCode": "GEC-WESTCHAMPARAN",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -9770,7 +9770,7 @@
   {
     "id": "c-2025-10889",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -9781,7 +9781,7 @@
   {
     "id": "c-2025-10890",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -9814,7 +9814,7 @@
   {
     "id": "c-2025-10893",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -9825,7 +9825,7 @@
   {
     "id": "c-2025-10894",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -9858,7 +9858,7 @@
   {
     "id": "c-2025-10897",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -9869,7 +9869,7 @@
   {
     "id": "c-2025-10898",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -9924,7 +9924,7 @@
   {
     "id": "c-2025-10903",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -9935,7 +9935,7 @@
   {
     "id": "c-2025-10904",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -10012,7 +10012,7 @@
   {
     "id": "c-2025-10911",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -10023,7 +10023,7 @@
   {
     "id": "c-2025-10912",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -10100,7 +10100,7 @@
   {
     "id": "c-2025-10919",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -10111,7 +10111,7 @@
   {
     "id": "c-2025-10920",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -10166,7 +10166,7 @@
   {
     "id": "c-2025-10925",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -10177,7 +10177,7 @@
   {
     "id": "c-2025-10926",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -10298,7 +10298,7 @@
   {
     "id": "c-2025-10937",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -10309,7 +10309,7 @@
   {
     "id": "c-2025-10938",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -10430,7 +10430,7 @@
   {
     "id": "c-2025-10949",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -10441,7 +10441,7 @@
   {
     "id": "c-2025-10950",
     "collegeCode": "GEC-SHEOHAR",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -10540,7 +10540,7 @@
   {
     "id": "c-2025-10959",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -10551,7 +10551,7 @@
   {
     "id": "c-2025-10960",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -10584,7 +10584,7 @@
   {
     "id": "c-2025-10963",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -10595,7 +10595,7 @@
   {
     "id": "c-2025-10964",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -10716,7 +10716,7 @@
   {
     "id": "c-2025-10975",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -10727,7 +10727,7 @@
   {
     "id": "c-2025-10976",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -10804,7 +10804,7 @@
   {
     "id": "c-2025-10983",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -10815,7 +10815,7 @@
   {
     "id": "c-2025-10984",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -10848,7 +10848,7 @@
   {
     "id": "c-2025-10987",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -10859,7 +10859,7 @@
   {
     "id": "c-2025-10988",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -10914,7 +10914,7 @@
   {
     "id": "c-2025-10993",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -10925,7 +10925,7 @@
   {
     "id": "c-2025-10994",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -11024,7 +11024,7 @@
   {
     "id": "c-2025-11003",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -11035,7 +11035,7 @@
   {
     "id": "c-2025-11004",
     "collegeCode": "GEC-LAKHISARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -11134,7 +11134,7 @@
   {
     "id": "c-2025-11013",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -11145,7 +11145,7 @@
   {
     "id": "c-2025-11014",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -11244,7 +11244,7 @@
   {
     "id": "c-2025-11023",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -11255,7 +11255,7 @@
   {
     "id": "c-2025-11024",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -11332,7 +11332,7 @@
   {
     "id": "c-2025-11031",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "ST",
@@ -11343,7 +11343,7 @@
   {
     "id": "c-2025-11032",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "ST",
@@ -11442,7 +11442,7 @@
   {
     "id": "c-2025-11041",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -11453,7 +11453,7 @@
   {
     "id": "c-2025-11042",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -11508,7 +11508,7 @@
   {
     "id": "c-2025-11047",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -11519,7 +11519,7 @@
   {
     "id": "c-2025-11048",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -11574,7 +11574,7 @@
   {
     "id": "c-2025-11053",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -11585,7 +11585,7 @@
   {
     "id": "c-2025-11054",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -11640,7 +11640,7 @@
   {
     "id": "c-2025-11059",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -11651,7 +11651,7 @@
   {
     "id": "c-2025-11060",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -11728,7 +11728,7 @@
   {
     "id": "c-2025-11067",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -11739,7 +11739,7 @@
   {
     "id": "c-2025-11068",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -11794,7 +11794,7 @@
   {
     "id": "c-2025-11073",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -11805,7 +11805,7 @@
   {
     "id": "c-2025-11074",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -11904,7 +11904,7 @@
   {
     "id": "c-2025-11083",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -11915,7 +11915,7 @@
   {
     "id": "c-2025-11084",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -11992,7 +11992,7 @@
   {
     "id": "c-2025-11091",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -12003,7 +12003,7 @@
   {
     "id": "c-2025-11092",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -12058,7 +12058,7 @@
   {
     "id": "c-2025-11097",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -12069,7 +12069,7 @@
   {
     "id": "c-2025-11098",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -12190,7 +12190,7 @@
   {
     "id": "c-2025-11109",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -12201,7 +12201,7 @@
   {
     "id": "c-2025-11110",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -12256,7 +12256,7 @@
   {
     "id": "c-2025-11115",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -12267,7 +12267,7 @@
   {
     "id": "c-2025-11116",
     "collegeCode": "GEC-SAMASTIPUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -12388,7 +12388,7 @@
   {
     "id": "c-2025-11127",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -12399,7 +12399,7 @@
   {
     "id": "c-2025-11128",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -12476,7 +12476,7 @@
   {
     "id": "c-2025-11135",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -12487,7 +12487,7 @@
   {
     "id": "c-2025-11136",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -12608,7 +12608,7 @@
   {
     "id": "c-2025-11147",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -12619,7 +12619,7 @@
   {
     "id": "c-2025-11148",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -12762,7 +12762,7 @@
   {
     "id": "c-2025-11161",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -12773,7 +12773,7 @@
   {
     "id": "c-2025-11162",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -12894,7 +12894,7 @@
   {
     "id": "c-2025-11173",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -12905,7 +12905,7 @@
   {
     "id": "c-2025-11174",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -13114,7 +13114,7 @@
   {
     "id": "c-2025-11193",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -13125,7 +13125,7 @@
   {
     "id": "c-2025-11194",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -13268,7 +13268,7 @@
   {
     "id": "c-2025-11207",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -13279,7 +13279,7 @@
   {
     "id": "c-2025-11208",
     "collegeCode": "GEC-ARWAL",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -13356,7 +13356,7 @@
   {
     "id": "c-2025-11215",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -13367,7 +13367,7 @@
   {
     "id": "c-2025-11216",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -13400,7 +13400,7 @@
   {
     "id": "c-2025-11219",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -13411,7 +13411,7 @@
   {
     "id": "c-2025-11220",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -13466,7 +13466,7 @@
   {
     "id": "c-2025-11225",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -13477,7 +13477,7 @@
   {
     "id": "c-2025-11226",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -13510,7 +13510,7 @@
   {
     "id": "c-2025-11229",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -13521,7 +13521,7 @@
   {
     "id": "c-2025-11230",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -13576,7 +13576,7 @@
   {
     "id": "c-2025-11235",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -13587,7 +13587,7 @@
   {
     "id": "c-2025-11236",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -13620,7 +13620,7 @@
   {
     "id": "c-2025-11239",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -13631,7 +13631,7 @@
   {
     "id": "c-2025-11240",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -13642,7 +13642,7 @@
   {
     "id": "c-2025-11241",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -13653,7 +13653,7 @@
   {
     "id": "c-2025-11242",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -13664,7 +13664,7 @@
   {
     "id": "c-2025-11243",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -13675,7 +13675,7 @@
   {
     "id": "c-2025-11244",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -13708,7 +13708,7 @@
   {
     "id": "c-2025-11247",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -13719,7 +13719,7 @@
   {
     "id": "c-2025-11248",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -13752,7 +13752,7 @@
   {
     "id": "c-2025-11251",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -13763,7 +13763,7 @@
   {
     "id": "c-2025-11252",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -13774,7 +13774,7 @@
   {
     "id": "c-2025-11253",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -13785,7 +13785,7 @@
   {
     "id": "c-2025-11254",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -13796,7 +13796,7 @@
   {
     "id": "c-2025-11255",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -13807,7 +13807,7 @@
   {
     "id": "c-2025-11256",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -13840,7 +13840,7 @@
   {
     "id": "c-2025-11259",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -13851,7 +13851,7 @@
   {
     "id": "c-2025-11260",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -13906,7 +13906,7 @@
   {
     "id": "c-2025-11265",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -13917,7 +13917,7 @@
   {
     "id": "c-2025-11266",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -13928,7 +13928,7 @@
   {
     "id": "c-2025-11267",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -13939,7 +13939,7 @@
   {
     "id": "c-2025-11268",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -13972,7 +13972,7 @@
   {
     "id": "c-2025-11271",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -13983,7 +13983,7 @@
   {
     "id": "c-2025-11272",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -14038,7 +14038,7 @@
   {
     "id": "c-2025-11277",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-RCG",
@@ -14049,7 +14049,7 @@
   {
     "id": "c-2025-11278",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-RCG",
@@ -14060,7 +14060,7 @@
   {
     "id": "c-2025-11279",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -14071,7 +14071,7 @@
   {
     "id": "c-2025-11280",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -14082,7 +14082,7 @@
   {
     "id": "c-2025-11281",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -14093,7 +14093,7 @@
   {
     "id": "c-2025-11282",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -14148,7 +14148,7 @@
   {
     "id": "c-2025-11287",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -14159,7 +14159,7 @@
   {
     "id": "c-2025-11288",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -14170,7 +14170,7 @@
   {
     "id": "c-2025-11289",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -14181,7 +14181,7 @@
   {
     "id": "c-2025-11290",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -14192,7 +14192,7 @@
   {
     "id": "c-2025-11291",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -14203,7 +14203,7 @@
   {
     "id": "c-2025-11292",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -14236,7 +14236,7 @@
   {
     "id": "c-2025-11295",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -14247,7 +14247,7 @@
   {
     "id": "c-2025-11296",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -14324,7 +14324,7 @@
   {
     "id": "c-2025-11303",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -14335,7 +14335,7 @@
   {
     "id": "c-2025-11304",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -14346,7 +14346,7 @@
   {
     "id": "c-2025-11305",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -14357,7 +14357,7 @@
   {
     "id": "c-2025-11306",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -14390,7 +14390,7 @@
   {
     "id": "c-2025-11309",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -14401,7 +14401,7 @@
   {
     "id": "c-2025-11310",
     "collegeCode": "GEC-AURANGABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -14522,7 +14522,7 @@
   {
     "id": "c-2025-11321",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -14533,7 +14533,7 @@
   {
     "id": "c-2025-11322",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -14610,7 +14610,7 @@
   {
     "id": "c-2025-11329",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -14621,7 +14621,7 @@
   {
     "id": "c-2025-11330",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -14808,7 +14808,7 @@
   {
     "id": "c-2025-11347",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -14819,7 +14819,7 @@
   {
     "id": "c-2025-11348",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -14940,7 +14940,7 @@
   {
     "id": "c-2025-11359",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -14951,7 +14951,7 @@
   {
     "id": "c-2025-11360",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -15006,7 +15006,7 @@
   {
     "id": "c-2025-11365",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -15017,7 +15017,7 @@
   {
     "id": "c-2025-11366",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -15072,7 +15072,7 @@
   {
     "id": "c-2025-11371",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -15083,7 +15083,7 @@
   {
     "id": "c-2025-11372",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -15226,7 +15226,7 @@
   {
     "id": "c-2025-11385",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -15237,7 +15237,7 @@
   {
     "id": "c-2025-11386",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -15336,7 +15336,7 @@
   {
     "id": "c-2025-11395",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -15347,7 +15347,7 @@
   {
     "id": "c-2025-11396",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -15490,7 +15490,7 @@
   {
     "id": "c-2025-11409",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -15501,7 +15501,7 @@
   {
     "id": "c-2025-11410",
     "collegeCode": "GEC-BANKA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -18570,7 +18570,7 @@
   {
     "id": "c-2025-11689",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -18581,7 +18581,7 @@
   {
     "id": "c-2025-11690",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -18592,7 +18592,7 @@
   {
     "id": "c-2025-11691",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -18603,7 +18603,7 @@
   {
     "id": "c-2025-11692",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -18636,7 +18636,7 @@
   {
     "id": "c-2025-11695",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -18647,7 +18647,7 @@
   {
     "id": "c-2025-11696",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -18658,7 +18658,7 @@
   {
     "id": "c-2025-11697",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -18669,7 +18669,7 @@
   {
     "id": "c-2025-11698",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -18856,7 +18856,7 @@
   {
     "id": "c-2025-11715",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -18867,7 +18867,7 @@
   {
     "id": "c-2025-11716",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -18878,7 +18878,7 @@
   {
     "id": "c-2025-11717",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -18889,7 +18889,7 @@
   {
     "id": "c-2025-11718",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -19010,7 +19010,7 @@
   {
     "id": "c-2025-11729",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -19021,7 +19021,7 @@
   {
     "id": "c-2025-11730",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -19142,7 +19142,7 @@
   {
     "id": "c-2025-11741",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -19153,7 +19153,7 @@
   {
     "id": "c-2025-11742",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -19164,7 +19164,7 @@
   {
     "id": "c-2025-11743",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -19175,7 +19175,7 @@
   {
     "id": "c-2025-11744",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -19296,7 +19296,7 @@
   {
     "id": "c-2025-11755",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -19307,7 +19307,7 @@
   {
     "id": "c-2025-11756",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -19318,7 +19318,7 @@
   {
     "id": "c-2025-11757",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -19329,7 +19329,7 @@
   {
     "id": "c-2025-11758",
     "collegeCode": "GEC-JAMUI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -19428,7 +19428,7 @@
   {
     "id": "c-2025-11767",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -19439,7 +19439,7 @@
   {
     "id": "c-2025-11768",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -19538,7 +19538,7 @@
   {
     "id": "c-2025-11777",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -19549,7 +19549,7 @@
   {
     "id": "c-2025-11778",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -19582,7 +19582,7 @@
   {
     "id": "c-2025-11781",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -19593,7 +19593,7 @@
   {
     "id": "c-2025-11782",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -19626,7 +19626,7 @@
   {
     "id": "c-2025-11785",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -19637,7 +19637,7 @@
   {
     "id": "c-2025-11786",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -19670,7 +19670,7 @@
   {
     "id": "c-2025-11789",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -19681,7 +19681,7 @@
   {
     "id": "c-2025-11790",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -19692,7 +19692,7 @@
   {
     "id": "c-2025-11791",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -19703,7 +19703,7 @@
   {
     "id": "c-2025-11792",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -19736,7 +19736,7 @@
   {
     "id": "c-2025-11795",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -19747,7 +19747,7 @@
   {
     "id": "c-2025-11796",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -19824,7 +19824,7 @@
   {
     "id": "c-2025-11803",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -19835,7 +19835,7 @@
   {
     "id": "c-2025-11804",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -19868,7 +19868,7 @@
   {
     "id": "c-2025-11807",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -19879,7 +19879,7 @@
   {
     "id": "c-2025-11808",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -19912,7 +19912,7 @@
   {
     "id": "c-2025-11811",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -19923,7 +19923,7 @@
   {
     "id": "c-2025-11812",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -19978,7 +19978,7 @@
   {
     "id": "c-2025-11817",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -19989,7 +19989,7 @@
   {
     "id": "c-2025-11818",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -20022,7 +20022,7 @@
   {
     "id": "c-2025-11821",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -20033,7 +20033,7 @@
   {
     "id": "c-2025-11822",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -20110,7 +20110,7 @@
   {
     "id": "c-2025-11829",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -20121,7 +20121,7 @@
   {
     "id": "c-2025-11830",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -20154,7 +20154,7 @@
   {
     "id": "c-2025-11833",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -20165,7 +20165,7 @@
   {
     "id": "c-2025-11834",
     "collegeCode": "GEC-JEHANABAD",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -20242,7 +20242,7 @@
   {
     "id": "c-2025-11841",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -20253,7 +20253,7 @@
   {
     "id": "c-2025-11842",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -20264,7 +20264,7 @@
   {
     "id": "c-2025-11843",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -20275,7 +20275,7 @@
   {
     "id": "c-2025-11844",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -20330,7 +20330,7 @@
   {
     "id": "c-2025-11849",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -20341,7 +20341,7 @@
   {
     "id": "c-2025-11850",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -20352,7 +20352,7 @@
   {
     "id": "c-2025-11851",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -20363,7 +20363,7 @@
   {
     "id": "c-2025-11852",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -20440,7 +20440,7 @@
   {
     "id": "c-2025-11859",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -20451,7 +20451,7 @@
   {
     "id": "c-2025-11860",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -20484,7 +20484,7 @@
   {
     "id": "c-2025-11863",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -20495,7 +20495,7 @@
   {
     "id": "c-2025-11864",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -20506,7 +20506,7 @@
   {
     "id": "c-2025-11865",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -20517,7 +20517,7 @@
   {
     "id": "c-2025-11866",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -20572,7 +20572,7 @@
   {
     "id": "c-2025-11871",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -20583,7 +20583,7 @@
   {
     "id": "c-2025-11872",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -20616,7 +20616,7 @@
   {
     "id": "c-2025-11875",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -20627,7 +20627,7 @@
   {
     "id": "c-2025-11876",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -20638,7 +20638,7 @@
   {
     "id": "c-2025-11877",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -20649,7 +20649,7 @@
   {
     "id": "c-2025-11878",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -20682,7 +20682,7 @@
   {
     "id": "c-2025-11881",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -20693,7 +20693,7 @@
   {
     "id": "c-2025-11882",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -20704,7 +20704,7 @@
   {
     "id": "c-2025-11883",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -20715,7 +20715,7 @@
   {
     "id": "c-2025-11884",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -20770,7 +20770,7 @@
   {
     "id": "c-2025-11889",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -20781,7 +20781,7 @@
   {
     "id": "c-2025-11890",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -20814,7 +20814,7 @@
   {
     "id": "c-2025-11893",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -20825,7 +20825,7 @@
   {
     "id": "c-2025-11894",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(CYBER SECURITY)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -20836,7 +20836,7 @@
   {
     "id": "c-2025-11895",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -20847,7 +20847,7 @@
   {
     "id": "c-2025-11896",
     "collegeCode": "GEC-KAIMUR",
-    "branchCode": "CE",
+    "branchCode": "CSE(NETWORKS)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -20968,7 +20968,7 @@
   {
     "id": "c-2025-11907",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -20979,7 +20979,7 @@
   {
     "id": "c-2025-11908",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -21012,7 +21012,7 @@
   {
     "id": "c-2025-11911",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -21023,7 +21023,7 @@
   {
     "id": "c-2025-11912",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -21188,7 +21188,7 @@
   {
     "id": "c-2025-11927",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -21199,7 +21199,7 @@
   {
     "id": "c-2025-11928",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -21254,7 +21254,7 @@
   {
     "id": "c-2025-11933",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -21265,7 +21265,7 @@
   {
     "id": "c-2025-11934",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -21298,7 +21298,7 @@
   {
     "id": "c-2025-11937",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -21309,7 +21309,7 @@
   {
     "id": "c-2025-11938",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -21386,7 +21386,7 @@
   {
     "id": "c-2025-11945",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -21397,7 +21397,7 @@
   {
     "id": "c-2025-11946",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -21474,7 +21474,7 @@
   {
     "id": "c-2025-11953",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -21485,7 +21485,7 @@
   {
     "id": "c-2025-11954",
     "collegeCode": "GEC-KHAGARIA",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -21562,7 +21562,7 @@
   {
     "id": "c-2025-11961",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -21573,7 +21573,7 @@
   {
     "id": "c-2025-11962",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -21650,7 +21650,7 @@
   {
     "id": "c-2025-11969",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -21661,7 +21661,7 @@
   {
     "id": "c-2025-11970",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -21716,7 +21716,7 @@
   {
     "id": "c-2025-11975",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -21727,7 +21727,7 @@
   {
     "id": "c-2025-11976",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -21804,7 +21804,7 @@
   {
     "id": "c-2025-11983",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -21815,7 +21815,7 @@
   {
     "id": "c-2025-11984",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -21914,7 +21914,7 @@
   {
     "id": "c-2025-11993",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -21925,7 +21925,7 @@
   {
     "id": "c-2025-11994",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -21980,7 +21980,7 @@
   {
     "id": "c-2025-11999",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -21991,7 +21991,7 @@
   {
     "id": "c-2025-12000",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -22068,7 +22068,7 @@
   {
     "id": "c-2025-12007",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -22079,7 +22079,7 @@
   {
     "id": "c-2025-12008",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -22200,7 +22200,7 @@
   {
     "id": "c-2025-12019",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -22211,7 +22211,7 @@
   {
     "id": "c-2025-12020",
     "collegeCode": "GEC-MADHUBANI",
-    "branchCode": "CE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -23960,7 +23960,7 @@
   {
     "id": "c-2025-12179",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -23971,7 +23971,7 @@
   {
     "id": "c-2025-12180",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -24048,7 +24048,7 @@
   {
     "id": "c-2025-12187",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -24059,7 +24059,7 @@
   {
     "id": "c-2025-12188",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -24180,7 +24180,7 @@
   {
     "id": "c-2025-12199",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -24191,7 +24191,7 @@
   {
     "id": "c-2025-12200",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -24334,7 +24334,7 @@
   {
     "id": "c-2025-12213",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -24345,7 +24345,7 @@
   {
     "id": "c-2025-12214",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -24444,7 +24444,7 @@
   {
     "id": "c-2025-12223",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -24455,7 +24455,7 @@
   {
     "id": "c-2025-12224",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -24598,7 +24598,7 @@
   {
     "id": "c-2025-12237",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -24609,7 +24609,7 @@
   {
     "id": "c-2025-12238",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -24752,7 +24752,7 @@
   {
     "id": "c-2025-12251",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -24763,7 +24763,7 @@
   {
     "id": "c-2025-12252",
     "collegeCode": "GEC-SIWAN",
-    "branchCode": "CSE",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -24884,7 +24884,7 @@
   {
     "id": "c-2025-12263",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -24895,7 +24895,7 @@
   {
     "id": "c-2025-12264",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -25038,7 +25038,7 @@
   {
     "id": "c-2025-12277",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -25049,7 +25049,7 @@
   {
     "id": "c-2025-12278",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -25214,7 +25214,7 @@
   {
     "id": "c-2025-12293",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -25225,7 +25225,7 @@
   {
     "id": "c-2025-12294",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -25324,7 +25324,7 @@
   {
     "id": "c-2025-12303",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -25335,7 +25335,7 @@
   {
     "id": "c-2025-12304",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -25456,7 +25456,7 @@
   {
     "id": "c-2025-12315",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -25467,7 +25467,7 @@
   {
     "id": "c-2025-12316",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -25522,7 +25522,7 @@
   {
     "id": "c-2025-12321",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -25533,7 +25533,7 @@
   {
     "id": "c-2025-12322",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -25610,7 +25610,7 @@
   {
     "id": "c-2025-12329",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -25621,7 +25621,7 @@
   {
     "id": "c-2025-12330",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -25720,7 +25720,7 @@
   {
     "id": "c-2025-12339",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -25731,7 +25731,7 @@
   {
     "id": "c-2025-12340",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -25808,7 +25808,7 @@
   {
     "id": "c-2025-12347",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -25819,7 +25819,7 @@
   {
     "id": "c-2025-12348",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -25984,7 +25984,7 @@
   {
     "id": "c-2025-12363",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -25995,7 +25995,7 @@
   {
     "id": "c-2025-12364",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -26072,7 +26072,7 @@
   {
     "id": "c-2025-12371",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -26083,7 +26083,7 @@
   {
     "id": "c-2025-12372",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -26138,7 +26138,7 @@
   {
     "id": "c-2025-12377",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -26149,7 +26149,7 @@
   {
     "id": "c-2025-12378",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -26292,7 +26292,7 @@
   {
     "id": "c-2025-12391",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -26303,7 +26303,7 @@
   {
     "id": "c-2025-12392",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -26380,7 +26380,7 @@
   {
     "id": "c-2025-12399",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -26391,7 +26391,7 @@
   {
     "id": "c-2025-12400",
     "collegeCode": "GEC-VAISHALI",
-    "branchCode": "MC",
+    "branchCode": "CSE-IOT",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -26534,7 +26534,7 @@
   {
     "id": "c-2025-12413",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -26545,7 +26545,7 @@
   {
     "id": "c-2025-12414",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -26556,7 +26556,7 @@
   {
     "id": "c-2025-12415",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -26567,7 +26567,7 @@
   {
     "id": "c-2025-12416",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -26622,7 +26622,7 @@
   {
     "id": "c-2025-12421",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -26633,7 +26633,7 @@
   {
     "id": "c-2025-12422",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -26644,7 +26644,7 @@
   {
     "id": "c-2025-12423",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -26655,7 +26655,7 @@
   {
     "id": "c-2025-12424",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -26732,7 +26732,7 @@
   {
     "id": "c-2025-12431",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -26743,7 +26743,7 @@
   {
     "id": "c-2025-12432",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -26754,7 +26754,7 @@
   {
     "id": "c-2025-12433",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -26765,7 +26765,7 @@
   {
     "id": "c-2025-12434",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -26798,7 +26798,7 @@
   {
     "id": "c-2025-12437",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -26809,7 +26809,7 @@
   {
     "id": "c-2025-12438",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -26820,7 +26820,7 @@
   {
     "id": "c-2025-12439",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -26831,7 +26831,7 @@
   {
     "id": "c-2025-12440",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -26864,7 +26864,7 @@
   {
     "id": "c-2025-12443",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -26875,7 +26875,7 @@
   {
     "id": "c-2025-12444",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -26886,7 +26886,7 @@
   {
     "id": "c-2025-12445",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -26897,7 +26897,7 @@
   {
     "id": "c-2025-12446",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -26930,7 +26930,7 @@
   {
     "id": "c-2025-12449",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -26941,7 +26941,7 @@
   {
     "id": "c-2025-12450",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -26952,7 +26952,7 @@
   {
     "id": "c-2025-12451",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -26963,7 +26963,7 @@
   {
     "id": "c-2025-12452",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -26974,7 +26974,7 @@
   {
     "id": "c-2025-12453",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -26985,7 +26985,7 @@
   {
     "id": "c-2025-12454",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -26996,7 +26996,7 @@
   {
     "id": "c-2025-12455",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -27007,7 +27007,7 @@
   {
     "id": "c-2025-12456",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -27106,7 +27106,7 @@
   {
     "id": "c-2025-12465",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -27117,7 +27117,7 @@
   {
     "id": "c-2025-12466",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -27128,7 +27128,7 @@
   {
     "id": "c-2025-12467",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -27139,7 +27139,7 @@
   {
     "id": "c-2025-12468",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -27172,7 +27172,7 @@
   {
     "id": "c-2025-12471",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -27183,7 +27183,7 @@
   {
     "id": "c-2025-12472",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -27216,7 +27216,7 @@
   {
     "id": "c-2025-12475",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -27227,7 +27227,7 @@
   {
     "id": "c-2025-12476",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -27238,7 +27238,7 @@
   {
     "id": "c-2025-12477",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -27249,7 +27249,7 @@
   {
     "id": "c-2025-12478",
     "collegeCode": "GEC-MUNGER",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -30186,7 +30186,7 @@
   {
     "id": "c-2025-12745",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -30197,7 +30197,7 @@
   {
     "id": "c-2025-12746",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -30296,7 +30296,7 @@
   {
     "id": "c-2025-12755",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -30307,7 +30307,7 @@
   {
     "id": "c-2025-12756",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -30362,7 +30362,7 @@
   {
     "id": "c-2025-12761",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "ST",
@@ -30373,7 +30373,7 @@
   {
     "id": "c-2025-12762",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "ST",
@@ -30450,7 +30450,7 @@
   {
     "id": "c-2025-12769",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -30461,7 +30461,7 @@
   {
     "id": "c-2025-12770",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -30516,7 +30516,7 @@
   {
     "id": "c-2025-12775",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -30527,7 +30527,7 @@
   {
     "id": "c-2025-12776",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -30604,7 +30604,7 @@
   {
     "id": "c-2025-12783",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -30615,7 +30615,7 @@
   {
     "id": "c-2025-12784",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -30670,7 +30670,7 @@
   {
     "id": "c-2025-12789",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -30681,7 +30681,7 @@
   {
     "id": "c-2025-12790",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -30758,7 +30758,7 @@
   {
     "id": "c-2025-12797",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -30769,7 +30769,7 @@
   {
     "id": "c-2025-12798",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -30868,7 +30868,7 @@
   {
     "id": "c-2025-12807",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -30879,7 +30879,7 @@
   {
     "id": "c-2025-12808",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -31044,7 +31044,7 @@
   {
     "id": "c-2025-12823",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -31055,7 +31055,7 @@
   {
     "id": "c-2025-12824",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -31154,7 +31154,7 @@
   {
     "id": "c-2025-12833",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -31165,7 +31165,7 @@
   {
     "id": "c-2025-12834",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -31220,7 +31220,7 @@
   {
     "id": "c-2025-12839",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -31231,7 +31231,7 @@
   {
     "id": "c-2025-12840",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -31308,7 +31308,7 @@
   {
     "id": "c-2025-12847",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -31319,7 +31319,7 @@
   {
     "id": "c-2025-12848",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -31418,7 +31418,7 @@
   {
     "id": "c-2025-12857",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -31429,7 +31429,7 @@
   {
     "id": "c-2025-12858",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -31528,7 +31528,7 @@
   {
     "id": "c-2025-12867",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -31539,7 +31539,7 @@
   {
     "id": "c-2025-12868",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -31638,7 +31638,7 @@
   {
     "id": "c-2025-12877",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -31649,7 +31649,7 @@
   {
     "id": "c-2025-12878",
     "collegeCode": "MCE-MOTIHARI",
-    "branchCode": "CE",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -34696,7 +34696,7 @@
   {
     "id": "c-2025-13155",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -34707,7 +34707,7 @@
   {
     "id": "c-2025-13156",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -34828,7 +34828,7 @@
   {
     "id": "c-2025-13167",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -34839,7 +34839,7 @@
   {
     "id": "c-2025-13168",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -35004,7 +35004,7 @@
   {
     "id": "c-2025-13183",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -35015,7 +35015,7 @@
   {
     "id": "c-2025-13184",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -35114,7 +35114,7 @@
   {
     "id": "c-2025-13193",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -35125,7 +35125,7 @@
   {
     "id": "c-2025-13194",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -35180,7 +35180,7 @@
   {
     "id": "c-2025-13199",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -35191,7 +35191,7 @@
   {
     "id": "c-2025-13200",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -35290,7 +35290,7 @@
   {
     "id": "c-2025-13209",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -35301,7 +35301,7 @@
   {
     "id": "c-2025-13210",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -35400,7 +35400,7 @@
   {
     "id": "c-2025-13219",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -35411,7 +35411,7 @@
   {
     "id": "c-2025-13220",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -35510,7 +35510,7 @@
   {
     "id": "c-2025-13229",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -35521,7 +35521,7 @@
   {
     "id": "c-2025-13230",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -35708,7 +35708,7 @@
   {
     "id": "c-2025-13247",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -35719,7 +35719,7 @@
   {
     "id": "c-2025-13248",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -35906,7 +35906,7 @@
   {
     "id": "c-2025-13265",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -35917,7 +35917,7 @@
   {
     "id": "c-2025-13266",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -35950,7 +35950,7 @@
   {
     "id": "c-2025-13269",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -35961,7 +35961,7 @@
   {
     "id": "c-2025-13270",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -36060,7 +36060,7 @@
   {
     "id": "c-2025-13279",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -36071,7 +36071,7 @@
   {
     "id": "c-2025-13280",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -36192,7 +36192,7 @@
   {
     "id": "c-2025-13291",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -36203,7 +36203,7 @@
   {
     "id": "c-2025-13292",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -36302,7 +36302,7 @@
   {
     "id": "c-2025-13301",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -36313,7 +36313,7 @@
   {
     "id": "c-2025-13302",
     "collegeCode": "NCE-CHANDI",
-    "branchCode": "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
+    "branchCode": "CSE(AI&ML)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -36456,7 +36456,7 @@
   {
     "id": "c-2025-13315",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -36467,7 +36467,7 @@
   {
     "id": "c-2025-13316",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -36566,7 +36566,7 @@
   {
     "id": "c-2025-13325",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -36577,7 +36577,7 @@
   {
     "id": "c-2025-13326",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -36676,7 +36676,7 @@
   {
     "id": "c-2025-13335",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "ST",
@@ -36687,7 +36687,7 @@
   {
     "id": "c-2025-13336",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "ST",
@@ -36742,7 +36742,7 @@
   {
     "id": "c-2025-13341",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -36753,7 +36753,7 @@
   {
     "id": "c-2025-13342",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -36852,7 +36852,7 @@
   {
     "id": "c-2025-13351",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -36863,7 +36863,7 @@
   {
     "id": "c-2025-13352",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -36940,7 +36940,7 @@
   {
     "id": "c-2025-13359",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -36951,7 +36951,7 @@
   {
     "id": "c-2025-13360",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -36984,7 +36984,7 @@
   {
     "id": "c-2025-13363",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -36995,7 +36995,7 @@
   {
     "id": "c-2025-13364",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -37050,7 +37050,7 @@
   {
     "id": "c-2025-13369",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -37061,7 +37061,7 @@
   {
     "id": "c-2025-13370",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -37160,7 +37160,7 @@
   {
     "id": "c-2025-13379",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -37171,7 +37171,7 @@
   {
     "id": "c-2025-13380",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -37226,7 +37226,7 @@
   {
     "id": "c-2025-13385",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -37237,7 +37237,7 @@
   {
     "id": "c-2025-13386",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -37358,7 +37358,7 @@
   {
     "id": "c-2025-13397",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -37369,7 +37369,7 @@
   {
     "id": "c-2025-13398",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -37424,7 +37424,7 @@
   {
     "id": "c-2025-13403",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -37435,7 +37435,7 @@
   {
     "id": "c-2025-13404",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -37490,7 +37490,7 @@
   {
     "id": "c-2025-13409",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -37501,7 +37501,7 @@
   {
     "id": "c-2025-13410",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -37622,7 +37622,7 @@
   {
     "id": "c-2025-13421",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -37633,7 +37633,7 @@
   {
     "id": "c-2025-13422",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -37688,7 +37688,7 @@
   {
     "id": "c-2025-13427",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -37699,7 +37699,7 @@
   {
     "id": "c-2025-13428",
     "collegeCode": "PCE-PURNEA",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -37864,7 +37864,7 @@
   {
     "id": "c-2025-13443",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -37875,7 +37875,7 @@
   {
     "id": "c-2025-13444",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -37974,7 +37974,7 @@
   {
     "id": "c-2025-13453",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -37985,7 +37985,7 @@
   {
     "id": "c-2025-13454",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -38084,7 +38084,7 @@
   {
     "id": "c-2025-13463",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SMQ",
@@ -38095,7 +38095,7 @@
   {
     "id": "c-2025-13464",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SMQ",
@@ -38216,7 +38216,7 @@
   {
     "id": "c-2025-13475",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -38227,7 +38227,7 @@
   {
     "id": "c-2025-13476",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -38282,7 +38282,7 @@
   {
     "id": "c-2025-13481",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "RCG",
@@ -38293,7 +38293,7 @@
   {
     "id": "c-2025-13482",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "RCG",
@@ -38326,7 +38326,7 @@
   {
     "id": "c-2025-13485",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -38337,7 +38337,7 @@
   {
     "id": "c-2025-13486",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -38414,7 +38414,7 @@
   {
     "id": "c-2025-13493",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -38425,7 +38425,7 @@
   {
     "id": "c-2025-13494",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -38568,7 +38568,7 @@
   {
     "id": "c-2025-13507",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -38579,7 +38579,7 @@
   {
     "id": "c-2025-13508",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -38678,7 +38678,7 @@
   {
     "id": "c-2025-13517",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -38689,7 +38689,7 @@
   {
     "id": "c-2025-13518",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -38744,7 +38744,7 @@
   {
     "id": "c-2025-13523",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-BC",
@@ -38755,7 +38755,7 @@
   {
     "id": "c-2025-13524",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-BC",
@@ -38810,7 +38810,7 @@
   {
     "id": "c-2025-13529",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -38821,7 +38821,7 @@
   {
     "id": "c-2025-13530",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -38898,7 +38898,7 @@
   {
     "id": "c-2025-13537",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -38909,7 +38909,7 @@
   {
     "id": "c-2025-13538",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -39008,7 +39008,7 @@
   {
     "id": "c-2025-13547",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -39019,7 +39019,7 @@
   {
     "id": "c-2025-13548",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -39096,7 +39096,7 @@
   {
     "id": "c-2025-13555",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -39107,7 +39107,7 @@
   {
     "id": "c-2025-13556",
     "collegeCode": "RRSDCE-BEGUSARAI",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -41956,7 +41956,7 @@
   {
     "id": "c-2025-13815",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -41967,7 +41967,7 @@
   {
     "id": "c-2025-13816",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -42066,7 +42066,7 @@
   {
     "id": "c-2025-13825",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -42077,7 +42077,7 @@
   {
     "id": "c-2025-13826",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -42242,7 +42242,7 @@
   {
     "id": "c-2025-13841",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -42253,7 +42253,7 @@
   {
     "id": "c-2025-13842",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -42352,7 +42352,7 @@
   {
     "id": "c-2025-13851",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -42363,7 +42363,7 @@
   {
     "id": "c-2025-13852",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -42418,7 +42418,7 @@
   {
     "id": "c-2025-13857",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -42429,7 +42429,7 @@
   {
     "id": "c-2025-13858",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -42572,7 +42572,7 @@
   {
     "id": "c-2025-13871",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -42583,7 +42583,7 @@
   {
     "id": "c-2025-13872",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -42660,7 +42660,7 @@
   {
     "id": "c-2025-13879",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -42671,7 +42671,7 @@
   {
     "id": "c-2025-13880",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -42748,7 +42748,7 @@
   {
     "id": "c-2025-13887",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -42759,7 +42759,7 @@
   {
     "id": "c-2025-13888",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -42814,7 +42814,7 @@
   {
     "id": "c-2025-13893",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -42825,7 +42825,7 @@
   {
     "id": "c-2025-13894",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -42902,7 +42902,7 @@
   {
     "id": "c-2025-13901",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -42913,7 +42913,7 @@
   {
     "id": "c-2025-13902",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -42968,7 +42968,7 @@
   {
     "id": "c-2025-13907",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -42979,7 +42979,7 @@
   {
     "id": "c-2025-13908",
     "collegeCode": "SCE-SAHARSA",
-    "branchCode": "CE",
+    "branchCode": "CSE(DATA SCIENCE)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -43694,7 +43694,7 @@
   {
     "id": "c-2025-13973",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -43705,7 +43705,7 @@
   {
     "id": "c-2025-13974",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -43760,7 +43760,7 @@
   {
     "id": "c-2025-13979",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "UR",
@@ -43771,7 +43771,7 @@
   {
     "id": "c-2025-13980",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "UR",
@@ -43892,7 +43892,7 @@
   {
     "id": "c-2025-13991",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "SC",
@@ -43903,7 +43903,7 @@
   {
     "id": "c-2025-13992",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "SC",
@@ -43980,7 +43980,7 @@
   {
     "id": "c-2025-13999",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -43991,7 +43991,7 @@
   {
     "id": "c-2025-14000",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -44046,7 +44046,7 @@
   {
     "id": "c-2025-14005",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EWS",
@@ -44057,7 +44057,7 @@
   {
     "id": "c-2025-14006",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EWS",
@@ -44112,7 +44112,7 @@
   {
     "id": "c-2025-14011",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -44123,7 +44123,7 @@
   {
     "id": "c-2025-14012",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -44178,7 +44178,7 @@
   {
     "id": "c-2025-14017",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-UR",
@@ -44189,7 +44189,7 @@
   {
     "id": "c-2025-14018",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-UR",
@@ -44244,7 +44244,7 @@
   {
     "id": "c-2025-14023",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "E-EBC",
@@ -44255,7 +44255,7 @@
   {
     "id": "c-2025-14024",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "E-EBC",
@@ -44354,7 +44354,7 @@
   {
     "id": "c-2025-14033",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "EBC",
@@ -44365,7 +44365,7 @@
   {
     "id": "c-2025-14034",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "EBC",
@@ -44442,7 +44442,7 @@
   {
     "id": "c-2025-14041",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -44453,7 +44453,7 @@
   {
     "id": "c-2025-14042",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",
@@ -44508,7 +44508,7 @@
   {
     "id": "c-2025-14047",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 1,
     "category": "BC",
@@ -44519,7 +44519,7 @@
   {
     "id": "c-2025-14048",
     "collegeCode": "SCE-SUPAUL",
-    "branchCode": "MC",
+    "branchCode": "CSE(AI)",
     "year": 2025,
     "round": 2,
     "category": "BC",

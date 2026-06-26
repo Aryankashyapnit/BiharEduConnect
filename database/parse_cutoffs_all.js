@@ -218,20 +218,21 @@ function mapBranch(college, courseName) {
   // Handle specializations of CSE like IoT, Cyber Security, AI, Data Science, Networks
   if (course.includes("INTERNET OF THINGS") || course.includes("IOT")) {
     if (branches.includes("CSE-IOT")) return "CSE-IOT";
-    if (branches.includes("MC")) return "MC"; // Bakhtiyarpur CSE-IoT maps to MC in collegesData
   }
   if (course.includes("CYBER SECURITY") || course.includes("CYBER")) {
-    if (branches.includes("MC")) return "MC"; // Darbhanga CSE-Cyber maps to MC in collegesData
-  }
-  if (course.includes("ARTIFICIAL INTELLIGENCE") || course.includes("ARTIFICAL") || course.includes("AI")) {
-    if (branches.includes("ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING")) return "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING";
-    if (branches.includes("MC")) return "MC";
+    if (branches.includes("CSE(CYBER SECURITY)")) return "CSE(CYBER SECURITY)";
   }
   if (course.includes("DATA SCIENCE")) {
-    if (branches.includes("MC")) return "MC";
+    if (branches.includes("CSE(DATA SCIENCE)")) return "CSE(DATA SCIENCE)";
+  }
+  if (course.includes("MACHINE LEARNING") || course.includes("ML")) {
+    if (branches.includes("CSE(AI&ML)")) return "CSE(AI&ML)";
+  }
+  if (course.includes("ARTIFICIAL") || course.includes("ARTIFICAL") || course.includes("AI")) {
+    if (branches.includes("CSE(AI)")) return "CSE(AI)";
   }
   if (course.includes("NETWORKS")) {
-    if (branches.includes("MC")) return "MC";
+    if (branches.includes("CSE(NETWORKS)")) return "CSE(NETWORKS)";
   }
   
   // Generic matches based on keywords
