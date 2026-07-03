@@ -37,12 +37,12 @@ export const Navbar: React.FC = () => {
   const isAdminRoute = pathname === "/admin";
 
   const navLinks = [
-    { href: "/colleges", label: "Colleges DB", icon: GraduationCap },
+    { href: "/colleges", label: "Colleges", icon: GraduationCap },
     { href: "/predictor", label: "Predictor", icon: Compass },
-    { href: "/choices", label: "Preference Sheet", icon: Laptop },
+    { href: "/choices", label: "Preference", icon: Laptop },
     { href: "/cutoffs", label: "Cutoffs", icon: TrendingUp },
-    { href: "/compare", label: "Compare Tools", icon: GitCompare },
-    { href: "/guide", label: "Counselling Guide", icon: Info },
+    { href: "/compare", label: "Compare", icon: GitCompare },
+    { href: "/guide", label: "Guide", icon: Info },
     { href: "/timeline", label: "Timeline", icon: Clock }
   ];
 
@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo & Brand Identity */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link 
               href={user ? (user.isAdmin ? "/admin" : "/dashboard") : "/"} 
               className="flex items-center gap-2 group hover-magnetic"
@@ -69,7 +69,7 @@ export const Navbar: React.FC = () => {
                 <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white group-hover:text-[#6366f1] transition-colors duration-200">
                   Bihar<span className="text-[#6366f1]">Edu</span><span className="text-[#06b6d4]">Connect</span>
                 </span>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium tracking-wide -mt-1">
+                <span className="text-[10px] text-gray-550 dark:text-gray-400 font-medium tracking-wide -mt-1">
                   UGEAC / BCECE counselling
                 </span>
               </div>
@@ -78,7 +78,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Navigation Links */}
           {user && !user.isAdmin && !isAdminRoute && (
-            <nav className="hidden lg:flex items-center p-1 space-x-0.5 xl:space-x-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl mx-auto">
+            <nav className="hidden lg:flex items-center p-1 space-x-0.5 xl:space-x-1 bg-slate-100/90 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/30 rounded-xl mx-auto shadow-sm">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link.href);
@@ -86,10 +86,10 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative flex items-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg text-[11px] xl:text-[13px] font-bold tracking-wide transition-all duration-250 transform active:scale-[0.96] cursor-pointer group hover-magnetic ${
+                    className={`relative flex items-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg text-[11px] xl:text-[13px] font-bold tracking-wide transition-all duration-250 transform active:scale-[0.96] cursor-pointer group hover-magnetic border ${
                       active
-                        ? "text-[#22d3ee] dark:text-[#6366f1] bg-white dark:bg-slate-900 shadow-[0_1px_3px_rgba(0,0,0,0.1)] border border-slate-200/50 dark:border-slate-700/50"
-                        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50 hover-underline-anim"
+                        ? "text-[#22d3ee] dark:text-[#6366f1] bg-white dark:bg-slate-900 shadow-[0_1.5px_3px_rgba(0,0,0,0.08)] border-slate-200 dark:border-slate-700"
+                        : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50 hover-underline-anim"
                     }`}
                   >
                     <Icon className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 transition-transform duration-250 group-hover:scale-[1.12] ${active ? "text-[#22d3ee] dark:text-[#6366f1]" : "text-slate-400 dark:text-slate-500"}`} />
@@ -101,7 +101,7 @@ export const Navbar: React.FC = () => {
           )}
 
           {/* Desktop Right Panel */}
-          <div className="hidden lg:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
             {user ? (
               <>
                 {/* Greeting text removed fully from top navbar per user instruction */}

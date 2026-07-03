@@ -1137,7 +1137,7 @@ export default function AdminDashboard() {
                   <X className="w-5 h-5" />
                 </button>
 
-                <h3 className="text-sm font-bold text-slate-855 dark:text-white mb-3 border-b border-gray-100 dark:border-slate-855 pb-2 flex items-center gap-1.5">
+                <h3 className="text-sm font-bold text-slate-850 dark:text-white mb-3 border-b border-gray-100 dark:border-slate-850 pb-2 flex items-center gap-1.5">
                   <Layers className="w-4.5 h-4.5 text-emerald-500 animate-pulse" />
                   Edit Seat Allocation Matrix
                 </h3>
@@ -1729,7 +1729,7 @@ export default function AdminDashboard() {
                   return (
                     <table className="w-full border-collapse text-left">
                       <thead>
-                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-gray-455 dark:text-gray-400 font-bold uppercase tracking-wider text-[9px]">
+                        <tr className="border-b border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-gray-550 dark:text-gray-400 font-bold uppercase tracking-wider text-[9px]">
                           <th className="px-4 py-2">College Code</th>
                           <th className="px-4 py-2">Branch</th>
                           <th className="px-4 py-2 text-center">Year</th>

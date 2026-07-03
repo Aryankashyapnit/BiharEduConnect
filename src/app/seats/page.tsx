@@ -95,19 +95,19 @@ export default function SeatMatrixDashboard() {
           <p className="text-[9px] text-gray-450 mt-1 font-semibold">Across all government colleges</p>
         </div>
         <div className="glass-card p-5 rounded-2xl shadow-md text-center hover-lift transition-all duration-300 border border-gray-150">
-          <span className="text-[10px] text-gray-455 font-extrabold uppercase tracking-wider block">Government Institutions</span>
+          <span className="text-[10px] text-gray-450 font-extrabold uppercase tracking-wider block">Government Institutions</span>
           <h3 className="text-2xl sm:text-3xl font-black text-[#FF9933] mt-1.5">{totalInstitutes}</h3>
-          <p className="text-[9px] text-gray-455 mt-1 font-semibold">Participating in UGEAC admissions</p>
+          <p className="text-[9px] text-gray-450 mt-1 font-semibold">Participating in UGEAC admissions</p>
         </div>
         <div className="glass-card p-5 rounded-2xl shadow-md text-center hover-lift transition-all duration-300 border border-gray-150">
-          <span className="text-[10px] text-gray-455 font-extrabold uppercase tracking-wider block">Selected College Intake</span>
+          <span className="text-[10px] text-gray-450 font-extrabold uppercase tracking-wider block">Selected College Intake</span>
           <h3 className="text-2xl sm:text-3xl font-black text-[#138808] mt-1.5">{totalCollegeSeats} Seats</h3>
-          <p className="text-[9px] text-gray-455 mt-1 font-semibold truncate max-w-[200px] mx-auto">{collegeSelectedObj.name}</p>
+          <p className="text-[9px] text-gray-450 mt-1 font-semibold truncate max-w-[200px] mx-auto">{collegeSelectedObj.name}</p>
         </div>
         <div className="glass-card p-5 rounded-2xl shadow-md text-center hover-lift transition-all duration-300 border border-gray-150">
-          <span className="text-[10px] text-gray-455 font-extrabold uppercase tracking-wider block">Counselling Board</span>
+          <span className="text-[10px] text-gray-450 font-extrabold uppercase tracking-wider block">Counselling Board</span>
           <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mt-2 uppercase tracking-wide">BCECEB</h3>
-          <p className="text-[9px] text-gray-455 mt-1 font-semibold">Patna, Bihar (UGEAC-2026)</p>
+          <p className="text-[9px] text-gray-450 mt-1 font-semibold">Patna, Bihar (UGEAC-2026)</p>
         </div>
       </div>
 

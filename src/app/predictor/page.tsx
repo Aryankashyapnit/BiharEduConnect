@@ -1,12 +1,36 @@
 "use client";
 
 import { CommunityComments } from "../../components/CommunityComments";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { getCutoff, getEstimatedCutoff, convertPercentileToUR, categoryRatios, cutoffsData, Cutoff } from "../../data/cutoffs";
+import bcece2025Cutoffs from "../../data/bceceCutoffs2025.json";
 import { branchNames } from "../../data/colleges";
+import { 
+  Compass, 
+  HelpCircle, 
+  Download, 
+  Bookmark, 
+  Check, 
+  SlidersHorizontal, 
+  ArrowRight,
+  TrendingUp,
+  AlertTriangle,
+  MapPin,
+  Building,
+  GraduationCap
+} from "lucide-react";
+import Link from "next/link";
+import { AuthGate } from "../../components/AuthGate";
 
-// Helper function to find the best cutoff for a given category and candidate's gender pool
+const localBranchNames: Record<string, string> = {
+  ...branchNames,
+  AG: "Agricultural Engineering"
+};
+
+// ==========================================
+// UGEAC SPECIFIC HELPER FUNCTIONS
+// ==========================================
 const getBestCutoffForCategory = (
   collegeCode: string,
   branchCode: string,
@@ -29,8 +53,6 @@ const getBestCutoffForCategory = (
   }
 
   if (candidateGender === "Female") {
-    // A female candidate is eligible for both Female seats and Co-ed (General) seats.
-    // We choose the one with the highest closing rank (easier to get, i.e. better chance).
     let best = matches[0];
     for (const m of matches) {
       if (m.closingRank > best.closingRank) {
@@ -39,13 +61,11 @@ const getBestCutoffForCategory = (
     }
     return best;
   } else {
-    // A male/co-ed candidate is only eligible for Co-ed (General) seats.
     const coedMatch = matches.find(m => m.gender === "Co-ed");
     return coedMatch || null;
   }
 };
 
-// Helper function to evaluate admission chance based on rank and cutoffs
 const evaluateChance = (rankVal: number, cutoff2025: Cutoff, cutoff2024: Cutoff) => {
   let chance: "High" | "Moderate" | "Low" = "Low";
   let chancePercentage = 10;
@@ -73,39 +93,132 @@ const evaluateChance = (rankVal: number, cutoff2025: Cutoff, cutoff2024: Cutoff)
 
   return { chance, chancePercentage };
 };
-import { 
-  Compass, 
-  HelpCircle, 
-  Download, 
-  Bookmark, 
-  Check, 
-  SlidersHorizontal, 
-  ArrowRight,
-  TrendingUp,
-  AlertTriangle,
-  BadgePercent,
-  MapPin,
-  Building
-} from "lucide-react";
-import Link from "next/link";
-import { AuthGate } from "../../components/AuthGate";
- 
-export default function CollegePredictor() {
-  const { colleges, savePrediction, savedPredictions, user } = useApp();
- 
-  // Form State
-  const [inputType, setInputType] = useState<"ugeac_rank" | "bcece_rank" | "percentile">("ugeac_rank");
-  const [percentile, setPercentile] = useState<string>("");
-  const [urRank, setUrRank] = useState<number | "">(user?.percentile ? Math.round(convertPercentileToUR(user.percentile)) : "");
+
+// ==========================================
+// BCECE SPECIFIC HELPER FUNCTIONS
+// ==========================================
+const getBestBceceCutoff = (
+  collegeCode: string,
+  branchCode: string,
+  round: number,
+  category: string,
+  candidateGender: string
+): any | null => {
+  const matches = (bcece2025Cutoffs as any[]).filter(
+    c =>
+      c.collegeCode === collegeCode &&
+      c.branchCode === branchCode &&
+      c.round === round &&
+      c.category === category
+  );
+
+  if (matches.length === 0) {
+    return null;
+  }
+
+  if (candidateGender === "Female") {
+    let best = matches[0];
+    for (const m of matches) {
+      if (m.closingRank > best.closingRank) {
+        best = m;
+      }
+    }
+    return best;
+  } else {
+    const coedMatch = matches.find(m => m.gender === "Co-ed");
+    return coedMatch || null;
+  }
+};
+
+const evaluateBceceChance = (rankVal: number, closing2025: number) => {
+  let chance: "High" | "Moderate" | "Low" = "Low";
+  let chancePercentage = 10;
+
+  if (rankVal <= closing2025 * 0.90) {
+    chance = "High";
+    chancePercentage = Math.min(98, Math.round(98 - (rankVal / closing2025) * 15));
+  } else if (rankVal <= closing2025 * 1.02) {
+    chance = "Moderate";
+    chancePercentage = Math.round(75 - ((rankVal - closing2025 * 0.90) / (closing2025 * 0.12 + 1)) * 25);
+  } else if (rankVal <= closing2025 * 1.12) {
+    chance = "Low";
+    chancePercentage = Math.max(15, Math.round(45 - ((rankVal - closing2025 * 1.02) / (closing2025 * 0.10 + 1)) * 30));
+  } else {
+    chance = "Low";
+    chancePercentage = Math.max(5, Math.round(15 - (rankVal / closing2025) * 5));
+  }
+
+  return { chance, chancePercentage };
+};
+
+export default function UnifiedCollegePredictor() {
+  const { colleges: originalColleges, savePrediction, savedPredictions, user } = useApp();
+
+  // Mode state: 'ugeac' | 'bcece'
+  const [predictorMode, setPredictorMode] = useState<"ugeac" | "bcece">("ugeac");
+
+  // Dynamically inject Agricultural College if missing
+  const colleges = React.useMemo(() => {
+    const list = [...originalColleges];
+    if (!list.some(c => c.code === "CAE-ARA-BHOJPUR")) {
+      list.push({
+        id: "cae-ara-bhojpur",
+        name: "College of Agricultural Engineering, Ara, Bhojpur",
+        code: "CAE-ARA-BHOJPUR",
+        location: "Ara",
+        established: 2018,
+        nirf: 300,
+        averagePackage: 4.5,
+        highestPackage: 8,
+        tuitionFee: 10500,
+        hostelAvailable: true,
+        hostelFee: 12000,
+        website: "https://www.caeara.org",
+        description: "College of Agricultural Engineering, Ara, Bhojpur is a constituent college of Bihar Agricultural University, Sabour, Bhagalpur, established to offer professional education in agricultural engineering.",
+        campusSize: "25 Acres",
+        branches: ["AG"],
+        recruits: ["TCS", "Mahindra", "Escorts", "VST Tillers"],
+        image: "https://images.unsplash.com/photo-1595275372297-f51b446db67e?auto=format&fit=crop&w=600"
+      });
+    }
+    return list;
+  }, [originalColleges]);
+
+  // ==========================================
+  // SHARED & UGEAC FORM STATE
+  // ==========================================
+
+  const [urRank, setUrRank] = useState<number | "">("");
   const [categoryRank, setCategoryRank] = useState<number | "">("");
   const [rcgRank, setRcgRank] = useState<number | "">("");
   const [category, setCategory] = useState("UR");
   const [gender, setGender] = useState("Co-ed");
-  const [quota, setQuota] = useState("Home State");
   const [round, setRound] = useState<number>(1);
 
-  // Helper functions to auto-estimate and sync ranks
-  const handleUrRankChange = (val: number | "") => {
+  // Predictions output
+  const [predictions, setPredictions] = useState<any[]>([]);
+  const [hasPredicted, setHasPredicted] = useState(false);
+  const [filterChance, setFilterChance] = useState("High");
+  const [filterBranch, setFilterBranch] = useState("All");
+
+  // ==========================================
+  // RESET STATE ON MODE CHANGE
+  // ==========================================
+  useEffect(() => {
+    setPredictions([]);
+    setHasPredicted(false);
+    setUrRank("");
+    setCategoryRank("");
+    setRcgRank("");
+    setCategory("UR");
+    setGender("Co-ed");
+    setRound(1);
+    setFilterChance("High");
+    setFilterBranch("All");
+  }, [predictorMode]);
+
+  // Sync estimators for UGEAC
+  const handleUrRankChangeUgeac = (val: number | "") => {
     setUrRank(val);
     if (val !== "") {
       if (category !== "UR") {
@@ -120,16 +233,16 @@ export default function CollegePredictor() {
     }
   };
 
-  const handleCategoryChange = (newCat: string) => {
+  const handleCategoryChangeUgeac = (newCat: string) => {
     setCategory(newCat);
-    if (urRank !== "" && newCat !== "UR") {
-      setCategoryRank(Math.round(Number(urRank) / (categoryRatios[newCat] || 1.0)));
-    } else {
+    if (newCat === "UR") {
       setCategoryRank("");
+    } else if (urRank !== "") {
+      setCategoryRank(Math.round(Number(urRank) / (categoryRatios[newCat] || 1.0)));
     }
   };
 
-  const handleGenderChange = (newGender: string) => {
+  const handleGenderChangeUgeac = (newGender: string) => {
     setGender(newGender);
     if (newGender === "Female" && urRank !== "") {
       setRcgRank(Math.round(Number(urRank) / (categoryRatios["RCG"] || 1.0)));
@@ -137,81 +250,61 @@ export default function CollegePredictor() {
       setRcgRank("");
     }
   };
- 
-  // Output State
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [hasPredicted, setHasPredicted] = useState(false);
-  const [filterChance, setFilterChance] = useState("High");
-  const [filterBranch, setFilterBranch] = useState("All");
- 
-  const performPrediction = (
-    type: "percentile" | "ugeac_rank" | "bcece_rank",
-    pct: string | number | "",
-    urRk: number | "",
-    catRk: number | "",
-    rcgRk: number | "",
-    cat: string,
-    gen: string,
-    rnd: number
-  ) => {
+
+  // Sync inputs for BCECE
+  const handleCategoryChangeBcece = (newCat: string) => {
+    setCategory(newCat);
+    if (newCat === "UR") {
+      setCategoryRank("");
+    }
+  };
+
+  const handleGenderChangeBcece = (newGender: string) => {
+    setGender(newGender);
+    if (newGender !== "Female") {
+      setRcgRank("");
+    }
+  };
+
+  // ==========================================
+  // PREDICTION EXECUTION ENGINES
+  // ==========================================
+  const performUgeacPrediction = () => {
     let evaluatedUR = 0;
     let evaluatedCategory = 0;
     let evaluatedRCG = 0;
 
-    if (type === "percentile") {
-      const pctVal = Number(pct);
-      if (isNaN(pctVal) || pctVal <= 0 || pctVal > 100) {
-        alert("Please enter a valid percentile between 0 and 100");
+    const urVal = Number(urRank);
+    if (isNaN(urVal) || urVal <= 0) {
+      alert("Please enter a valid General UR rank");
+      return;
+    }
+    evaluatedUR = urVal;
+
+    if (category !== "UR") {
+      const catVal = Number(categoryRank);
+      if (isNaN(catVal) || catVal <= 0) {
+        alert(`Please enter a valid ${category} Category rank`);
         return;
       }
-      evaluatedUR = convertPercentileToUR(pctVal);
-      if (cat !== "UR") {
-        evaluatedCategory = Math.round(evaluatedUR / (categoryRatios[cat] || 1.0));
-      }
-      evaluatedRCG = Math.round(evaluatedUR / (categoryRatios["RCG"] || 1.0));
-    } else {
-      const urVal = Number(urRk);
-      if (isNaN(urVal) || urVal <= 0) {
-        alert("Please enter a valid General UR rank");
-        return;
-      }
-      evaluatedUR = urVal;
+      evaluatedCategory = catVal;
+    }
 
-      if (cat !== "UR") {
-        const catVal = Number(catRk);
-        if (isNaN(catVal) || catVal <= 0) {
-          alert(`Please enter a valid ${cat} Category rank`);
-          return;
-        }
-        evaluatedCategory = catVal;
-      }
-
-      if (gen === "Female" && rcgRk !== "") {
-        const rcgVal = Number(rcgRk);
-        if (!isNaN(rcgVal) && rcgVal > 0) {
-          evaluatedRCG = rcgVal;
-        }
-      }
-
-      // Convert BCECE to UGEAC equivalents
-      if (type === "bcece_rank") {
-        evaluatedUR = Math.round(evaluatedUR * 1.45);
-        if (cat !== "UR") {
-          evaluatedCategory = Math.round(evaluatedCategory * 1.45);
-        }
-        if (evaluatedRCG > 0) {
-          evaluatedRCG = Math.round(evaluatedRCG * 1.45);
-        }
+    if (gender === "Female" && rcgRank !== "") {
+      const rcgVal = Number(rcgRank);
+      if (!isNaN(rcgVal) && rcgVal > 0) {
+        evaluatedRCG = rcgVal;
       }
     }
+
+
 
     // Determine eligible categories
     const eligibleCategories = ["UR"];
-    if (cat !== "UR") {
-      eligibleCategories.push(cat);
+    if (category !== "UR") {
+      eligibleCategories.push(category);
     }
-    // RCG is eligible only for female candidates when category is not UR (or if category is RCG)
-    if (gen === "Female" && cat !== "UR" && evaluatedRCG > 0) {
+    if (gender === "Female" && category !== "UR" && evaluatedRCG > 0) {
       if (!eligibleCategories.includes("RCG")) {
         eligibleCategories.push("RCG");
       }
@@ -224,24 +317,22 @@ export default function CollegePredictor() {
         const quotaPredictions: any[] = [];
 
         eligibleCategories.forEach((quotaCategory) => {
-          const cutoff2025 = getBestCutoffForCategory(college.code, branchCode, 2025, rnd, quotaCategory, gen);
-          const cutoff2024 = getBestCutoffForCategory(college.code, branchCode, 2024, rnd, quotaCategory, gen);
+          const cutoff2025 = getBestCutoffForCategory(college.code, branchCode, 2025, round, quotaCategory, gender);
+          const cutoff2024 = getBestCutoffForCategory(college.code, branchCode, 2024, round, quotaCategory, gender);
 
-          // Skip if no match exists in either year
           if (!cutoff2025 && !cutoff2024) return;
 
-          const valid2025 = cutoff2025 || getEstimatedCutoff(college.code, branchCode, 2025, rnd, quotaCategory, gen);
-          const valid2024 = cutoff2024 || getEstimatedCutoff(college.code, branchCode, 2024, rnd, quotaCategory, gen);
+          const valid2025 = cutoff2025 || getEstimatedCutoff(college.code, branchCode, 2025, round, quotaCategory, gender);
+          const valid2024 = cutoff2024 || getEstimatedCutoff(college.code, branchCode, 2024, round, quotaCategory, gender);
 
-          // Extra guard: If candidate is Co-ed, they cannot compete for Female seats
-          if (gen === "Co-ed" && (valid2025.gender === "Female" || valid2024.gender === "Female")) {
+          if (gender === "Co-ed" && (valid2025.gender === "Female" || valid2024.gender === "Female")) {
             return;
           }
 
           let rankToUse = evaluatedUR;
           if (quotaCategory === "RCG" || valid2025.gender === "Female" || valid2024.gender === "Female") {
             rankToUse = evaluatedRCG;
-          } else if (quotaCategory === cat && cat !== "UR") {
+          } else if (quotaCategory === category && category !== "UR") {
             rankToUse = evaluatedCategory;
           }
 
@@ -257,10 +348,8 @@ export default function CollegePredictor() {
           });
         });
 
-        // If no quota predictions are valid, skip this branch option
         if (quotaPredictions.length === 0) return;
 
-        // Find the best chance among all eligible quotas
         let bestQuotaPred = quotaPredictions[0];
         const chancePriority: Record<string, number> = { High: 3, Moderate: 2, Low: 1 };
 
@@ -302,7 +391,6 @@ export default function CollegePredictor() {
     setPredictions(results);
     setHasPredicted(true);
 
-    // Auto-select the tab with predictions
     const hasHigh = results.some((r) => r.chance === "High");
     const hasMod = results.some((r) => r.chance === "Moderate");
     if (hasHigh) {
@@ -314,192 +402,157 @@ export default function CollegePredictor() {
     }
   };
 
-  // URL search parameter parsing effect
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const r = params.get("rank");
-      const c = params.get("category");
-      const p = params.get("percentile");
-      const t = params.get("type");
-      const g = params.get("gender") || "Co-ed";
-      const rd = params.get("round") ? Number(params.get("round")) : 1;
-      const rt = (params.get("rankType") as any) || "ur";
+  const performBcecePrediction = () => {
+    const urVal = Number(urRank);
+    if (isNaN(urVal) || urVal <= 0) {
+      alert("Please enter a valid General UR rank");
+      return;
+    }
 
-      let initialized = false;
-      let initType = inputType;
-      let initPercentile = percentile;
-      let initUrRank: number | "" = "";
-      let initCategoryRank: number | "" = "";
-      let initRcgRank: number | "" = "";
-      let initCategory = category;
-      let initGender = gender;
-      let initRound = round;
-
-      if (t === "percentile") {
-        setInputType("ugeac_rank");
-        initType = "ugeac_rank";
-        initialized = true;
-      } else if (t === "ugeac_rank" || t === "bcece_rank") {
-        setInputType(t);
-        initType = t;
-        initialized = true;
+    if (category !== "UR") {
+      const catVal = Number(categoryRank);
+      if (isNaN(catVal) || catVal <= 0) {
+        alert(`Please enter a valid ${category} Category rank`);
+        return;
       }
-      if (p) {
-        const pNum = Number(p);
-        const equivalentRank = convertPercentileToUR(pNum);
-        initUrRank = equivalentRank;
-        initialized = true;
+    }
+
+    if (gender === "Female" && rcgRank !== "") {
+      const rcgVal = Number(rcgRank);
+      if (isNaN(rcgVal) || rcgVal <= 0) {
+        alert("Please enter a valid RCG rank");
+        return;
       }
-      if (r) {
-        const rNum = Number(r);
-        initialized = true;
+    }
 
-        if (c) {
-          initCategory = c;
-        }
-        if (g) {
-          initGender = g;
-        }
+    // Determine eligible categories
+    const eligibleCategories = ["UR", "E-UR"];
+    if (category !== "UR") {
+      eligibleCategories.push(category);
+      if (category === "SC") eligibleCategories.push("E-SC");
+      if (category === "EBC") eligibleCategories.push("E-EBC");
+      if (category === "BC") eligibleCategories.push("E-BC");
+    }
+    if (gender === "Female" && rcgRank !== "") {
+      eligibleCategories.push("RCG");
+      eligibleCategories.push("E-RCG");
+    }
 
-        // Determine which ranks to set based on rankType and category
-        if (rt === "category" && initCategory !== "UR") {
-          initCategoryRank = rNum;
-          initUrRank = Math.round(rNum * (categoryRatios[initCategory] || 1.0));
-        } else {
-          initUrRank = rNum;
-          if (initCategory !== "UR") {
-            initCategoryRank = Math.round(rNum / (categoryRatios[initCategory] || 1.0));
+    const results: any[] = [];
+
+    colleges.forEach((college) => {
+      college.branches.forEach((branchCode) => {
+        const quotaPredictions: any[] = [];
+
+        eligibleCategories.forEach((quotaCategory) => {
+          const cutoff2025 = getBestBceceCutoff(college.code, branchCode, round, quotaCategory, gender);
+
+          if (!cutoff2025) return;
+
+          if (gender === "Co-ed" && cutoff2025.gender === "Female") {
+            return;
           }
-        }
 
-        if (initGender === "Female") {
-          initRcgRank = Math.round(Number(initUrRank) / (categoryRatios["RCG"] || 1.0));
-        }
-      }
-      if (c) {
-        setCategory(c);
-        initCategory = c;
-        initialized = true;
-      }
-      if (g) {
-        setGender(g);
-        initGender = g;
-      }
-      if (rd) {
-        setRound(rd);
-        initRound = rd;
-      }
+          let rankToUse = urVal;
+          if (quotaCategory === "RCG" || quotaCategory === "E-RCG") {
+            rankToUse = Number(rcgRank) || urVal;
+          } else if (quotaCategory !== "UR" && quotaCategory !== "E-UR") {
+            rankToUse = Number(categoryRank) || urVal;
+          }
 
-      // Sync state variables
-      if (initUrRank !== "") setUrRank(initUrRank);
-      if (initCategoryRank !== "") setCategoryRank(initCategoryRank);
-      if (initRcgRank !== "") setRcgRank(initRcgRank);
+          const { chance, chancePercentage } = evaluateBceceChance(rankToUse, cutoff2025.closingRank);
 
-      if (initialized && colleges.length > 0) {
-        setTimeout(() => {
-          performPrediction(
-            initType,
-            initPercentile,
-            initUrRank,
-            initCategoryRank,
-            initRcgRank,
-            initCategory,
-            initGender,
-            initRound
-          );
-        }, 150);
-      }
-    }
-  }, [colleges]);
+          quotaPredictions.push({
+            quotaCategory,
+            cutoff2025,
+            chance,
+            chancePercentage,
+            rankUsed: rankToUse
+          });
+        });
 
-  // Dynamic Real-time Rank Estimation calculations for the UI
-  const getUIEstimatedRanks = () => {
-    let estUR = 0;
-    if (inputType === "percentile") {
-      const pctVal = Number(percentile);
-      if (pctVal > 0 && pctVal <= 100) {
-        estUR = convertPercentileToUR(pctVal);
+        if (quotaPredictions.length === 0) return;
+
+        let bestQuotaPred = quotaPredictions[0];
+        const chancePriority: Record<string, number> = { High: 3, Moderate: 2, Low: 1 };
+
+        quotaPredictions.forEach((pred) => {
+          const currentBestPriority = chancePriority[bestQuotaPred.chance];
+          const newPriority = chancePriority[pred.chance];
+          if (newPriority > currentBestPriority) {
+            bestQuotaPred = pred;
+          } else if (newPriority === currentBestPriority) {
+            if (pred.chancePercentage > bestQuotaPred.chancePercentage) {
+              bestQuotaPred = pred;
+            }
+          }
+        });
+
+        results.push({
+          college,
+          branchCode,
+          branchName: localBranchNames[branchCode] || branchCode,
+          chance: bestQuotaPred.chance,
+          chancePercentage: bestQuotaPred.chancePercentage,
+          cutoff2025: bestQuotaPred.cutoff2025,
+          rankEntered: bestQuotaPred.rankUsed,
+          quotaCategory: bestQuotaPred.quotaCategory,
+          quotaPredictions
+        });
+      });
+    });
+
+    results.sort((a, b) => {
+      const chanceOrder: Record<string, number> = { High: 0, Moderate: 1, Low: 2 };
+      if (chanceOrder[a.chance] !== chanceOrder[b.chance]) {
+        return chanceOrder[a.chance] - chanceOrder[b.chance];
       }
+      return a.college.established - b.college.established;
+    });
+
+    setPredictions(results);
+    setHasPredicted(true);
+
+    const hasHigh = results.some((r) => r.chance === "High");
+    const hasMod = results.some((r) => r.chance === "Moderate");
+    if (hasHigh) {
+      setFilterChance("High");
+    } else if (hasMod) {
+      setFilterChance("Moderate");
     } else {
-      estUR = urRank !== "" ? Number(urRank) : 0;
+      setFilterChance("Low");
     }
- 
-    if (estUR === 0) return null;
- 
-    const equivUgeacUR = inputType === "bcece_rank" ? Math.round(estUR * 1.45) : estUR;
- 
-    return {
-      ur: estUR,
-      categoryRank: categoryRank !== "" ? Number(categoryRank) : Math.max(1, Math.round(estUR / (categoryRatios[category] || 1.0))),
-      rcgRank: rcgRank !== "" ? Number(rcgRank) : Math.max(1, Math.round(estUR / (categoryRatios["RCG"] || 1.0))),
-      equivUgeac: equivUgeacUR
-    };
   };
-
-  const uiRanks = getUIEstimatedRanks();
-
-  const categories = [
-    { code: "UR", name: "Unreserved (UR)" },
-    { code: "BC", name: "Backward Class (BC)" },
-    { code: "EBC", name: "Extremely Backward Class (EBC)" },
-    { code: "SC", name: "Scheduled Caste (SC)" },
-    { code: "ST", name: "Scheduled Tribe (ST)" },
-    { code: "EWS", name: "Economically Weaker Section (EWS)" },
-    { code: "RCG", name: "Reserved Category Girls (RCG)" }
-  ];
 
   const handlePredict = (e: React.FormEvent) => {
     e.preventDefault();
-    performPrediction(inputType, percentile, urRank, categoryRank, rcgRank, category, gender, round);
+    if (predictorMode === "ugeac") {
+      performUgeacPrediction();
+    } else {
+      performBcecePrediction();
+    }
   };
- 
+
   const handleSave = (pred: any) => {
+    const displayCategory = predictorMode === "bcece" ? `${category} (BCECE)` : category;
     savePrediction({
       collegeName: pred.college.name,
       collegeCode: pred.college.code,
       branchName: pred.branchName,
       branchCode: pred.branchCode,
-      category,
-      rank: pred.rankEntered,
+      category: displayCategory,
+      rank: Number(urRank),
       chance: pred.chance
     });
   };
- 
+
   const isBookmarked = (collegeCode: string, branchCode: string) => {
     return savedPredictions.some(
-      (p) => p.collegeCode === collegeCode && p.branchCode === branchCode && p.rank === urRank
+      (p) => p.collegeCode === collegeCode && p.branchCode === branchCode && p.rank === Number(urRank)
     );
   };
 
-  const sortBranchesCustom = (branches: string[]) => {
-    const customOrder: Record<string, number> = {
-      CSE: 1,
-      CE: 3,
-      ECE: 4,
-      EE: 5,
-      EEE: 6,
-      ME: 7
-    };
-
-    const getBranchPriority = (code: string): number => {
-      if (code === "CSE") return 1;
-      if (code.startsWith("CSE") || code.startsWith("ARTIFICIAL")) return 2;
-      if (customOrder[code] !== undefined) return customOrder[code];
-      return 100;
-    };
-
-    return [...branches].sort((a, b) => {
-      const priorityA = getBranchPriority(a);
-      const priorityB = getBranchPriority(b);
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
-      }
-      return a.localeCompare(b);
-    });
-  };
-
-  // Filter logic
+  // Filter Logic
   const filteredPredictions = predictions.filter((p) => {
     const matchChance = filterChance === "All" || p.chance === filterChance;
     const matchBranch = filterBranch === "All" || p.branchCode === filterBranch;
@@ -517,12 +570,32 @@ export default function CollegePredictor() {
     }
   };
 
-  // Extract unique branch options for filtering dropdown
   const uniqueBranches = Array.from(new Set(predictions.map((p) => p.branchCode)));
 
   const handlePrint = () => {
     window.print();
   };
+
+  const categoriesUgeac = [
+    { code: "UR", name: "Unreserved (UR)" },
+    { code: "BC", name: "Backward Class (BC)" },
+    { code: "EBC", name: "Extremely Backward Class (EBC)" },
+    { code: "SC", name: "Scheduled Caste (SC)" },
+    { code: "ST", name: "Scheduled Tribe (ST)" },
+    { code: "EWS", name: "Economically Weaker Section (EWS)" },
+    { code: "RCG", name: "Reserved Category Girls (RCG)" }
+  ];
+
+  const categoriesBcece = [
+    { code: "UR", name: "Unreserved (UR)" },
+    { code: "BC", name: "Backward Class (BC)" },
+    { code: "EBC", name: "Extremely Backward Class (EBC)" },
+    { code: "SC", name: "Scheduled Caste (SC)" },
+    { code: "ST", name: "Scheduled Tribe (ST)" },
+    { code: "EWS", name: "Economically Weaker Section (EWS)" },
+    { code: "DQ", name: "Disabled Quota (DQ)" },
+    { code: "SMQ", name: "Servicemen Quota (SMQ)" }
+  ];
 
   return (
     <AuthGate>
@@ -530,11 +603,9 @@ export default function CollegePredictor() {
         {/* Print Stylesheet */}
         <style dangerouslySetInnerHTML={{ __html: `
           @media print {
-            /* Hide navbar, footer, form, buttons, header descriptions, filters */
-            nav, footer, .no-print, button, select, input, .inline-flex, .bg-gradient-to-r, .text-center {
+            nav, footer, .no-print, button, select, input {
               display: none !important;
             }
-            
             body, .max-w-7xl, .lg\\:col-span-8, .grid, .lg\\:col-span-12 {
               display: block !important;
               width: 100% !important;
@@ -546,12 +617,9 @@ export default function CollegePredictor() {
               margin: 0 !important;
               padding: 0 !important;
             }
-
             .lg\\:col-span-4 {
               display: none !important;
             }
-
-            /* Optimized list layout for printing cards */
             .group {
               page-break-inside: avoid !important;
               border: 1px solid #cbd5e1 !important;
@@ -565,549 +633,493 @@ export default function CollegePredictor() {
               align-items: center !important;
               justify-content: space-between !important;
             }
-
             .group img {
               display: none !important;
             }
           }
         `}} />
 
-        {/* Print-only Official Header */}
+        {/* Print Header */}
         <div className="hidden print:block mb-6 border-b-2 border-slate-800 pb-4">
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-xl font-black text-slate-900 tracking-tight">BiharEduConnect</h1>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">Estimated Engineering Admission & Predictions Report</p>
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">
+                {predictorMode === "ugeac" ? "Official UGEAC Admission Predictions Report" : "Official BCECE Admission Predictions Report"}
+              </p>
             </div>
             <div className="text-right">
               <span className="text-[9px] text-gray-400 block font-bold uppercase">Counselling Session</span>
-              <strong className="text-sm font-extrabold text-slate-800 block">UGEAC/BCECE 2026</strong>
+              <strong className="text-sm font-extrabold text-slate-800 block">
+                {predictorMode === "ugeac" ? "UGEAC 2026" : "BCECE 2025 Cutoffs Base"}
+              </strong>
             </div>
           </div>
-          
-          {/* User Parameters Summary Box */}
           <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl grid grid-cols-4 gap-4 text-xs">
             <div>
-              <span className="text-[9px] text-gray-455 block font-bold uppercase">Input Merit Type</span>
-              <strong className="text-slate-800 font-extrabold">
-                {inputType === "ugeac_rank" ? "UGEAC State Rank" : "BCECE State Rank"}
-              </strong>
+              <span className="text-[9px] text-gray-400 block font-bold uppercase">General UR Rank</span>
+              <strong className="text-slate-800 font-extrabold">{urRank}</strong>
             </div>
             <div>
-              <span className="text-[9px] text-gray-455 block font-bold uppercase">General UR Rank</span>
-              <strong className="text-slate-800 font-extrabold">
-                {urRank}
-              </strong>
-            </div>
-            <div>
-              <span className="text-[9px] text-gray-455 block font-bold uppercase">Reservation Category</span>
+              <span className="text-[9px] text-gray-400 block font-bold uppercase">Category</span>
               <strong className="text-slate-800 font-extrabold">{category}</strong>
             </div>
             {category !== "UR" && (
               <div>
-                <span className="text-[9px] text-gray-455 block font-bold uppercase">{category} Rank</span>
-                <strong className="text-slate-800 font-extrabold">
-                  {categoryRank}
-                </strong>
+                <span className="text-[9px] text-gray-400 block font-bold uppercase">Category Rank</span>
+                <strong className="text-slate-800 font-extrabold">{categoryRank}</strong>
+              </div>
+            )}
+            {gender === "Female" && rcgRank !== "" && (
+              <div>
+                <span className="text-[9px] text-gray-400 block font-bold uppercase">RCG Rank</span>
+                <strong className="text-slate-800 font-extrabold">{rcgRank}</strong>
               </div>
             )}
           </div>
         </div>
-      {/* Page Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12 relative">
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 -z-10 h-[200px] w-[200px] rounded-full bg-[#FF9933]/5 blur-2xl"></div>
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FF9933]/10 border border-[#FF9933]/20 text-[#FF9933] text-xs font-bold uppercase tracking-wider mb-3">
-          <Compass className="w-3.5 h-3.5" />
-          {inputType === "bcece_rank" ? "BCECE Merit Predictor" : "UGEAC Merit Predictor"}
+
+        {/* Page Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10 relative no-print">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 -z-10 h-[200px] w-[200px] rounded-full bg-[#2563EB]/5 blur-2xl"></div>
+          
+          {/* Predictor Mode Tabs */}
+          <div className="inline-flex items-center gap-1.5 p-1 bg-slate-100/80 dark:bg-slate-900/80 border border-gray-250/20 dark:border-slate-800/30 rounded-2xl mb-6 no-print shadow-sm">
+            <button
+              onClick={() => setPredictorMode("ugeac")}
+              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
+                predictorMode === "ugeac"
+                  ? "bg-[#2563EB] text-white shadow-md shadow-blue-500/15"
+                  : "text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              UGEAC Predictor
+            </button>
+            <button
+              onClick={() => setPredictorMode("bcece")}
+              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
+                predictorMode === "bcece"
+                  ? "bg-[#138808] text-white shadow-md shadow-emerald-500/15"
+                  : "text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              BCECE Predictor
+            </button>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">
+            Bihar Engineering <br />
+            <span className="gradient-text-premium font-black">
+              {predictorMode === "ugeac" ? "UGEAC College Predictor" : "BCECE College Predictor"}
+            </span>
+          </h1>
+          <p className="mt-3.5 text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            {predictorMode === "ugeac"
+              ? "Enter your UGEAC state rank card details to discover government engineering colleges in Bihar."
+              : "Discover your chances of admission in government engineering and agricultural colleges based on official parsed BCECE ranks."}
+          </p>
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">
-          Bihar Engineering <br />
-          <span className="gradient-text-premium font-black">
-            College Predictor
-          </span>
-        </h1>
-        <p className="mt-3.5 text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          Enter your JEE Main / BCECE rank details below to discover which government engineering colleges and branches you can secure in Bihar.
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Form Panel */}
-        <div className="lg:col-span-4">
-          <div className="glass-card rounded-2xl p-6 shadow-lg lg:sticky lg:top-24 transition-all duration-300">
-            <h2 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-slate-850">
-              <SlidersHorizontal className="w-4.5 h-4.5 text-[#2563EB]" />
-              Predictor Parameters
-            </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column: Parameter Form */}
+          <div className="lg:col-span-4 no-print">
+            <div className="glass-card rounded-2xl p-6 shadow-lg lg:sticky lg:top-24 transition-all duration-300">
+              <h2 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-slate-850">
+                <SlidersHorizontal className={`w-4.5 h-4.5 ${predictorMode === "ugeac" ? "text-[#2563EB]" : "text-[#138808]"}`} />
+                Predictor Parameters
+              </h2>
 
-            <form onSubmit={handlePredict} className="space-y-4">
-              {/* 2. Rank Input Fields */}
-              <div className="space-y-3.5">
-                <div>
-                  <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                    {inputType === "ugeac_rank" ? "UGEAC" : "BCECE"} General (UR) Rank <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={urRank}
-                    onChange={(e) => handleUrRankChange(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder="e.g. 1500"
-                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
-                  />
-                </div>
-
-                {category !== "UR" && (
+              <form onSubmit={handlePredict} className="space-y-4">
+                {/* 1. Ranks Entry */}
+                <div className="space-y-3.5">
+                  {/* General Rank input (Common, but labeled differently) */}
                   <div>
-                    <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                      {category} Category Rank <span className="text-red-500">*</span>
+                    <label className="block text-[10px] font-extrabold text-gray-550 uppercase tracking-wider mb-1.5">
+                      {predictorMode === "ugeac" ? "UGEAC General (UR) Rank" : "BCECE General (UR) Rank"}{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       required
                       min="1"
-                      value={categoryRank}
-                      onChange={(e) => setCategoryRank(e.target.value === "" ? "" : Number(e.target.value))}
-                      placeholder="e.g. 350"
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
+                      value={urRank}
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        if (predictorMode === "ugeac") {
+                          handleUrRankChangeUgeac(val);
+                        } else {
+                          setUrRank(val);
+                        }
+                      }}
+                      placeholder="e.g. 1500"
+                      className={`w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:ring-1 transition-all font-semibold placeholder-slate-400 text-xs ${
+                        predictorMode === "ugeac" ? "focus:border-[#2563EB] focus:ring-[#2563EB]" : "focus:border-[#138808] focus:ring-[#138808]"
+                      }`}
                     />
                   </div>
-                )}
 
-                {gender === "Female" && (
-                  <div>
-                    <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5 flex justify-between">
-                      <span>RCG Rank (Female Rank)</span>
-                      <span className="text-[9px] text-[#138808] font-bold">Optional</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={rcgRank}
-                      onChange={(e) => setRcgRank(e.target.value === "" ? "" : Number(e.target.value))}
-                      placeholder="e.g. 500"
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold placeholder-slate-400 text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* 2.5 Real-time dynamic rank estimator preview panel */}
-              {uiRanks && (
-                <div className="p-3.5 bg-gradient-to-br from-blue-500/5 to-[#138808]/5 border border-[#2563EB]/15 dark:border-slate-800/80 rounded-2xl space-y-2.5 text-left transition-all duration-300 shadow-inner">
-                  <span className="text-[9px] text-[#2563EB] dark:text-[#FF9933] font-extrabold uppercase tracking-widest block flex items-center gap-1">
-                    🎯 Rank Profile Summary
-                  </span>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
-                      <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
-                        General (UR)
-                      </span>
-                      <strong className="text-xs font-black text-slate-800 dark:text-white mt-0.5 block">
-                        {uiRanks.ur.toLocaleString("en-IN")}
-                      </strong>
+                  {/* Category Rank input (Shared, shown if category != UR) */}
+                  {category !== "UR" && (
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
+                        {category} Category Rank <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        value={categoryRank}
+                        onChange={(e) => setCategoryRank(e.target.value === "" ? "" : Number(e.target.value))}
+                        placeholder={`Enter your ${category} rank`}
+                        className={`w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:ring-1 transition-all font-semibold placeholder-slate-400 text-xs ${
+                          predictorMode === "ugeac" ? "focus:border-[#2563EB] focus:ring-[#2563EB]" : "focus:border-[#138808] focus:ring-[#138808]"
+                        }`}
+                      />
                     </div>
-                    {category !== "UR" && (
-                      <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
-                        <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
-                          {category} Rank
-                        </span>
-                        <strong className="text-xs font-black text-slate-800 dark:text-white mt-0.5 block">
-                          {uiRanks.categoryRank.toLocaleString("en-IN")}
-                        </strong>
-                      </div>
-                    )}
-                    {gender === "Female" && (
-                      <div className="p-2 bg-white/70 dark:bg-slate-950/80 border border-gray-100 dark:border-slate-850 rounded-xl">
-                        <span className="text-[9px] text-gray-455 block font-bold uppercase tracking-wider">
-                          RCG Rank
-                        </span>
-                        <strong className="text-xs font-black text-slate-800 dark:text-white mt-0.5 block">
-                          {uiRanks.rcgRank.toLocaleString("en-IN")}
-                        </strong>
-                      </div>
-                    )}
+                  )}
+
+                  {/* RCG Rank (Female Rank, conditionally optional) */}
+                  {gender === "Female" && (
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5 flex justify-between">
+                        <span>RCG Rank (Female Rank)</span>
+                        <span className="text-[9px] text-[#138808] font-bold">Optional</span>
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={rcgRank}
+                        onChange={(e) => setRcgRank(e.target.value === "" ? "" : Number(e.target.value))}
+                        placeholder="e.g. 500"
+                        className={`w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:ring-1 transition-all font-semibold placeholder-slate-400 text-xs ${
+                          predictorMode === "ugeac" ? "focus:border-[#2563EB] focus:ring-[#2563EB]" : "focus:border-[#138808] focus:ring-[#138808]"
+                        }`}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Category Select */}
+                <div>
+                  <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
+                    Reservation Category
+                  </label>
+                  <select
+                    value={category}
+                    onChange={(e) => {
+                      if (predictorMode === "ugeac") {
+                        handleCategoryChangeUgeac(e.target.value);
+                      } else {
+                        handleCategoryChangeBcece(e.target.value);
+                      }
+                    }}
+                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-slate-300 transition-all font-semibold cursor-pointer text-xs"
+                  >
+                    {(predictorMode === "ugeac" ? categoriesUgeac : categoriesBcece).map((cat) => (
+                      <option key={cat.code} value={cat.code}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 4. Gender Pool */}
+                <div>
+                  <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
+                    Gender Pool
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {["Co-ed", "Female"].map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => {
+                          if (predictorMode === "ugeac") {
+                            handleGenderChangeUgeac(g);
+                          } else {
+                            handleGenderChangeBcece(g);
+                          }
+                        }}
+                        className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+                          gender === g
+                            ? (predictorMode === "ugeac" 
+                                ? "bg-[#2563EB] border-[#2563EB] text-white shadow-md shadow-blue-500/10" 
+                                : "bg-[#138808] border-[#138808] text-white shadow-md shadow-emerald-500/10")
+                            : "border-gray-200 dark:border-slate-800 text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-gray-50/20 dark:bg-slate-950/20"
+                        }`}
+                      >
+                        {g === "Female" ? "Female (RCG Pool)" : "Co-ed Pool"}
+                      </button>
+                    ))}
                   </div>
-                  <p className="text-[9px] text-gray-400 mt-1 leading-normal font-medium">
-                    {inputType === "bcece_rank"
-                      ? "* Equivalent UGEAC ranks calculated using historical BCECE vacancy and seat conversion ratios."
-                      : "* Ratios calibrated using real UGEAC state merit samples: BC (2.72), EBC (3.54), SC (12.94), EWS (4.59), ST (45.0), RCG (7.89)."}
-                  </p>
                 </div>
-              )}
 
-              {/* 3. Category select */}
-              <div>
-                <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                  Reservation Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/60 dark:text-white rounded-xl focus:outline-none focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] transition-all font-semibold cursor-pointer text-xs"
+                {/* 5. Counselling Round */}
+                <div>
+                  <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
+                    Counselling Round
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[1, 2].map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setRound(r)}
+                        className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+                          round === r
+                            ? "bg-slate-800 dark:bg-slate-200 border-slate-800 dark:border-slate-200 text-white dark:text-slate-900 shadow-sm"
+                            : "border-gray-250 dark:border-slate-800 text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-gray-50/20 dark:bg-slate-950/20"
+                        }`}
+                      >
+                        Round {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  className="w-full mt-4 py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] hover:scale-[1.01] transition-all duration-300 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer btn-premium animate-bounce-subtle"
                 >
-                  {categories.map((cat) => (
-                    <option key={cat.code} value={cat.code}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  Discover Admission Chances
+                  <ArrowRight className="w-4.5 h-4.5" />
+                </button>
+              </form>
+            </div>
+          </div>
 
-              {/* 4. Gender pool select */}
-              <div>
-                <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                  Gender Pool
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {["Co-ed", "Female"].map((g) => (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => handleGenderChange(g)}
-                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
-                        gender === g
-                          ? "bg-[#2563EB] border-[#2563EB] text-white shadow-md shadow-blue-500/10"
-                          : "border-gray-200 dark:border-slate-800 text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-gray-50/20 dark:bg-slate-950/20"
-                      }`}
-                    >
-                      {g === "Female" ? "Female (RCG Pool)" : "Co-ed Pool"}
-                    </button>
-                  ))}
+          {/* Right Column: Prediction Results */}
+          <div className="lg:col-span-8">
+            {!hasPredicted ? (
+              <div className="glass-card rounded-2xl p-10 py-16 text-center border-dashed border-2 border-gray-200 dark:border-slate-850 flex flex-col items-center justify-center shadow-md h-full min-h-[400px]">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 animate-pulse ${
+                  predictorMode === "ugeac" ? "bg-[#2563EB]/10" : "bg-[#138808]/10"
+                }`}>
+                  <Compass className={`w-8 h-8 ${predictorMode === "ugeac" ? "text-[#2563EB]" : "text-[#138808]"}`} />
                 </div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Awaiting Input Parameters</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-sm leading-relaxed">
+                  Enter your General (UR) and Category rank details in the parameter panel to discover available B.Tech branches and agriculture seats matching your ranks.
+                </p>
               </div>
-
-              {/* 5. Counselling Round selection */}
-              <div>
-                <label className="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-1.5">
-                  Counselling Round
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[1, 2].map((r) => (
+            ) : (
+              <div className="space-y-6">
+                {/* Result Summary Banner */}
+                <div className={`glass-card rounded-2xl p-5 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print bg-white/40 dark:bg-slate-950/40 border-l-4 ${
+                  predictorMode === "ugeac" ? "border-l-[#2563EB]" : "border-l-[#138808]"
+                }`}>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white">
+                      Found {predictions.length} Available Choices
+                    </h3>
+                    <p className="text-[11px] text-gray-400 font-semibold mt-1">
+                      {predictorMode === "ugeac"
+                        ? `Results calculated based on multi-year 2024 & 2025 UGEAC rounds.`
+                        : `Results calculated based on official Round ${round} cutoffs from BCECE 2025.`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRound(r)}
-                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
-                        round === r
-                          ? "bg-[#138808] border-[#138808] text-white shadow-md shadow-emerald-500/10"
-                          : "border-gray-250 dark:border-slate-800 text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-gray-50/20 dark:bg-slate-950/20"
-                      }`}
+                      onClick={handlePrint}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 transition cursor-pointer"
                     >
-                      Round {r}
+                      <Download className="w-4 h-4" />
+                      Print / Save PDF
                     </button>
-                  ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Predict Button */}
-              <button
-                type="submit"
-                className="w-full py-3 bg-gradient-to-r from-[#FF9933] to-[#138808] text-white rounded-xl font-bold hover:shadow-lg shadow-[#138808]/15 transform hover:-translate-y-0.5 transition-all duration-350 flex items-center justify-center gap-2 cursor-pointer mt-6 btn-premium"
-              >
-                Predict My Colleges
-                <ArrowRight className="w-4.5 h-4.5" />
-              </button>
-            </form>
+                {/* Filter Tabs */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2 border-b border-gray-150/40 dark:border-slate-800/50 no-print">
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+                    {["High", "Moderate", "Low", "All"].map((lvl) => {
+                      const count = lvl === "All" 
+                        ? predictions.length 
+                        : predictions.filter(p => p.chance === lvl).length;
+                      return (
+                        <button
+                          key={lvl}
+                          onClick={() => setFilterChance(lvl)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 cursor-pointer whitespace-nowrap ${
+                            filterChance === lvl
+                              ? "bg-white dark:bg-slate-950 text-[#138808] shadow-sm"
+                              : "text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
+                          }`}
+                        >
+                          {lvl} Chance ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                      Branch:
+                    </label>
+                    <select
+                      value={filterBranch}
+                      onChange={(e) => setFilterBranch(e.target.value)}
+                      className="px-3 py-1.5 border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 dark:text-white rounded-lg text-xs font-bold focus:outline-none cursor-pointer w-full sm:w-auto"
+                    >
+                      <option value="All">All Branches</option>
+                      {uniqueBranches.map((code) => (
+                        <option key={code} value={code}>
+                          {localBranchNames[code] || code}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Results Listing */}
+                {filteredPredictions.length === 0 ? (
+                  <div className="glass-card rounded-2xl p-10 text-center flex flex-col items-center justify-center border border-gray-150 dark:border-slate-800 shadow-md">
+                    <AlertTriangle className="w-10 h-10 text-amber-500 mb-3" />
+                    <h4 className="font-bold text-slate-800 dark:text-white">No Matching Choices Found</h4>
+                    <p className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
+                      No options matching a "{filterChance}" chance were found in this selection. Try selecting "All" or adjusting input ranks.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredPredictions.map((pred, i) => {
+                      const college = pred.college;
+                      const hasSaved = isBookmarked(college.code, pred.branchCode);
+                      return (
+                        <div
+                          key={`${college.code}-${pred.branchCode}-${i}`}
+                          className="group glass-card rounded-2xl border border-gray-200/50 dark:border-slate-850/80 hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-5 p-5 bg-white/20 dark:bg-slate-950/20"
+                        >
+                          <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                            pred.chance === "High" ? "bg-emerald-500" : pred.chance === "Moderate" ? "bg-amber-500" : "bg-slate-350 dark:bg-slate-700"
+                          }`} />
+
+                          <div className="flex gap-4 items-center pl-1">
+                            {college.image && (
+                              <img
+                                src={college.image}
+                                alt={college.name}
+                                className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-slate-800 hidden sm:block shadow-sm group-hover:scale-105 transition duration-500"
+                              />
+                            )}
+                            <div className="space-y-1.5">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/30">
+                                {localBranchNames[pred.branchCode] || pred.branchCode}
+                              </span>
+                              <h3 className="text-sm font-black text-slate-850 dark:text-white leading-snug group-hover:text-[#138808] transition duration-300">
+                                {college.name}
+                              </h3>
+                              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[11px] text-gray-550 font-bold">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                                  {college.location}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Building className="w-3.5 h-3.5 text-gray-400" />
+                                  Est. {college.established}
+                                </span>
+                              </div>
+
+                              {/* Quotas breakdown chips on card */}
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {pred.quotaPredictions?.map((qp: any, qIdx: number) => (
+                                  <span
+                                    key={qIdx}
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${
+                                      qp.quotaCategory === pred.quotaCategory 
+                                        ? (predictorMode === "ugeac" ? "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/25" : "bg-[#138808]/10 text-[#138808] border-[#138808]/25")
+                                        : "bg-slate-50 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-800"
+                                    }`}
+                                    title={`Rank used: ${qp.rankUsed} | 2025 Closing: ${qp.cutoff2025.closingRank}`}
+                                  >
+                                    <span className="font-extrabold uppercase">
+                                      {qp.quotaCategory}{qp.cutoff2025.gender === "Female" ? " (FEMALE)" : ""}:
+                                    </span>
+                                    <span>{qp.chance} ({qp.chancePercentage}%)</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Chance & Cutoff details area */}
+                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-4 sm:gap-2.5 border-t sm:border-t-0 pt-4 sm:pt-0 border-gray-100 dark:border-slate-850 shrink-0">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${getChanceBadge(
+                                  pred.chance
+                                )}`}
+                              >
+                                {pred.chance} Chance
+                              </span>
+                              <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                                {pred.chancePercentage}%
+                              </span>
+                            </div>
+
+                            {/* Cutoff Details */}
+                            {predictorMode === "ugeac" ? (
+                              <div className="text-[11px] text-gray-550 dark:text-gray-450 font-bold text-left sm:text-right">
+                                Closing Cutoffs ({pred.quotaCategory}):
+                                <div className="flex gap-2 text-xs mt-0.5 font-bold text-slate-700 dark:text-gray-300 justify-start sm:justify-end">
+                                  <span>2025: <strong className="text-slate-900 dark:text-white">{pred.cutoff2025.closingRank}</strong></span>
+                                  <span className="text-gray-300 dark:text-slate-800">|</span>
+                                  <span>2024: <strong className="text-slate-900 dark:text-white">{pred.cutoff2024.closingRank}</strong></span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-gray-550 dark:text-gray-450 font-bold text-left sm:text-right">
+                                2025 Closing:{" "}
+                                <strong className="text-slate-800 dark:text-slate-200 font-black">
+                                  {pred.cutoff2025.closingRank.toLocaleString("en-IN")}
+                                </strong>{" "}
+                                <span className="text-[10px] text-gray-400 block sm:inline sm:ml-1 font-semibold">
+                                  (via {pred.quotaCategory})
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-2 no-print self-end sm:self-auto">
+                              <button
+                                onClick={() => handleSave(pred)}
+                                disabled={hasSaved}
+                                className={`p-2 rounded-xl border transition-all duration-300 cursor-pointer ${
+                                  hasSaved
+                                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                                    : "border-gray-200 dark:border-slate-800 text-gray-400 hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-850"
+                                }`}
+                                title={hasSaved ? "Prediction Saved to Dashboard" : "Bookmark Prediction"}
+                              >
+                                {hasSaved ? <Check className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                              </button>
+                              <Link
+                                href={`/colleges/${college.id}`}
+                                className="p-2 border border-gray-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-gray-400 hover:text-[#2563EB] rounded-xl transition cursor-pointer"
+                                title="View College Details"
+                              >
+                                <Building className="w-4 h-4" />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right Column: Output predictions */}
-        <div className="lg:col-span-8">
-          {/* Unpredicted placeholder state */}
-          {!hasPredicted ? (
-            <div className="h-full min-h-[400px] glass-card border border-dashed border-gray-300 dark:border-slate-800 rounded-3xl flex flex-col items-center justify-center p-8 text-center transition-all duration-300 relative overflow-hidden">
-              <div className="absolute inset-0 bg-radial-gradient from-blue-500/5 via-transparent to-transparent -z-10"></div>
-              <div className="p-4 bg-white dark:bg-slate-850 rounded-2xl shadow-lg mb-4 text-[#FF9933] border border-gray-100 dark:border-slate-800 animate-float">
-                <Compass className="w-10 h-10" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">Awaiting Prediction Inputs</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm mt-2 leading-relaxed">
-                Enter your ranks, reservation codes, and gender preferences on the left panel, and click predict to load engineering options.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6 animate-fade-in">
-              {/* Output Controls Bar */}
-              <div className="glass-card rounded-2xl p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="text-left">
-                  <h3 className="font-extrabold text-slate-800 dark:text-white text-base">
-                    Showing {filteredPredictions.length} of {predictions.length} Options
-                  </h3>
-                  <p className="text-[10px] text-gray-450 font-semibold mt-0.5">
-                    Results calculated based on multi-year 2024 & 2025 UGEAC rounds.
-                  </p>
-                </div>
-
-                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                  {/* Export Options */}
-                  <div className="w-full sm:w-auto no-print">
-                    <button
-                      onClick={handlePrint}
-                      className="w-full sm:w-auto px-4 py-2 border border-gray-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/60 hover:bg-[#2563EB] hover:text-white dark:hover:bg-[#2563EB] hover:border-transparent text-gray-600 dark:text-gray-300 cursor-pointer transition-all duration-300 flex items-center justify-center gap-1.5 text-xs font-extrabold shadow-sm hover:shadow-md hover-lift"
-                      title="Print or Save PDF Report"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Download PDF Report</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* TABS CONTAINER */}
-              <div className="flex p-1 bg-slate-100/50 dark:bg-slate-950/60 rounded-2xl border border-gray-250/60 dark:border-slate-800/80 w-full mb-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterChance("High");
-                    setFilterBranch("All");
-                  }}
-                  className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
-                    filterChance === "High"
-                      ? "bg-emerald-500 text-white shadow-md"
-                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  🟢 High Chance
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                    filterChance === "High" ? "bg-white/20 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
-                  }`}>
-                    {predictions.filter((p) => p.chance === "High").length}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterChance("Moderate");
-                    setFilterBranch("All");
-                  }}
-                  className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
-                    filterChance === "Moderate"
-                      ? "bg-amber-500 text-white shadow-md"
-                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  🟡 Moderate Chance
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                    filterChance === "Moderate" ? "bg-white/20 text-white" : "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
-                  }`}>
-                    {predictions.filter((p) => p.chance === "Moderate").length}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterChance("Low");
-                    setFilterBranch("All");
-                  }}
-                  className={`flex-1 py-3 px-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 ${
-                    filterChance === "Low"
-                      ? "bg-slate-500 text-white shadow-md"
-                      : "text-gray-500 hover:text-slate-800 dark:hover:text-white"
-                  }`}
-                >
-                  ⚫ Low Chance
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                    filterChance === "Low" ? "bg-white/20 text-white" : "bg-slate-550/10 text-slate-500 dark:text-slate-400 font-bold"
-                  }`}>
-                    {predictions.filter((p) => p.chance === "Low").length}
-                  </span>
-                </button>
-              </div>
-
-              {/* Branch Sub-Tabs Pill Bar */}
-              {predictions.length > 0 && (
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin flex-nowrap mb-1">
-                  <button
-                    type="button"
-                    onClick={() => setFilterBranch("All")}
-                    className={`px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all duration-300 cursor-pointer ${
-                      filterBranch === "All"
-                        ? "bg-[#2563EB] text-white shadow-sm"
-                        : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    All Branches ({predictions.filter((p) => p.chance === filterChance).length})
-                  </button>
-                  {sortBranchesCustom(
-                    Array.from(new Set(predictions.filter((p) => p.chance === filterChance).map((p) => p.branchCode)))
-                  ).map((br) => {
-                    const count = predictions.filter((p) => p.chance === filterChance && p.branchCode === br).length;
-                    
-                    // User friendly labels for major branch codes
-                    const getBranchLabel = (code: string) => {
-                      const mapping: Record<string, string> = {
-                        CSE: "Computer Science (CSE)",
-                        "CSE(AI)": "CSE (AI)",
-                        "CSE(AI&ML)": "CSE (AI & ML)",
-                        "CSE (AI &ML)": "CSE (AI & ML)",
-                        "CSE(CYBER SECURITY)": "CSE (Cyber)",
-                        "CSE (CYBER SECURITY)": "CSE (Cyber)",
-                        "CSE(DATA SCIENCE)": "CSE (Data Sci)",
-                        "CSE (DATA SCIENCE)": "CSE (Data Sci)",
-                        "CSE-IOT": "CSE (IoT)",
-                        "CSE (IOT)": "CSE (IoT)",
-                        "CSE(IOT)": "CSE (IoT)",
-                        CE: "Civil",
-                        ME: "Mechanical",
-                        EE: "Electrical",
-                        ECE: "Electronics",
-                        EEE: "Electrical & Electronics",
-                        IT: "IT"
-                      };
-                      return mapping[code] || code;
-                    };
-
-                    return (
-                      <button
-                        key={br}
-                        type="button"
-                        onClick={() => setFilterBranch(br)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all duration-300 cursor-pointer ${
-                          filterBranch === br
-                            ? "bg-[#2563EB] text-white shadow-sm"
-                            : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
-                        }`}
-                      >
-                        {getBranchLabel(br)} ({count})
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {filteredPredictions.length === 0 ? (
-                <div className="p-12 text-center glass-card border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm">
-                  <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                  <h4 className="font-bold text-slate-800 dark:text-white">No Predictions in this tab</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Try switching tabs or adjusting branch filters to explore other options.
-                  </p>
-                </div>
-              ) : (
-                /* Predictions List Grid */
-                <div className="grid grid-cols-1 gap-4">
-                  {filteredPredictions.map((pred, index) => {
-                    const saved = isBookmarked(pred.college.code, pred.branchCode);
-                    return (
-                      <div
-                        key={`${pred.college.code}-${pred.branchCode}-${index}`}
-                        className="glass-card rounded-2xl p-5 shadow-sm hover-lift flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden group"
-                      >
-                        {/* Colored Left-border indicator based on chance */}
-                        <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
-                          pred.chance === "High" ? "bg-emerald-500" : pred.chance === "Moderate" ? "bg-amber-500" : "bg-slate-350 dark:bg-slate-700"
-                        }`} />
-
-                        {/* College and Course info */}
-                        <div className="flex gap-4 items-start pl-1">
-                          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-850 text-slate-600 dark:text-gray-350 mt-1 shadow-inner shrink-0 hidden sm:block border border-gray-100 dark:border-slate-800">
-                            <Building className="w-5 h-5 text-[#2563EB]" />
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-gray-400 font-extrabold tracking-widest uppercase flex items-center gap-1.5">
-                              <MapPin className="w-3.5 h-3.5 text-[#138808]" />
-                              {pred.college.location}, Bihar (Estd {pred.college.established})
-                            </span>
-                            <h4 className="font-extrabold text-base text-slate-800 dark:text-white leading-snug group-hover:text-[#2563EB] transition-colors duration-300">
-                              {pred.college.name}
-                            </h4>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
-                              Branch: <span className="text-[#FF9933]">{pred.branchName} ({pred.branchCode})</span>
-                            </p>
-                            {/* Quota Predictions Chip list */}
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {pred.quotaPredictions?.map((qp: any, qIdx: number) => (
-                                <span
-                                  key={qIdx}
-                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${
-                                    qp.quotaCategory === pred.quotaCategory 
-                                      ? "bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/25" 
-                                      : "bg-slate-50 dark:bg-slate-900 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-800"
-                                  }`}
-                                  title={`Rank used: ${qp.rankUsed} | 2025 Closing: ${qp.cutoff2025.closingRank}`}
-                                >
-                                  <span className="font-extrabold uppercase">
-                                    {qp.quotaCategory}{qp.cutoff2025.gender === "Female" ? " (FEMALE)" : ""}:
-                                  </span>
-                                  <span>{qp.chance} ({qp.chancePercentage}%)</span>
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
- 
-                        {/* Cutoffs & Probability Details */}
-                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 self-stretch md:self-auto justify-between md:justify-end shrink-0 border-t border-dashed border-gray-150 dark:border-slate-800 pt-3 md:pt-0 md:border-0 mt-2 md:mt-0">
-                          {/* Historical cutoffs */}
-                          <div className="text-left md:text-right space-y-1">
-                            <div className="text-[9px] text-gray-400 uppercase tracking-wider font-extrabold">
-                              Closing Cutoffs ({pred.quotaCategory})
-                            </div>
-                            <div className="flex gap-3 text-xs font-bold text-slate-700 dark:text-gray-300">
-                              <span>2025: <strong className="text-slate-900 dark:text-white">{pred.cutoff2025.closingRank}</strong></span>
-                              <span className="text-gray-300 dark:text-slate-800">|</span>
-                              <span>2024: <strong className="text-slate-900 dark:text-white">{pred.cutoff2024.closingRank}</strong></span>
-                            </div>
-                          </div>
-
-                          {/* Admission Odds Gauge */}
-                          <div className="flex flex-col items-center">
-                            <div className={`px-2.5 py-0.5 rounded-full border text-[10px] font-extrabold ${getChanceBadge(pred.chance)}`}>
-                              {pred.chance} Chance
-                            </div>
-                            <div className="w-16 bg-gray-100 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  pred.chance === "High" ? "bg-emerald-500" : pred.chance === "Moderate" ? "bg-amber-500" : "bg-slate-400"
-                                }`}
-                                style={{ width: `${pred.chancePercentage}%` }}
-                              />
-                            </div>
-                            <span className="text-[9px] text-gray-400 font-semibold mt-1">
-                              Prob: {pred.chancePercentage}%
-                            </span>
-                          </div>
-
-                          {/* Action Items */}
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleSave(pred)}
-                              className={`p-2.5 rounded-xl border transition-all duration-300 cursor-pointer ${
-                                saved
-                                  ? "bg-[#138808]/15 border-[#138808]/20 text-[#138808]"
-                                  : "border-gray-250 dark:border-slate-800 text-gray-400 hover:text-[#138808] hover:bg-slate-50 dark:hover:bg-slate-900 bg-gray-50/20 dark:bg-slate-950/10"
-                              }`}
-                              title={saved ? "Prediction Saved" : "Bookmark Prediction"}
-                            >
-                              {saved ? <Check className="w-4.5 h-4.5" /> : <Bookmark className="w-4.5 h-4.5 animate-pulse-subtle" />}
-                            </button>
-                            <Link
-                              href={`/colleges/${pred.college.id}`}
-                              className="p-2.5 border border-gray-250 dark:border-slate-800 text-gray-400 hover:text-[#2563EB] hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl bg-gray-50/20 dark:bg-slate-950/10 hover-lift"
-                              title="View College Details"
-                            >
-                              <TrendingUp className="w-4.5 h-4.5 rotate-45" />
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
+        {/* Community Discussion */}
+        <div className="mt-16 no-print">
+          <CommunityComments pageId="predictor" title="Predictor Discussion" />
         </div>
       </div>
-
-      {/* Community Discussion */}
-      <div className="px-4 sm:px-6 md:px-8 max-w-5xl mx-auto">
-        <CommunityComments pageId="predictor" title="Predictor Discussion" />
-      </div>
-    </div>
-  </AuthGate>
-);
+    </AuthGate>
+  );
 }
-

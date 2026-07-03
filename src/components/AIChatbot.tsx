@@ -16,6 +16,7 @@ import {
   Milestone,
   CheckCircle2
 } from "lucide-react";
+import { convertPercentileToUR } from "../data/cutoffs";
 
 interface Message {
   id: string;
@@ -39,12 +40,15 @@ export const AIChatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const quickReplies = [
-    { text: "UGEAC 2026 important dates?", icon: Milestone },
-    { text: "Documents needed for DV?", icon: FileText },
-    { text: "Choice filling strategy tips?", icon: CheckCircle2 },
-    { text: "Which college for rank 500?", icon: HelpCircle }
-  ];
+  const quickReplies = React.useMemo(() => {
+    const rankToUse = user?.percentile ? Math.round(convertPercentileToUR(user.percentile)) : 1500;
+    return [
+      { text: "UGEAC 2026 important dates?", icon: Milestone },
+      { text: "Documents needed for DV?", icon: FileText },
+      { text: "Choice filling strategy tips?", icon: CheckCircle2 },
+      { text: `Which college can I get with rank ${rankToUse}?`, icon: HelpCircle }
+    ];
+  }, [user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

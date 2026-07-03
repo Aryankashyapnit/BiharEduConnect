@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { AuthGate } from "../../components/AuthGate";
 import { convertPercentileToUR, categoryRatios } from "../../data/cutoffs";
+import { branchNames, collegesData } from "../../data/colleges";
 import { 
   Laptop, 
   Plus, 
@@ -92,6 +93,12 @@ export default function ChoiceSimulatorPage() {
     const col = colleges.find(c => c.id === simCollegeId);
     if (!col) return;
     
+    // Check if the selected college offers this branch
+    if (!col.branches.includes(simBranchName)) {
+      alert(`${col.name} mein ${simBranchName} branch available nahi hai. Bulk add button use karein ya is college ki valid branch select karein.`);
+      return;
+    }
+    
     // Check if choice already exists
     const exists = choices.some(c => c.collegeCode === col.code && c.branchCode === simBranchName);
     if (exists) {
@@ -109,6 +116,58 @@ export default function ChoiceSimulatorPage() {
     };
     
     saveToLocalStorage([...choices, newChoice]);
+  };
+
+  const addBranchToAllColleges = () => {
+    if (!simBranchName) return;
+
+    // Filter and find GECs that offer this branch
+    // Sort colleges according to their natural order in collegesData (which is top-tier to low-tier)
+    const sortedColleges = [...colleges].sort((a, b) => {
+      const idxA = collegesData.findIndex(c => c.id === a.id);
+      const idxB = collegesData.findIndex(c => c.id === b.id);
+      return idxA - idxB;
+    });
+
+    // The first 38 colleges in collegesData are the 38 GECs of Bihar
+    const gecColleges = sortedColleges.filter(col => {
+      const idx = collegesData.findIndex(c => c.id === col.id);
+      return idx >= 0 && idx < 38;
+    });
+
+    const matchingColleges = gecColleges.filter(col => col.branches.includes(simBranchName));
+
+    if (matchingColleges.length === 0) {
+      alert(`Government engineering colleges mein ye branch (${simBranchName}) available nahi hai.`);
+      return;
+    }
+
+    const newChoicesList = [...choices];
+    let addedCount = 0;
+
+    matchingColleges.forEach(col => {
+      const exists = newChoicesList.some(c => c.collegeCode === col.code && c.branchCode === simBranchName);
+      if (!exists) {
+        const newChoice: Choice = {
+          id: `choice-${col.code}-${simBranchName}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          collegeName: col.name,
+          collegeCode: col.code,
+          branchName: simBranchName,
+          branchCode: simBranchName,
+          avgPackage: col.averagePackage || 4.5
+        };
+        newChoicesList.push(newChoice);
+        addedCount++;
+      }
+    });
+
+    if (addedCount === 0) {
+      alert(`Sabhi colleges jo ${simBranchName} offer karte hain, pehle se hi aapki list mein hain.`);
+      return;
+    }
+
+    saveToLocalStorage(newChoicesList);
+    alert(`Aapki list mein ${simBranchName} branch sabhi top colleges se start hokar low colleges tak (total ${addedCount} colleges) successfully add kar di gayi hai!`);
   };
 
   const deleteChoice = (id: string) => {
@@ -238,7 +297,7 @@ export default function ChoiceSimulatorPage() {
         const r2 = getChoiceClosingRank(choices[j]);
         // If a choice placed higher (choice i) has a much larger closing rank (meaning it is significantly easier to get)
         // than a choice placed lower (choice j).
-        if (r1 > r2 + threshold) {
+        if (r1 > r2 + threshold && choices[i].avgPackage < choices[j].avgPackage) {
           blockingErrors.push({
             index1: i,
             index2: j,
@@ -315,6 +374,141 @@ export default function ChoiceSimulatorPage() {
     return "Shabash! 🌟 Aapki choice sheet bilkul perfect hai. Aapne premium dream preferences ko upar rakha hai, beech me realistic matches hain, aur bottom me safe backup colleges hain. Is tarike se aapko aapke rank ke hisab se best available college mil jayega!";
   };
 
+  const generateBestPreferenceSheet = () => {
+    if (!colleges || colleges.length === 0) {
+      alert("Colleges database not loaded yet.");
+      return;
+    }
+
+    const rank = Number(rankInput);
+    if (isNaN(rank) || rank <= 0) {
+      alert("Please enter a valid General Rank first!");
+      return;
+    }
+
+    interface OptionWithCutoff {
+      collegeName: string;
+      collegeCode: string;
+      branchCode: string;
+      avgPackage: number;
+      closingRank: number;
+    }
+
+    const options: OptionWithCutoff[] = [];
+
+    colleges.forEach(col => {
+      col.branches.forEach(branch => {
+        const ratio = categoryRatios[categoryInput] || 1.0;
+        let closingRank = 2000;
+
+        if (cutoffs && cutoffs.length > 0) {
+          // Look for 2025 Round 1 match first
+          let match = cutoffs.find(
+            c => c.collegeCode === col.code && 
+                 c.branchCode === branch && 
+                 c.year === 2025 && 
+                 c.round === 1 && 
+                 c.category === categoryInput
+          );
+          
+          if (!match) {
+            // Fallback to 2024 Round 1 match
+            match = cutoffs.find(
+              c => c.collegeCode === col.code && 
+                   c.branchCode === branch && 
+                   c.year === 2024 && 
+                   c.round === 1 && 
+                   c.category === categoryInput
+            );
+          }
+
+          if (match) {
+            closingRank = match.closingRank;
+          } else {
+            const baseRanks: Record<string, number> = {
+              "MIT-MUZAFFARPUR": 240,
+              "BCE-BHAGALPUR": 450,
+              "BCE-BAKHTIYARPUR": 680,
+              "GCE-GAYA": 850,
+              "DCE-DARBHANGA": 920,
+              "NCE-CHANDI": 980,
+              "MCE-MOTIHARI": 1200,
+              "GEC-JEHANABAD": 2200,
+              "GEC-MUNGER": 2250
+            };
+            const base = baseRanks[col.code] || 1500;
+            closingRank = Math.round(base / ratio);
+          }
+        } else {
+          const baseRanks: Record<string, number> = {
+            "MIT-MUZAFFARPUR": 240,
+            "BCE-BHAGALPUR": 450,
+            "BCE-BAKHTIYARPUR": 680,
+            "GCE-GAYA": 850,
+            "DCE-DARBHANGA": 920,
+            "NCE-CHANDI": 980,
+            "MCE-MOTIHARI": 1200,
+            "GEC-JEHANABAD": 2200,
+            "GEC-MUNGER": 2250
+          };
+          const base = baseRanks[col.code] || 1500;
+          closingRank = Math.round(base / ratio);
+        }
+
+        options.push({
+          collegeName: col.name,
+          collegeCode: col.code,
+          branchCode: branch,
+          avgPackage: col.averagePackage || 4.5,
+          closingRank
+        });
+      });
+    });
+
+    const ratio = categoryRatios[categoryInput] || 1.0;
+    const candidateCategoryRank = Math.round(rank / ratio);
+
+    // Sort all option combinations by closing rank ascending (most competitive first)
+    options.sort((a, b) => a.closingRank - b.closingRank);
+
+    // Group combinations relative to candidate's category rank
+    const dreams = options.filter(opt => opt.closingRank < candidateCategoryRank * 0.85);
+    const realistics = options.filter(opt => opt.closingRank >= candidateCategoryRank * 0.85 && opt.closingRank <= candidateCategoryRank * 1.35);
+    const safeties = options.filter(opt => opt.closingRank > candidateCategoryRank * 1.35);
+
+    // Pick dreams: up to 30 dreams (closest to candidate's rank for realistic dream odds)
+    const filteredDreams = dreams
+      .filter(d => d.closingRank >= candidateCategoryRank * 0.01)
+      .slice(-30);
+    
+    const finalDreams = filteredDreams.length > 0 ? filteredDreams : dreams.slice(-30);
+
+    // Pick realistics: up to 45
+    const finalRealistics = realistics.slice(0, 45);
+
+    // Pick safeties: up to 45
+    const finalSafeties = safeties.slice(0, 45);
+
+    const combinedList = [...finalDreams, ...finalRealistics, ...finalSafeties];
+
+    const generatedChoices: Choice[] = combinedList.map((opt, idx) => ({
+      id: `choice-gen-${idx}-${Date.now()}`,
+      collegeName: opt.collegeName,
+      collegeCode: opt.collegeCode,
+      branchName: opt.branchCode,
+      branchCode: opt.branchCode,
+      avgPackage: opt.avgPackage
+    }));
+
+    if (generatedChoices.length === 0) {
+      alert("No suitable choices could be generated for your rank. Try adjusting your rank value.");
+      return;
+    }
+
+    saveToLocalStorage(generatedChoices);
+    alert(`Aapki rank #${rank} (${categoryInput}) ke hisab se perfect preference sheet generate kar di gayi hai! Top preferences me dreams hain, middle me realistic matches, aur bottom me safety GECs hain.`);
+  };
+
   return (
     <AuthGate>
       {/* Styles for print styling */}
@@ -361,9 +555,24 @@ export default function ChoiceSimulatorPage() {
                 <h3 className="text-md font-black text-slate-800 dark:text-white flex items-center gap-2">
                   <Laptop className="w-5 h-5 text-[#2563EB]" /> Choice Entry Sheet
                 </h3>
-                <span className="text-[10px] bg-slate-100 dark:bg-slate-800/80 text-gray-500 dark:text-gray-400 px-2.5 py-0.5 rounded-full font-bold border border-slate-200/50 dark:border-slate-700/50">
-                  {choices.length} choices listed
-                </span>
+                <div className="flex items-center gap-2">
+                  {choices.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Kya aap sach me sabhi preferences ko clear karna chahte hain?")) {
+                          saveToLocalStorage([]);
+                        }
+                      }}
+                      className="text-[10px] text-red-500 hover:text-red-650 font-bold px-2 py-0.5 rounded-lg border border-red-500/10 hover:bg-red-500/5 transition-all cursor-pointer"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                  <span className="text-[10px] bg-slate-100 dark:bg-slate-800/80 text-gray-500 dark:text-gray-400 px-2.5 py-0.5 rounded-full font-bold border border-slate-200/50 dark:border-slate-700/50">
+                    {choices.length} choices listed
+                  </span>
+                </div>
               </div>
 
               {/* Add choice Form */}
@@ -391,7 +600,7 @@ export default function ChoiceSimulatorPage() {
                   </select>
                 </div>
 
-                <div className="sm:col-span-4">
+                <div className="sm:col-span-6">
                   <label className="block text-[9px] font-extrabold text-gray-400 dark:text-slate-550 uppercase tracking-widest mb-1.5">Select Branch</label>
                   <select
                     value={simBranchName}
@@ -400,20 +609,49 @@ export default function ChoiceSimulatorPage() {
                   >
                     {(() => {
                       const selectedCol = colleges.find(c => c.id === simCollegeId);
-                      return selectedCol 
-                        ? selectedCol.branches.map((b) => <option key={b} value={b}>{b}</option>)
-                        : <option value="CSE">CSE</option>;
+                      const currentBranches = selectedCol ? selectedCol.branches : [];
+                      
+                      // Get all unique branches across all colleges
+                      const allBranches = Array.from(
+                        new Set(colleges.flatMap(c => c.branches))
+                      ).sort();
+                      
+                      const otherBranches = allBranches.filter(b => !currentBranches.includes(b));
+                      
+                      return (
+                        <>
+                          <optgroup label={selectedCol ? `Available in ${selectedCol.code}` : "Available in Selected College"}>
+                            {currentBranches.map((b) => (
+                              <option key={b} value={b}>{b} - {branchNames[b] || b}</option>
+                            ))}
+                          </optgroup>
+                          {otherBranches.length > 0 && (
+                            <optgroup label="Other Branches (All Colleges)">
+                              {otherBranches.map((b) => (
+                                <option key={b} value={b}>{b} - {branchNames[b] || b}</option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </>
+                      );
                     })()}
                   </select>
                 </div>
 
-                <div className="sm:col-span-2 flex items-end">
+                <div className="sm:col-span-12 flex flex-col sm:flex-row gap-2 mt-2">
                   <button
                     type="button"
                     onClick={addChoice}
-                    className="w-full py-2 bg-gradient-to-r from-[#2563EB] to-[#1d4ed8] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white rounded-xl text-xs font-bold transition-all hover:shadow-md hover:shadow-[#2563EB]/15 cursor-pointer flex items-center justify-center gap-1 group"
+                    className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white rounded-xl text-xs font-bold transition-all hover:shadow-sm cursor-pointer flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-750 group"
                   >
-                    <Plus className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" /> Add
+                    <Plus className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" /> Add Selected College
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addBranchToAllColleges}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#1d4ed8] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white rounded-xl text-xs font-bold transition-all hover:shadow-md hover:shadow-[#2563EB]/15 cursor-pointer flex items-center justify-center gap-1.5 group"
+                  >
+                    <Sparkles className="w-4 h-4 text-white group-hover:rotate-12 transition-transform duration-300 animate-pulse" /> Add {simBranchName} to All 38 Colleges (Top to Low)
                   </button>
                 </div>
               </div>
@@ -568,6 +806,16 @@ export default function ChoiceSimulatorPage() {
                   </select>
                 </div>
               </div>
+
+              {/* Auto-generate preference list */}
+              <button
+                type="button"
+                onClick={generateBestPreferenceSheet}
+                className="w-full mt-4 py-2.5 bg-gradient-to-r from-[#2563EB] to-[#138808] hover:scale-[1.01] transition-all duration-300 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 cursor-pointer group"
+              >
+                <Sparkles className="w-4 h-4 text-white group-hover:rotate-12 transition-transform duration-300" />
+                Auto-Generate Best Choices
+              </button>
             </div>
 
             {/* 2. AI Strength Analysis Health Meter */}
@@ -709,7 +957,9 @@ export default function ChoiceSimulatorPage() {
                 <td className="px-4 py-2.5 border-r border-slate-350 text-center font-bold">{i + 1}</td>
                 <td className="px-4 py-2.5 border-r border-slate-350 font-bold text-center">{c.collegeCode}</td>
                 <td className="px-4 py-2.5 border-r border-slate-350 font-semibold text-slate-900">{c.collegeName}</td>
-                <td className="px-4 py-2.5 border-r border-slate-350 font-bold text-[#FF9933]">{c.branchCode}</td>
+                <td className="px-4 py-2.5 border-r border-slate-350 font-bold text-[#FF9933]">
+                  {branchNames[c.branchCode] || c.branchCode}
+                </td>
                 <td className="px-4 py-2.5 text-center font-semibold text-slate-600">{categoryInput}</td>
               </tr>
             ))}

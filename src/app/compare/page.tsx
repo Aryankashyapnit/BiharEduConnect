@@ -251,9 +251,27 @@ export default function CompareTools() {
                     <Calendar className="w-4.5 h-4.5 text-[#FF9933] shrink-0" />
                     Estd Year
                   </td>
-                  <td className="py-4 px-5 font-bold text-slate-900 dark:text-white border-l border-gray-250/20 dark:border-slate-800/20">{college1Obj?.established}</td>
-                  <td className="py-4 px-5 font-bold text-slate-900 dark:text-white border-l border-gray-250/20 dark:border-slate-800/20">{college2Obj?.established}</td>
-                  <td className="py-4 px-5 font-bold text-slate-900 dark:text-white border-l border-gray-250/20 dark:border-slate-800/20">{college3Obj?.established}</td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-left">
+                    {college1Obj ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-gray-250 border border-slate-200/40 dark:border-slate-700/50">
+                        📅 {college1Obj.established}
+                      </span>
+                    ) : "-"}
+                  </td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-left">
+                    {college2Obj ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-gray-250 border border-slate-200/40 dark:border-slate-700/50">
+                        📅 {college2Obj.established}
+                      </span>
+                    ) : "-"}
+                  </td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-left">
+                    {college3Obj ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-gray-250 border border-slate-200/40 dark:border-slate-700/50">
+                        📅 {college3Obj.established}
+                      </span>
+                    ) : "-"}
+                  </td>
                 </tr>
                 {/* Location */}
                 <tr className="hover:bg-slate-500/5 transition-colors duration-250">
@@ -299,14 +317,35 @@ export default function CompareTools() {
                     <TrendingUp className="w-4.5 h-4.5 text-[#138808] shrink-0" />
                     Average Placements
                   </td>
-                  <td className="py-4 px-5 text-[#138808] dark:text-[#22c55e] font-black border-l border-gray-250/20 dark:border-slate-800/20 text-base">
-                    {college1Obj?.averagePackage.toFixed(2)} LPA
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college1Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="text-[#138808] dark:text-[#22c55e] font-black text-base">{college1Obj.averagePackage.toFixed(2)} LPA</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#138808] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college1Obj.averagePackage / 15) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
                   </td>
-                  <td className="py-4 px-5 text-[#138808] dark:text-[#22c55e] font-black border-l border-gray-250/20 dark:border-slate-800/20 text-base">
-                    {college2Obj?.averagePackage.toFixed(2)} LPA
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college2Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="text-[#138808] dark:text-[#22c55e] font-black text-base">{college2Obj.averagePackage.toFixed(2)} LPA</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#138808] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college2Obj.averagePackage / 15) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
                   </td>
-                  <td className="py-4 px-5 text-[#138808] dark:text-[#22c55e] font-black border-l border-gray-250/20 dark:border-slate-800/20 text-base">
-                    {college3Obj?.averagePackage.toFixed(2)} LPA
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college3Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="text-[#138808] dark:text-[#22c55e] font-black text-base">{college3Obj.averagePackage.toFixed(2)} LPA</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#138808] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college3Obj.averagePackage / 15) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
                   </td>
                 </tr>
                 {/* Highest Placement Package */}
@@ -315,14 +354,35 @@ export default function CompareTools() {
                     <TrendingUp className="w-4.5 h-4.5 text-[#2563EB] shrink-0" />
                     Highest Placements
                   </td>
-                  <td className="py-4 px-5 text-[#2563EB] dark:text-[#60a5fa] font-black border-l border-gray-250/20 dark:border-slate-800/20 text-base">
-                    {college1Obj?.highestPackage.toFixed(2)} LPA
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college1Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="text-[#2563EB] dark:text-[#60a5fa] font-black text-base">{college1Obj.highestPackage.toFixed(2)} LPA</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#2563EB] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college1Obj.highestPackage / 30) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
                   </td>
-                  <td className="py-4 px-5 text-[#2563EB] dark:text-[#60a5fa] font-black border-l border-gray-250/20 dark:border-slate-800/20 text-base">
-                    {college2Obj?.highestPackage.toFixed(2)} LPA
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college2Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="text-[#2563EB] dark:text-[#60a5fa] font-black text-base">{college2Obj.highestPackage.toFixed(2)} LPA</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#2563EB] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college2Obj.highestPackage / 30) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
                   </td>
-                  <td className="py-4 px-5 text-[#2563EB] dark:text-[#60a5fa] font-black border-l border-gray-250/20 dark:border-slate-800/20 text-base">
-                    {college3Obj?.highestPackage.toFixed(2)} LPA
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college3Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="text-[#2563EB] dark:text-[#60a5fa] font-black text-base">{college3Obj.highestPackage.toFixed(2)} LPA</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#2563EB] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college3Obj.highestPackage / 30) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
                   </td>
                 </tr>
                 {/* Annual Tuition Fees */}
@@ -331,9 +391,36 @@ export default function CompareTools() {
                     <DollarSign className="w-4.5 h-4.5 text-[#FF9933] shrink-0" />
                     Annual Tuition Fee
                   </td>
-                  <td className="py-4 px-5 font-black text-slate-850 dark:text-gray-150 border-l border-gray-250/20 dark:border-slate-800/20">₹{college1Obj?.tuitionFee.toLocaleString()}</td>
-                  <td className="py-4 px-5 font-black text-slate-850 dark:text-gray-150 border-l border-gray-250/20 dark:border-slate-800/20">₹{college2Obj?.tuitionFee.toLocaleString()}</td>
-                  <td className="py-4 px-5 font-black text-slate-850 dark:text-gray-150 border-l border-gray-250/20 dark:border-slate-800/20">₹{college3Obj?.tuitionFee.toLocaleString()}</td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college1Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="font-black text-slate-850 dark:text-gray-150">₹{college1Obj.tuitionFee.toLocaleString()}</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#FF9933] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college1Obj.tuitionFee / 15000) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
+                  </td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college2Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="font-black text-slate-850 dark:text-gray-150">₹{college2Obj.tuitionFee.toLocaleString()}</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#FF9933] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college2Obj.tuitionFee / 15000) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
+                  </td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20">
+                    {college3Obj ? (
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <span className="font-black text-slate-850 dark:text-gray-150">₹{college3Obj.tuitionFee.toLocaleString()}</span>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-[#FF9933] h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college3Obj.tuitionFee / 15000) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : "-"}
+                  </td>
                 </tr>
                 {/* Hostel Fees */}
                 <tr className="hover:bg-slate-500/5 transition-colors duration-250">
@@ -342,13 +429,46 @@ export default function CompareTools() {
                     Hostel Fee (Annual)
                   </td>
                   <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-slate-800 dark:text-gray-300">
-                    {college1Obj?.hostelAvailable ? `₹${college1Obj.hostelFee.toLocaleString()}` : <span className="text-gray-400 text-xs font-semibold">No Hostel</span>}
+                    {college1Obj ? (
+                      college1Obj.hostelAvailable ? (
+                        <div className="flex flex-col gap-1.5 text-left">
+                          <span className="font-bold text-slate-800 dark:text-gray-205">₹{college1Obj.hostelFee.toLocaleString()}</span>
+                          <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-[#FF9933]/80 h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college1Obj.hostelFee / 18000) * 100)}%` }} />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-450 text-xs font-semibold">No Hostel</span>
+                      )
+                    ) : "-"}
                   </td>
                   <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-slate-800 dark:text-gray-300">
-                    {college2Obj?.hostelAvailable ? `₹${college2Obj.hostelFee.toLocaleString()}` : <span className="text-gray-400 text-xs font-semibold">No Hostel</span>}
+                    {college2Obj ? (
+                      college2Obj.hostelAvailable ? (
+                        <div className="flex flex-col gap-1.5 text-left">
+                          <span className="font-bold text-slate-800 dark:text-gray-205">₹{college2Obj.hostelFee.toLocaleString()}</span>
+                          <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-[#FF9933]/80 h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college2Obj.hostelFee / 18000) * 100)}%` }} />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-450 text-xs font-semibold">No Hostel</span>
+                      )
+                    ) : "-"}
                   </td>
                   <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-slate-800 dark:text-gray-300">
-                    {college3Obj?.hostelAvailable ? `₹${college3Obj.hostelFee.toLocaleString()}` : <span className="text-gray-400 text-xs font-semibold">No Hostel</span>}
+                    {college3Obj ? (
+                      college3Obj.hostelAvailable ? (
+                        <div className="flex flex-col gap-1.5 text-left">
+                          <span className="font-bold text-slate-800 dark:text-gray-205">₹{college3Obj.hostelFee.toLocaleString()}</span>
+                          <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-[#FF9933]/80 h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (college3Obj.hostelFee / 18000) * 100)}%` }} />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-450 text-xs font-semibold">No Hostel</span>
+                      )
+                    ) : "-"}
                   </td>
                 </tr>
                 {/* Campus size */}
@@ -357,9 +477,27 @@ export default function CompareTools() {
                     <Layers className="w-4.5 h-4.5 text-gray-400 shrink-0" />
                     Campus Area
                   </td>
-                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-slate-800 dark:text-gray-300">{college1Obj?.campusSize}</td>
-                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-slate-800 dark:text-gray-300">{college2Obj?.campusSize}</td>
-                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-slate-800 dark:text-gray-300">{college3Obj?.campusSize}</td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-left">
+                    {college1Obj ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-gray-250 border border-slate-200/40 dark:border-slate-700/50">
+                        🌳 {college1Obj.campusSize}
+                      </span>
+                    ) : "-"}
+                  </td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-left">
+                    {college2Obj ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-gray-250 border border-slate-200/40 dark:border-slate-700/50">
+                        🌳 {college2Obj.campusSize}
+                      </span>
+                    ) : "-"}
+                  </td>
+                  <td className="py-4 px-5 border-l border-gray-250/20 dark:border-slate-800/20 text-left">
+                    {college3Obj ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-gray-250 border border-slate-200/40 dark:border-slate-700/50">
+                        🌳 {college3Obj.campusSize}
+                      </span>
+                    ) : "-"}
+                  </td>
                 </tr>
                 {/* Total Course Count */}
                 <tr className="hover:bg-slate-500/5 transition-colors duration-250">

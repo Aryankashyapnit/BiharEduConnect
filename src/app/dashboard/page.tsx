@@ -754,11 +754,37 @@ export default function StudentDashboard() {
               <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
                 <div className="shrink-0 relative">
                   {/* Glowing Gauge */}
-                  <div className="w-28 h-28 rounded-full border-[10px] border-slate-100 dark:border-slate-800 flex items-center justify-center relative shadow-inner bg-white dark:bg-slate-950">
-                    <svg className="absolute inset-0 w-full h-full -rotate-90 drop-shadow-[0_0_8px_rgba(19,136,8,0.5)]">
-                      <circle cx="50%" cy="50%" r="41%" className="stroke-[#138808] transition-all duration-1000 ease-out" strokeWidth="8" fill="transparent" strokeDasharray={`${readinessScore * 2.57} 257`} strokeLinecap="round" />
+                  <div className="w-28 h-28 rounded-full flex items-center justify-center relative shadow-inner bg-white dark:bg-slate-950">
+                    <svg className="absolute inset-0 w-full h-full -rotate-90">
+                      <circle
+                        cx="56"
+                        cy="56"
+                        r="46"
+                        stroke="rgba(226, 232, 240, 0.4)"
+                        strokeWidth="8"
+                        fill="transparent"
+                      />
+                      <circle
+                        cx="56"
+                        cy="56"
+                        r="46"
+                        stroke="url(#readinessGradient)"
+                        strokeWidth="8"
+                        fill="transparent"
+                        strokeDasharray="289"
+                        strokeDashoffset={289 - (289 * readinessScore) / 100}
+                        strokeLinecap="round"
+                        className="transition-all duration-1000 ease-out drop-shadow-[0_0_6px_rgba(19,136,8,0.4)]"
+                      />
+                      <defs>
+                        <linearGradient id="readinessGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#138808" />
+                          <stop offset="50%" stopColor="#22c55e" />
+                          <stop offset="100%" stopColor="#06b6d4" />
+                        </linearGradient>
+                      </defs>
                     </svg>
-                    <span className="text-3xl font-black text-slate-800 dark:text-white">{readinessScore}%</span>
+                    <span className="text-2xl font-black text-slate-800 dark:text-white z-10">{readinessScore}%</span>
                   </div>
                   {readinessScore === 100 && (
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center animate-bounce shadow-lg border-2 border-white dark:border-slate-900">

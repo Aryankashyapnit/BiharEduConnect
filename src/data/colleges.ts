@@ -70,8 +70,9 @@ export const collegesData: College[] = [
     "description": "Bhagalpur College of Engineering (BCE) is one of the oldest state engineering colleges in Bihar. It has a strong legacy of producing exceptional civil, mechanical, electrical, and computer science engineers.",
     "campusSize": "50 Acres",
     "branches": [
-      "ME",
       "CE",
+      "ME",
+      "MC",
       "EE",
       "ECE",
       "CSE"
@@ -130,7 +131,7 @@ export const collegesData: College[] = [
     "description": "Nalanda College of Engineering (NCE) is located in Chandi near the historic ruins of Nalanda. The institution emphasizes research, discipline, and outstanding technical expertise.",
     "campusSize": "38 Acres",
     "branches": [
-      "CSE(AI&ML)",
+      "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
       "EEE",
       "ME",
       "CE",
@@ -164,9 +165,10 @@ export const collegesData: College[] = [
       "CSE",
       "EEE",
       "ME",
-      "CSE(CYBER SECURITY)",
+      "MC",
       "CE",
-      "FIRE TECHNOLOGY & SAFETY"
+      "FIRE TECHNOLOGY & SAFETY",
+      "CSE(CYBER SECURITY)"
     ],
     "recruits": [
       "TCS",
@@ -193,10 +195,11 @@ export const collegesData: College[] = [
     "campusSize": "25 Acres",
     "branches": [
       "CE",
+      "CSE",
       "EEE",
       "ME",
-      "CSE-IOT",
-      "CSE",
+      "MC",
+      "CSE(IOT)",
       "FIRE TECHNOLOGY & SAFETY"
     ],
     "recruits": [
@@ -227,6 +230,7 @@ export const collegesData: College[] = [
       "EEE",
       "ME",
       "CE",
+      "CE(COMPUTER APPLICATION)",
       "CSE(AI)"
     ],
     "recruits": [
@@ -288,7 +292,7 @@ export const collegesData: College[] = [
       "CSE",
       "EEE",
       "ME",
-      "EE(VLSI)",
+      "ELECTRONICS ENGG. (VLSI DESIGN & TECHNOLOGY)",
       "MINING ENGG."
     ],
     "recruits": [
@@ -349,7 +353,9 @@ export const collegesData: College[] = [
       "CE",
       "CSE",
       "EE",
-      "ME"
+      "ME",
+      "CE(COMPUTER APPLICATION)",
+      "CSE(AI&ML)"
     ],
     "recruits": [
       "TCS",
@@ -379,7 +385,9 @@ export const collegesData: College[] = [
       "CSE",
       "EEE",
       "ME",
-      "3D ANIMATION & GRAPHICS"
+      "3D ANIMATION & GRAPHICS",
+      "CSE(AI&ML)",
+      "CE(COMPUTER APPLICATION)"
     ],
     "recruits": [
       "TCS",
@@ -410,7 +418,7 @@ export const collegesData: College[] = [
       "EEE",
       "ME",
       "MECHANICAL &SMART MANUFACTURING",
-      "EE(VLSI)"
+      "ELECTRONICS ENGG. (VLSI DESIGN & TECHNOLOGY)"
     ],
     "recruits": [
       "TCS",
@@ -439,9 +447,10 @@ export const collegesData: College[] = [
       "CE",
       "EE",
       "ME",
-      "CSE(AI)",
+      "MC",
       "ECE",
       "CSE",
+      "CSE(AI)",
       "MECHATRONICS ENGG."
     ],
     "recruits": [
@@ -470,6 +479,7 @@ export const collegesData: College[] = [
     "branches": [
       "CE",
       "EE",
+      "ME",
       "ECE",
       "CSE",
       "CSE(DATA SCIENCE)"
@@ -501,8 +511,9 @@ export const collegesData: College[] = [
       "CE",
       "EE",
       "ME",
-      "CSE(AI)",
+      "MC",
       "ECE",
+      "CSE(AI)",
       "CSE"
     ],
     "recruits": [
@@ -563,9 +574,12 @@ export const collegesData: College[] = [
       "CE",
       "EE",
       "ME",
-      "CSE-IOT",
+      "MC",
       "ECE",
-      "CSE"
+      "CSE",
+      "ECE(ACT)",
+      "FOOD TECHNOLOGY AND MANAGEMENT",
+      "CSE-IOT"
     ],
     "recruits": [
       "TCS",
@@ -654,6 +668,7 @@ export const collegesData: College[] = [
     "campusSize": "20 Acres",
     "branches": [
       "CE",
+      "ME",
       "EE",
       "CSE",
       "ECE"
@@ -685,9 +700,10 @@ export const collegesData: College[] = [
       "CE",
       "ME",
       "EE",
-      "CSE",
+      "CSE(IOT&CYBER SECURITY INCLUDING BLOCK CHAIN TECHNOLOGY)",
       "AERONAUTICAL ENGG.",
-      "EE(VLSI)"
+      "ELECTRONICS ENGG. (VLSI DESIGN & TECHNOLOGY)",
+      "CSE(AI)"
     ],
     "recruits": [
       "TCS",
@@ -717,9 +733,9 @@ export const collegesData: College[] = [
       "EE",
       "ME",
       "ECE",
-      "CSE",
+      "CSE(IOT)",
       "CSE(DATA SCIENCE)",
-      "CSE-IOT"
+      "CSE(AI&ML)"
     ],
     "recruits": [
       "TCS",
@@ -749,9 +765,8 @@ export const collegesData: College[] = [
       "ME",
       "EE",
       "ECE",
-      "CSE",
-      "CSE(CYBER SECURITY)",
-      "CSE(NETWORKS)"
+      "CSE(NETWORKS)",
+      "CSE(CYBER SECURITY)"
     ],
     "recruits": [
       "TCS",
@@ -780,8 +795,8 @@ export const collegesData: College[] = [
       "CE",
       "ME",
       "EE",
-      "CSE",
-      "CSE-IOT"
+      "CSE(AI&ML)",
+      "CSE(IOT)"
     ],
     "recruits": [
       "TCS",
@@ -810,7 +825,7 @@ export const collegesData: College[] = [
       "CE",
       "ME",
       "EE",
-      "CSE",
+      "CSE(AI)",
       "CSE(DATA SCIENCE)"
     ],
     "recruits": [
@@ -869,8 +884,8 @@ export const collegesData: College[] = [
     "branches": [
       "CE",
       "ME",
-      "MC",
       "EE",
+      "ECE",
       "CSE"
     ],
     "recruits": [
@@ -899,9 +914,10 @@ export const collegesData: College[] = [
     "branches": [
       "CE",
       "ME",
-      "CSE",
+      "EE",
+      "CSE(CYBER SECURITY)",
       "ECE",
-      "CSE(CYBER SECURITY)"
+      "CSE(AI&ML)"
     ],
     "recruits": [
       "TCS",
@@ -962,7 +978,7 @@ export const collegesData: College[] = [
       "ME",
       "EE",
       "ECE",
-      "CSE",
+      "CE(COMPUTER APPLICATION)",
       "CSE(DATA SCIENCE)"
     ],
     "recruits": [
@@ -993,7 +1009,7 @@ export const collegesData: College[] = [
       "ME",
       "EE",
       "ECE",
-      "EE(VLSI)",
+      "ELECTRONICS ENGG. (VLSI DESIGN & TECHNOLOGY)",
       "CSE",
       "CSE(CYBER SECURITY)"
     ],
@@ -1022,12 +1038,11 @@ export const collegesData: College[] = [
     "campusSize": "23 Acres",
     "branches": [
       "CE",
+      "ME",
       "EE",
       "ECE",
-      "CSE",
-      "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING",
       "CSE(DATA SCIENCE)",
-      "CSE(AI&ML)"
+      "ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING"
     ],
     "recruits": [
       "TCS",
@@ -1057,6 +1072,7 @@ export const collegesData: College[] = [
       "ME",
       "EE",
       "ECE",
+      "CSE(AI&ML)",
       "CSE"
     ],
     "recruits": [
@@ -1083,11 +1099,12 @@ export const collegesData: College[] = [
     "description": "GEC Siwan features fully equipped research labs, modern computational clusters, and superb placement cells under UGEAC.",
     "campusSize": "24 Acres",
     "branches": [
+      "CE",
       "ME",
       "EE",
+      "CSE(IOT)",
       "CSE",
-      "EE(VLSI)",
-      "CSE-IOT"
+      "ELECTRONICS ENGG. (VLSI DESIGN & TECHNOLOGY)"
     ],
     "recruits": [
       "TCS",
@@ -1147,9 +1164,8 @@ export const collegesData: College[] = [
       "CE",
       "ME",
       "ECE",
-      "CSE",
-      "EE",
-      "CSE(CYBER SECURITY)"
+      "CSE(CYBER SECURITY)",
+      "EE"
     ],
     "recruits": [
       "TCS",
@@ -1175,11 +1191,10 @@ export const collegesData: College[] = [
     "description": "GEC Munger offers top B.Tech courses with advanced laboratory gear, digital classrooms, and excellent student transit support.",
     "campusSize": "20 Acres",
     "branches": [
-      "CSE",
-      "ECE",
-      "EE",
-      "ME",
       "CE",
+      "ME",
+      "MC",
+      "EE",
       "CSE(DATA SCIENCE)",
       "CSE(AI)"
     ],

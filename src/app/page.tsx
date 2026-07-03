@@ -170,7 +170,7 @@ export default function Homepage() {
   const features = [
     {
       title: "College Predictor",
-      description: "Enter your category, rank, and gender to identify high-probability engineering colleges and B.Tech specializations in Bihar.",
+      description: "Enter your JEE Main percentile / UGEAC state rank, or BCECE rank card details to predict your government engineering & agricultural admission chances in Bihar.",
       href: "/predictor",
       icon: Compass,
       color: "from-[#6366f1]/20 to-[#6366f1]/5",
@@ -361,7 +361,7 @@ export default function Homepage() {
                     
                     <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#06b6d4]/10 via-white to-white dark:from-[#06b6d4]/10 dark:via-slate-900 dark:to-slate-900 border border-[#06b6d4]/20 flex items-center justify-between gap-2 shadow-sm">
                       <div>
-                        <h4 className="text-xs font-extrabold text-slate-855 dark:text-gray-100">MIT Muzaffarpur</h4>
+                        <h4 className="text-xs font-extrabold text-slate-850 dark:text-gray-100">MIT Muzaffarpur</h4>
                         <span className="text-[10px] text-[#6366f1] font-semibold">B.Tech in CSE</span>
                       </div>
                       <div className="text-right">
@@ -374,7 +374,7 @@ export default function Homepage() {
 
                     <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#22d3ee]/10 via-white to-white dark:from-[#22d3ee]/10 dark:via-slate-900 dark:to-slate-900 border border-[#22d3ee]/20 flex items-center justify-between gap-2 shadow-sm">
                       <div>
-                        <h4 className="text-xs font-extrabold text-slate-855 dark:text-gray-100">BCE Bhagalpur</h4>
+                        <h4 className="text-xs font-extrabold text-slate-850 dark:text-gray-100">BCE Bhagalpur</h4>
                         <span className="text-[10px] text-[#6366f1] font-semibold">B.Tech in ECE</span>
                       </div>
                       <div className="text-right">
