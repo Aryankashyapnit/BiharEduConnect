@@ -292,14 +292,14 @@ export default function Homepage() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-[1.1] animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-forwards">
-                Bihar Engineering <br />
+                BiharEduConnect <br />
                 <span className="gradient-text-premium font-black drop-shadow-sm">
-                  Counselling Made Easy
+                  UGEAC & BCECE Counselling
                 </span>
               </h1>
 
               <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed mx-auto lg:mx-0 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150 fill-mode-forwards">
-                Predict government engineering colleges based on rank, compare placements, analyze category-specific cutoffs, check seat matrices, and track admission schedules in one place.
+                BiharEduConnect is the best Bihar BTech admission and college predictor platform. Predict government engineering colleges based on rank, compare placements, analyze category-specific cutoffs, check seat matrices, and track admission schedules in one place.
               </p>
 
               {/* Action buttons */}

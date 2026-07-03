@@ -18,13 +18,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BiharEduConnect - Bihar Engineering Counselling & College Predictor 2026",
-  description: "Calculate your BCECE UGEAC admission chances. Discover cutoffs, seat matrices, fee structures, and compare 38+ government engineering colleges in Bihar.",
-  keywords: "Bihar Engineering Counselling, BCECE, UGEAC 2026, MIT Muzaffarpur, Bihar College Predictor, Bihar BTech Admission, BCE Bhagalpur",
+  title: "BiharEduConnect - Best UGEAC & BCECE Counselling Predictor 2026",
+  description: "BiharEduConnect is the best Bihar BTech admission and college predictor platform. Calculate your BCECE UGEAC admission chances, check cutoffs, seat matrices, and fees for 38+ government engineering colleges.",
+  keywords: "BiharEduConnect, Bihar Engineering Counselling, BCECE, UGEAC 2026, MIT Muzaffarpur, Bihar College Predictor, Bihar BTech Admission, BCE Bhagalpur",
   authors: [{ name: "BiharEduConnect Team" }],
   openGraph: {
-    title: "BiharEduConnect - Bihar Engineering Counselling",
-    description: "Predict engineering colleges in Bihar based on JEE Main / BCECE rank. Get round-wise cutoff analysis and counselling guidelines.",
+    title: "BiharEduConnect - Best UGEAC & BCECE Counselling Predictor",
+    description: "BiharEduConnect is the best Bihar BTech admission and college predictor platform. Calculate your BCECE UGEAC admission chances.",
     type: "website",
     locale: "en_IN",
   }
