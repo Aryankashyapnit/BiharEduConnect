@@ -3,5 +3,5 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 
-Sitemap: https://www.bihareduconnect.online/sitemap.xml
-Sitemap: https://www.bihareduconnect.online/sitemaps.xml
+Sitemap: https://bihareduconnect.online/sitemap.xml
+Sitemap: https://bihareduconnect.online/sitemaps.xml
