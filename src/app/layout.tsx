@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.bihareduconnect.online"),
+  alternates: {
+    canonical: "/",
+  },
   title: "BiharEduConnect - Best UGEAC & BCECE Counselling Predictor 2026",
   description: "BiharEduConnect is the best Bihar BTech admission and college predictor platform. Calculate your BCECE UGEAC admission chances, check cutoffs, seat matrices, and fees for 38+ government engineering colleges.",
   keywords: "BiharEduConnect, Bihar Engineering Counselling, BCECE, UGEAC 2026, MIT Muzaffarpur, Bihar College Predictor, Bihar BTech Admission, BCE Bhagalpur",
